@@ -217,12 +217,12 @@ const Teacher = (() => {
     if (!s) return;
     const text = report(s);
     if (await copyText(text)) App.toast('تم نسخ التقرير ✅ الصقه في واتساب');
-    else prompt('انسخ التقرير من هنا:', text);
+    else App.showText('انسخ التقرير من هنا', text);
   };
   U.actions['t-pin'] = async el => {
     const s = await Store.getStudent(el.dataset.id);
     if (!s) return;
-    const pin = prompt('الرمز السري الجديد (4 أرقام):', s.pin);
+    const pin = await App.ask('الرمز السري الجديد (4 أرقام):', s.pin);
     if (pin === null) return;
     if (!/^\d{4}$/.test(pin.trim())) { App.toast('الرمز يجب أن يكون 4 أرقام'); return; }
     await Store.updateStudent(s.id, { pin: pin.trim() });
@@ -231,7 +231,7 @@ const Teacher = (() => {
   };
   U.actions['t-reset'] = async el => {
     const s = await Store.getStudent(el.dataset.id);
-    if (s && confirm(`تصفير كل تقدم ${s.name}؟ لا يمكن التراجع.`)) {
+    if (s && await App.confirm(`تصفير كل تقدم ${s.name}؟ لا يمكن التراجع.`, { okLabel: 'تصفير', danger: true })) {
       await Store.resetProgress(s.id);
       App.toast('تم التصفير');
       studentView(s.id);
@@ -239,7 +239,7 @@ const Teacher = (() => {
   };
   U.actions['t-delete'] = async el => {
     const s = await Store.getStudent(el.dataset.id);
-    if (s && confirm(`حذف الطالب ${s.name} نهائيًا؟`)) {
+    if (s && await App.confirm(`حذف الطالب ${s.name} نهائيًا؟`, { okLabel: 'حذف', danger: true })) {
       await Store.deleteStudent(s.id);
       App.go('#/teacher');
     }

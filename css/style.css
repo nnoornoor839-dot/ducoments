@@ -42,7 +42,7 @@ p { margin: 0 0 .5rem; }
 
 /* الشريط العلوي */
 #topbar {
-  position: sticky; top: 0; z-index: 20;
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
   display: flex; align-items: center; justify-content: space-between; gap: .5rem;
   padding: .55rem 1rem;
   background: var(--brand); color: #fff;
@@ -146,7 +146,7 @@ input:focus, select:focus { outline: none; border-color: var(--brand); }
 .mode .ic { font-size: 2rem; }
 .mode small { color: var(--muted); font-size: .78rem; line-height: 1.35; }
 .speedbar { display: flex; gap: .4rem; justify-content: center; }
-.sticky-speed { position: sticky; top: 52px; z-index: 10; background: var(--bg); padding: .4rem 0; }
+.sticky-speed { position: sticky; top: calc(52px + env(safe-area-inset-top, 0px)); z-index: 10; background: var(--bg); padding: .4rem 0; }
 .sp { flex: 1; max-width: 160px; min-height: 42px; border: 2px solid var(--line); background: #fff; border-radius: 14px; font-size: .85rem; font-weight: 700; }
 .sp.on { background: var(--brand); border-color: var(--brand); color: #fff; }
 .words { display: grid; gap: .8rem; }
@@ -260,6 +260,14 @@ ul.log li { display: flex; justify-content: space-between; gap: .5rem; flex-wrap
   opacity: 0; visibility: hidden; pointer-events: none;
 }
 #toast.show { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
+
+/* نافذة داخل الصفحة */
+.modal-wrap { position: fixed; inset: 0; background: rgba(30, 20, 70, .5); display: grid; place-items: center; padding: 1rem; z-index: 70; }
+.modal { background: var(--card); border-radius: var(--radius); padding: 1.2rem; width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(30, 20, 70, .35); display: grid; gap: .8rem; }
+.modal h3, .modal p { margin: 0; }
+.modal input { text-align: center; font-size: 1.3rem; letter-spacing: .4em; }
+.modal textarea { width: 100%; border: 2px solid var(--line); border-radius: 14px; padding: .6rem; font: inherit; font-size: .9rem; resize: none; background: #fff; color: var(--ink); }
+.modal .row { margin: 0; }
 
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
 @keyframes pop { 0% { transform: scale(.2); opacity: 0; } 70% { transform: scale(1.25); } 100% { transform: scale(1); opacity: 1; } }

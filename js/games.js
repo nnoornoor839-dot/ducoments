@@ -306,8 +306,12 @@ const Games = (() => {
       abort() { finished = true; clearInterval(timer); Speech.stop(); },
       on(act, el) {
         if (act === 'exit') {
-          if (!finished && firstTotal > 0 && !confirm('هل تريد الخروج؟ ستضيع نقاط هذه الجولة.')) return;
-          App.go(backHash);
+          if (!finished && firstTotal > 0) {
+            App.confirm('هل تريد الخروج؟ ستضيع نقاط هذه الجولة.', { okLabel: 'خروج', danger: true })
+              .then(ok => { if (ok) App.go(backHash); });
+          } else {
+            App.go(backHash);
+          }
         } else if (act === 'again') {
           route(mode, gradeId, unitId);
         } else if (finished) {
