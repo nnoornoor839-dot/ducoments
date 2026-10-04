@@ -1,0 +1,94 @@
+// نطق الكلمات والجمل بسرعات مختلفة (Web Speech API)
+const Speech = (() => {
+  const supported = typeof window !== 'undefined'
+    && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
+
+  const SPEEDS = [
+    { id: 'vslow', label: 'بطيء جدًا', emoji: '🐢', rate: 0.5 },
+    { id: 'slow', label: 'بطيء', emoji: '🚶', rate: 0.75 },
+    { id: 'normal', label: 'عادي', emoji: '🏃', rate: 1 }
+  ];
+
+  let speedId = U.lsGet('kalimati.speed', 'slow');
+  if (!SPEEDS.some(s => s.id === speedId)) speedId = 'slow';
+
+  let voice = null;
+  let token = 0;       // كل تشغيل جديد يلغي ما قبله
+  let current = null;  // نحتفظ بالمرجع كي لا يحذفه المتصفح قبل انتهاء النطق
+
+  function pickVoice() {
+    if (!supported) return;
+    const vs = speechSynthesis.getVoices().filter(v => /^en[-_]/i.test(v.lang));
+    if (!vs.length) { voice = null; return; }
+    const score = v =>
+      (/en[-_]US/i.test(v.lang) ? 3 : /en[-_]GB/i.test(v.lang) ? 2 : 1) +
+      (/google|microsoft|samantha|natural|online/i.test(v.name) ? 2 : 0);
+    voice = vs.slice().sort((a, b) => score(b) - score(a))[0];
+  }
+  if (supported) {
+    pickVoice();
+    speechSynthesis.onvoiceschanged = pickVoice;
+  }
+
+  const rate = () => SPEEDS.find(s => s.id === speedId).rate;
+
+  function one(text, r) {
+    return new Promise(resolve => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US';
+      if (voice) u.voice = voice;
+      u.rate = r;
+      current = u;
+      let done = false;
+      let timer = null;
+      const fin = () => { if (!done) { done = true; clearTimeout(timer); resolve(); } };
+      u.onend = fin;
+      u.onerror = fin;
+      timer = setTimeout(fin, 2500 + (text.length * 350) / r);  // احتياط إن لم يصل حدث الانتهاء
+      speechSynthesis.speak(u);
+    });
+  }
+
+  // items: نص، أو {text, rate}، أو {pause: ms}. يُرجع true إن اكتمل التشغيل دون إلغاء.
+  async function say(items) {
+    if (!supported) return false;
+    const my = ++token;
+    speechSynthesis.cancel();
+    await U.wait(60);
+    for (const it of items) {
+      if (my !== token) return false;
+      const o = typeof it === 'string' ? { text: it } : it;
+      if (o.pause) { await U.wait(o.pause); continue; }
+      await one(o.text, o.rate ?? rate());
+    }
+    return my === token;
+  }
+
+  return {
+    supported,
+    SPEEDS,
+    getSpeed: () => speedId,
+    setSpeed(id) {
+      if (SPEEDS.some(s => s.id === id)) { speedId = id; U.lsSet('kalimati.speed', id); }
+    },
+    stop() { token++; if (supported) speechSynthesis.cancel(); },
+    word: text => say([text]),
+    sentence: text => say([text]),
+    repeat: (text, n = 3) => say(Array.from({ length: n }, (_, i) => (i ? [{ pause: 550 }, text] : [text])).flat()),
+    // تهجئة الحروف واحدًا واحدًا ثم نطق الكلمة
+    spell(text) {
+      const items = [];
+      for (const ch of text.replace(/[^A-Za-z]/g, '')) items.push(ch.toUpperCase(), { pause: 220 });
+      items.push({ pause: 250 }, text);
+      return say(items);
+    },
+    // جملة بها فراغ: نقرأ ما قبله، نصمت، ثم نقرأ ما بعده
+    blanked(before, after) {
+      const items = [];
+      if (before.trim()) items.push(before.trim());
+      items.push({ pause: 800 });
+      if (after.trim()) items.push(after.trim());
+      return say(items);
+    }
+  };
+})();
