@@ -13,6 +13,8 @@ const Games = (() => {
 
   const esc = U.esc;
   const tokens = w => (w.sentence ? w.sentence.trim().split(/\s+/) : []);
+  // مقارنة الإملاء: نتجاهل حالة الأحرف وعلامات الترقيم والأقواس (smell (good) = smell good)
+  const norm = t => String(t).toLowerCase().replace(/[\u2018\u2019]/g, "'").replace(/[^a-z0-9\s']/g, ' ').replace(/\s+/g, ' ').trim();
 
   function hl(w) {
     const b = Cur.blank(w);
@@ -296,7 +298,7 @@ const Games = (() => {
       if (!input || locked) return;
       const val = input.value.trim().toLowerCase();
       if (!val) return;
-      const ok = val === q.w.en.trim().toLowerCase();
+      const ok = norm(val) === norm(q.w.en);
       input.disabled = true;
       input.classList.add(ok ? 'right' : 'wrong');
       answer(ok, esc(q.w.en));
@@ -388,5 +390,5 @@ const Games = (() => {
   U.forms.spell = () => active && active.on('spell-submit');
   U.actions.say = el => Speech.word(el.dataset.text);
 
-  return { MODES, route, hl, abort() { if (active) { active.abort(); active = null; } } };
+  return { MODES, route, hl, norm, abort() { if (active) { active.abort(); active = null; } } };
 })();

@@ -243,8 +243,10 @@ const Store = (() => {
     // ---- المنهج الذي يدخله المعلم (محلي على هذا الجهاز حاليًا) ----
     curriculumSource() { return state.curriculum || window.CURRICULUM; },
     isCustomCurriculum() { return !!state.curriculum; },
-    saveCurriculum(data) { state.curriculum = data; save(); Cur.reload(data); },
-    resetCurriculum() { delete state.curriculum; save(); Cur.reload(window.CURRICULUM); },
+    // النسخة المحلية أقدم من الكلمات المضمّنة في التطبيق؟
+    isCurriculumStale() { return !!state.curriculum && state.curriculumBase !== ((window.CURRICULUM || {}).version || ''); },
+    saveCurriculum(data) { state.curriculum = data; state.curriculumBase = (window.CURRICULUM || {}).version || ''; save(); Cur.reload(data); },
+    resetCurriculum() { delete state.curriculum; delete state.curriculumBase; save(); Cur.reload(window.CURRICULUM); },
 
     // تسجيل مرات تكرار كلمة (للمعلم: كم كرّر الطالب)
     async recordReps(sid, wid, n) {

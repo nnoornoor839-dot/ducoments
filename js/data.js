@@ -1,185 +1,12 @@
 // ملف مُولَّد تلقائيًا بواسطة tools/csv_to_data.py — لا تعدّله يدويًا
 window.CURRICULUM = {
- "generatedAt": "2026-10-04",
+ "version": "202610050630",
  "grades": [
-  {
-   "id": "g3",
-   "name": "الثالث الابتدائي",
-   "short": "3 ابتدائي",
-   "units": [
-    {
-     "id": "u1",
-     "title": "Unit 1: School (تجريبي)",
-     "words": [
-      {
-       "en": "book",
-       "ar": "كتاب",
-       "sentence": "I read a book at school.",
-       "sentenceAr": "أقرأ كتابًا في المدرسة.",
-       "page": "10"
-      },
-      {
-       "en": "pen",
-       "ar": "قلم",
-       "sentence": "This is my blue pen.",
-       "sentenceAr": "هذا قلمي الأزرق.",
-       "page": "10"
-      },
-      {
-       "en": "desk",
-       "ar": "مكتب",
-       "sentence": "The book is on the desk.",
-       "sentenceAr": "الكتاب على المكتب.",
-       "page": "11"
-      },
-      {
-       "en": "bag",
-       "ar": "حقيبة",
-       "sentence": "My bag is very big.",
-       "sentenceAr": "حقيبتي كبيرة جدًا.",
-       "page": "11"
-      },
-      {
-       "en": "teacher",
-       "ar": "معلم",
-       "sentence": "The teacher is kind.",
-       "sentenceAr": "المعلم لطيف.",
-       "page": "12"
-      },
-      {
-       "en": "ruler",
-       "ar": "مسطرة",
-       "sentence": "I have a long ruler.",
-       "sentenceAr": "لدي مسطرة طويلة.",
-       "page": "12"
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "id": "g4",
-   "name": "الرابع الابتدائي",
-   "short": "4 ابتدائي",
-   "units": []
-  },
   {
    "id": "g5",
    "name": "الخامس الابتدائي",
    "short": "5 ابتدائي",
-   "units": [
-    {
-     "id": "u1",
-     "title": "Unit 1: Food (تجريبي)",
-     "words": [
-      {
-       "en": "bread",
-       "ar": "خبز",
-       "sentence": "I eat bread for breakfast.",
-       "sentenceAr": "آكل الخبز على الفطور.",
-       "page": "24"
-      },
-      {
-       "en": "apple",
-       "ar": "تفاحة",
-       "sentence": "She has a red apple.",
-       "sentenceAr": "معها تفاحة حمراء.",
-       "page": "24"
-      },
-      {
-       "en": "milk",
-       "ar": "حليب",
-       "sentence": "My brother drinks milk every morning.",
-       "sentenceAr": "يشرب أخي الحليب كل صباح.",
-       "page": "25"
-      },
-      {
-       "en": "eat",
-       "ar": "يأكل",
-       "sentence": "She eats rice every day.",
-       "sentenceAr": "هي تأكل الأرز كل يوم.",
-       "page": "25",
-       "form": "eats"
-      },
-      {
-       "en": "cheese",
-       "ar": "جبن",
-       "sentence": "Do you like cheese?",
-       "sentenceAr": "هل تحب الجبن؟",
-       "page": "26"
-      },
-      {
-       "en": "water",
-       "ar": "ماء",
-       "sentence": "We need water to live.",
-       "sentenceAr": "نحتاج الماء لنعيش.",
-       "page": "26"
-      },
-      {
-       "en": "egg",
-       "ar": "بيضة",
-       "sentence": "He has an egg and a banana.",
-       "sentenceAr": "عنده بيضة وموزة.",
-       "page": "27"
-      },
-      {
-       "en": "fish",
-       "ar": "سمك",
-       "sentence": "My father cooks fish on Friday.",
-       "sentenceAr": "يطبخ أبي السمك يوم الجمعة.",
-       "page": "27"
-      }
-     ]
-    },
-    {
-     "id": "u2",
-     "title": "Unit 2: Animals (تجريبي)",
-     "words": [
-      {
-       "en": "cat",
-       "ar": "قطة",
-       "sentence": "The cat is under the table.",
-       "sentenceAr": "القطة تحت الطاولة.",
-       "page": "38"
-      },
-      {
-       "en": "dog",
-       "ar": "كلب",
-       "sentence": "The dog runs in the garden.",
-       "sentenceAr": "الكلب يجري في الحديقة.",
-       "page": "38"
-      },
-      {
-       "en": "bird",
-       "ar": "طائر",
-       "sentence": "A small bird sits on the tree.",
-       "sentenceAr": "يجلس طائر صغير على الشجرة.",
-       "page": "39"
-      },
-      {
-       "en": "horse",
-       "ar": "حصان",
-       "sentence": "The horse is very fast.",
-       "sentenceAr": "الحصان سريع جدًا.",
-       "page": "39"
-      },
-      {
-       "en": "cow",
-       "ar": "بقرة",
-       "sentence": "The cow gives us milk.",
-       "sentenceAr": "تعطينا البقرة الحليب.",
-       "page": "40"
-      },
-      {
-       "en": "rabbit",
-       "ar": "أرنب",
-       "sentence": "The rabbit likes carrots.",
-       "sentenceAr": "الأرنب يحب الجزر.",
-       "page": "40"
-      }
-     ]
-    }
-   ]
+   "units": []
   },
   {
    "id": "g6",
@@ -188,71 +15,237 @@ window.CURRICULUM = {
    "units": []
   },
   {
-   "id": "m1",
-   "name": "الأول المتوسط",
-   "short": "1 متوسط",
+   "id": "m2",
+   "name": "الثاني المتوسط",
+   "short": "2 متوسط",
    "units": [
     {
-     "id": "u1",
-     "title": "Unit 1: Daily Life (تجريبي)",
+     "id": "u2",
+     "title": "Unit 2: What Are They Making?",
      "words": [
       {
-       "en": "wake up",
-       "ar": "يستيقظ",
-       "sentence": "I wake up at six o'clock.",
-       "sentenceAr": "أستيقظ في الساعة السادسة.",
-       "page": "8"
+       "en": "actor",
+       "ar": "ممثل",
+       "sentence": "Choose a director, a cameraman, and two or three actors.",
+       "sentenceAr": "اختر مخرجًا ومصوّرًا واثنين أو ثلاثة ممثلين.",
+       "page": "17",
+       "form": "actors"
       },
       {
-       "en": "breakfast",
-       "ar": "فطور",
-       "sentence": "We have breakfast together.",
-       "sentenceAr": "نتناول الفطور معًا.",
-       "page": "8"
+       "en": "balance",
+       "ar": "توازن",
+       "sentence": "It's about physical strength and balance.",
+       "sentenceAr": "الأمر يتعلق بالقوة البدنية والتوازن.",
+       "page": "14"
       },
       {
-       "en": "homework",
-       "ar": "واجب منزلي",
-       "sentence": "She does her homework after school.",
-       "sentenceAr": "تؤدي واجبها بعد المدرسة.",
-       "page": "9"
+       "en": "cameraman",
+       "ar": "مصوّر الكاميرا",
+       "sentence": "The cameraman is filming the scene.",
+       "sentenceAr": "مصوّر الكاميرا يصوّر المشهد.",
+       "page": "17"
       },
       {
-       "en": "early",
-       "ar": "مبكرًا",
-       "sentence": "My father goes to work early.",
-       "sentenceAr": "يذهب أبي إلى العمل مبكرًا.",
-       "page": "9"
+       "en": "crew",
+       "ar": "طاقم العمل",
+       "sentence": "What is the crew painting?",
+       "sentenceAr": "ماذا يدهن طاقم العمل؟",
+       "page": "13"
       },
       {
-       "en": "sleep",
-       "ar": "ينام",
-       "sentence": "Children should sleep at night.",
-       "sentenceAr": "ينبغي أن ينام الأطفال ليلًا.",
+       "en": "detective",
+       "ar": "محقّق",
+       "sentence": "It's a detective story.",
+       "sentenceAr": "إنها قصة محقّق (قصة بوليسية).",
+       "page": "12"
+      },
+      {
+       "en": "director",
+       "ar": "مخرج",
+       "sentence": "Eric McGuire is the director.",
+       "sentenceAr": "إريك ماكغواير هو المخرج.",
+       "page": "12"
+      },
+      {
+       "en": "documentary",
+       "ar": "فيلم وثائقي",
+       "sentence": "Well, it's a documentary series about martial arts.",
+       "sentenceAr": "حسنًا، إنه مسلسل وثائقي عن الفنون القتالية.",
+       "page": "14"
+      },
+      {
+       "en": "episode",
+       "ar": "حلقة",
+       "sentence": "Are you planning a lot of episodes?",
+       "sentenceAr": "هل تخطط لحلقات كثيرة؟",
+       "page": "14",
+       "form": "episodes"
+      },
+      {
+       "en": "ladder",
+       "ar": "سلّم",
+       "sentence": "Help! He's breaking my ladder.",
+       "sentenceAr": "النجدة! إنه يكسر سلّمي.",
+       "page": "11"
+      },
+      {
+       "en": "location",
+       "ar": "موقع التصوير",
+       "sentence": "We're filming the studio scenes here in Hong Kong and the rest in locations all over Asia.",
+       "sentenceAr": "نصوّر مشاهد الاستوديو هنا في هونغ كونغ، وبقية المشاهد في مواقع في أنحاء آسيا.",
+       "page": "14",
+       "form": "locations"
+      },
+      {
+       "en": "martial arts",
+       "ar": "فنون قتالية",
+       "sentence": "I like martial arts films.",
+       "sentenceAr": "أحب أفلام الفنون القتالية.",
+       "page": "12"
+      },
+      {
+       "en": "scene",
+       "ar": "مشهد",
+       "sentence": "Work in a group to prepare a scene for a detective film.",
+       "sentenceAr": "اعملوا في مجموعة لتحضير مشهد لفيلم بوليسي.",
+       "page": "17"
+      },
+      {
+       "en": "script",
+       "ar": "نص التمثيل (سيناريو)",
+       "sentence": "I'm writing a new script.",
+       "sentenceAr": "أنا أكتب نصًا جديدًا.",
+       "page": "11"
+      },
+      {
+       "en": "studio",
+       "ar": "استوديو",
+       "sentence": "Ask and answer about the people in the TV studio.",
+       "sentenceAr": "اسأل وأجب عن الأشخاص في استوديو التلفزيون.",
+       "page": "11"
+      },
+      {
+       "en": "stunt",
+       "ar": "مشهد خطِر",
+       "sentence": "Are the stunts dangerous?",
+       "sentenceAr": "هل هذه المشاهد الخطِرة خطيرة؟",
+       "page": "14",
+       "form": "stunts"
+      },
+      {
+       "en": "stuntman",
+       "ar": "بديل الممثل في المشاهد الخطرة",
+       "sentence": "Are you using a stuntman for the martial arts scenes?",
+       "sentenceAr": "هل تستعين ببديل للممثل في مشاهد الفنون القتالية؟",
+       "page": "14"
+      },
+      {
+       "en": "TV series",
+       "ar": "مسلسل تلفزيوني",
+       "sentence": "They are making a TV series.",
+       "sentenceAr": "إنهم يصنعون مسلسلًا تلفزيونيًا.",
+       "page": "12"
+      },
+      {
+       "en": "break",
+       "ar": "يكسر",
+       "sentence": "Help! He's breaking my ladder.",
+       "sentenceAr": "النجدة! إنه يكسر سلّمي.",
+       "page": "11",
+       "form": "breaking"
+      },
+      {
+       "en": "come back",
+       "ar": "يعود",
+       "sentence": "Why are you running away? Come back!",
+       "sentenceAr": "لماذا تهرب؟ عُد!",
+       "page": "11"
+      },
+      {
+       "en": "feed",
+       "ar": "يُطعم",
+       "sentence": "Why are you feeding the fish?",
+       "sentenceAr": "لماذا تُطعم السمك؟",
+       "page": "10",
+       "form": "feeding"
+      },
+      {
+       "en": "film",
+       "ar": "يصوّر (فيلمًا)",
+       "sentence": "Where are they filming?",
+       "sentenceAr": "أين يصوّرون؟",
+       "page": "13",
+       "form": "filming"
+      },
+      {
+       "en": "look around",
+       "ar": "ينظر حوله",
+       "sentence": "Don't look around, Yao.",
+       "sentenceAr": "لا تنظر حولك يا ياو.",
        "page": "10"
       },
       {
-       "en": "usually",
-       "ar": "عادةً",
-       "sentence": "He usually walks to school.",
-       "sentenceAr": "هو عادةً يمشي إلى المدرسة.",
+       "en": "run away",
+       "ar": "يهرب",
+       "sentence": "The mouse is running away.",
+       "sentenceAr": "الفأر يهرب.",
+       "page": "17",
+       "form": "running away"
+      },
+      {
+       "en": "smell (good)",
+       "ar": "رائحته طيبة",
+       "sentence": "The soup smells good, but it tastes terrible.",
+       "sentenceAr": "رائحة الحساء طيبة، لكن طعمه فظيع.",
+       "page": "10",
+       "form": "smells good"
+      },
+      {
+       "en": "taste (bad)",
+       "ar": "طعمه سيّئ",
+       "sentence": "The soup smells good, but it tastes terrible.",
+       "sentenceAr": "رائحة الحساء طيبة، لكن طعمه فظيع.",
+       "page": "10",
+       "form": "tastes terrible"
+      },
+      {
+       "en": "Excellent",
+       "ar": "ممتاز",
+       "sentence": "I love pizza. It's excellent.",
+       "sentenceAr": "أحب البيتزا. إنها ممتازة.",
        "page": "10"
+      },
+      {
+       "en": "No, that's wrong",
+       "ar": "لا، هذا خطأ",
+       "sentence": "No, that's wrong, Lee.",
+       "sentenceAr": "لا، هذا خطأ يا لي.",
+       "page": "10"
+      },
+      {
+       "en": "all by myself",
+       "ar": "بمفردي",
+       "sentence": "No. I'm doing the stunts all by myself.",
+       "sentenceAr": "لا. أنا أؤدي المشاهد الخطرة بمفردي.",
+       "page": "14"
+      },
+      {
+       "en": "Not at all",
+       "ar": "إطلاقًا",
+       "sentence": "Not at all. I'm trained in karate.",
+       "sentenceAr": "إطلاقًا. أنا مدرَّب على الكاراتيه.",
+       "page": "14"
+      },
+      {
+       "en": "So",
+       "ar": "إذن (لبدء موضوع جديد في الحديث)",
+       "sentence": "So, Jet, how's the new project going?",
+       "sentenceAr": "إذن يا جت، كيف يسير المشروع الجديد؟",
+       "page": "14"
       }
      ]
     }
    ]
-  },
-  {
-   "id": "m2",
-   "name": "الثاني المتوسط",
-   "short": "2 متوسط",
-   "units": []
-  },
-  {
-   "id": "m3",
-   "name": "الثالث المتوسط",
-   "short": "3 متوسط",
-   "units": []
   }
  ]
 };

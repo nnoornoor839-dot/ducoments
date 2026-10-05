@@ -97,11 +97,16 @@ const Content = (() => {
     app().innerHTML = `
       <button class="back" data-go="#/teacher">‹ رجوع للوحة</button>
       <h2 class="section-title">📝 إدارة الكلمات</h2>
-      ${Store.isCustomCurriculum() ? '' : `
+      ${Store.isCurriculumStale() ? `
+        <div class="card warn small">
+          نُشرت <b>كلمات جديدة</b> في التطبيق، وما تراه الآن نسخة قديمة محفوظة على هذا الجهاز.
+          انسخ كلماتك أولًا (من «نسخ كل الكلمات») إن أضفت شيئًا تريد الاحتفاظ به.
+          <div class="row"><button class="btn" data-act="c-reset">♻️ تحميل الكلمات الجديدة</button></div>
+        </div>` : (!Store.isCustomCurriculum() && (window.CURRICULUM || {}).sample ? `
         <div class="card warn small">
           الكلمات الحالية <b>أمثلة تجريبية</b> وضعتها للتجربة.
           <div class="row"><button class="btn ghost" data-act="c-clear">🗑️ حذف الأمثلة والبدء بكلماتك</button></div>
-        </div>`}
+        </div>` : '')}
       <div class="gchips">${grades.map(x =>
         `<button class="gchip ${x.id === g.id ? 'on' : ''}" data-go="#/teacher/content/${x.id}">${esc(x.name)} <small>(${gradeCount(x)})</small></button>`).join('')}</div>
       <h3>${esc(g.name)}</h3>
@@ -118,7 +123,7 @@ const Content = (() => {
       <div class="row wrap">
         <button class="btn ghost" data-act="c-export">📤 نسخ كل الكلمات</button>
         <button class="btn ghost" data-act="c-import">📥 استيراد كلمات</button>
-        ${Store.isCustomCurriculum() ? '<button class="btn ghost" data-act="c-reset">♻️ العودة للأمثلة</button>' : ''}
+        ${Store.isCustomCurriculum() ? '<button class="btn ghost" data-act="c-reset">♻️ العودة للكلمات المضمّنة</button>' : ''}
       </div>`;
   }
 
@@ -297,7 +302,7 @@ const Content = (() => {
     home(ctx.gid);
   };
   U.actions['c-reset'] = async () => {
-    if (!(await App.confirm('العودة للأمثلة التجريبية؟ ستُحذف الكلمات التي أدخلتها.', { okLabel: 'العودة للأمثلة', danger: true }))) return;
+    if (!(await App.confirm('العودة للكلمات المضمّنة في التطبيق؟ ستُحذف التعديلات التي أدخلتها على هذا الجهاز.', { okLabel: 'نعم، استبدلها', danger: true }))) return;
     Store.resetCurriculum();
     home(ctx.gid);
   };
