@@ -4,8 +4,8 @@ const Speech = (() => {
     && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
 
   const SPEEDS = [
-    { id: 'vslow', label: 'بطيء جدًا', emoji: '🐢', rate: 0.5 },
-    { id: 'slow', label: 'بطيء', emoji: '🚶', rate: 0.75 },
+    { id: 'vslow', label: 'بطيء جدًا', emoji: '🐢', rate: 0.35 },
+    { id: 'slow', label: 'بطيء', emoji: '🚶', rate: 0.5 },
     { id: 'normal', label: 'عادي', emoji: '🏃', rate: 1 }
   ];
 

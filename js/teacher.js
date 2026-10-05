@@ -57,11 +57,11 @@ const Teacher = (() => {
       const info = Progress.levelInfo(s.xp);
       const late = needsFollowUp(s);
       return `
-        <button class="t-student ${late ? 'late' : ''}" data-go="#/teacher/s/${s.id}">
+        <button class="t-student ${late ? 'late' : ''}" data-go="#/teacher/s/${s.id}" data-name="${esc(s.name)}">
           <span class="av">${s.avatar}</span>
           <span class="t-main">
             <b>${esc(s.name)}</b>
-            <small>${esc(gradeName(s.grade))} • مستوى ${info.level}</small>
+            <small>${esc(gradeName(s.grade))} • مستوى ${info.level} • <span class="t-pin">🔑 ${esc(s.pin)}</span></small>
             <span class="meter"><i style="width:${gs.pct}%"></i></span>
           </span>
           <span class="t-side">
@@ -85,8 +85,24 @@ const Teacher = (() => {
           ? '<button class="btn ghost" data-act="t-demo-clear">🗑️ حذف الطلاب التجريبيين</button>'
           : '<button class="btn ghost" data-act="t-demo">🧪 بيانات تجريبية للعرض</button>'}
       </div>
-      ${rows ? `<div class="t-list">${rows}</div>` : '<p class="card muted empty">لا يوجد طلاب بعد. أضف أول طالب، أو حمّل بيانات تجريبية لترى كيف تبدو اللوحة.</p>'}
+      ${students.length > 3 ? `
+        <div class="t-search">
+          <input type="search" id="t-search-in" placeholder="🔍 ابحث عن طالب..." aria-label="بحث عن طالب" autocomplete="off">
+        </div>` : ''}
+      ${rows ? `<div class="t-list" id="t-list">${rows}</div>` : '<p class="card muted empty">لا يوجد طلاب بعد. أضف أول طالب، أو حمّل بيانات تجريبية لترى كيف تبدو اللوحة.</p>'}
       <p class="muted small note">ملاحظة: في هذه النسخة التجريبية تُحفظ البيانات على هذا الجهاز فقط. الربط بقاعدة بيانات سحابية (لمتابعة الطلاب من أجهزتهم) هو الخطوة التالية.</p>`;
+
+    // تفعيل البحث
+    const searchIn = document.getElementById('t-search-in');
+    if (searchIn) {
+      searchIn.addEventListener('input', () => {
+        const q = searchIn.value.trim().toLowerCase();
+        document.querySelectorAll('#t-list .t-student').forEach(el => {
+          const name = (el.dataset.name || '').toLowerCase();
+          el.style.display = !q || name.includes(q) ? '' : 'none';
+        });
+      });
+    }
   }
 
   // ---------- إضافة طالب ----------
@@ -151,7 +167,7 @@ const Teacher = (() => {
         <div class="u-row">
           <div class="u-top"><b class="en" dir="ltr">${esc(u.title)}</b><span>${st.mastered}/${st.total}</span></div>
           <div class="meter"><i style="width:${st.pct}%"></i></div>
-          <small class="muted">النجوم: ${'★'.repeat(rec.stars || 0)}${'☆'.repeat(3 - (rec.stars || 0))}${rec.speedBest ? ` • أفضل تحدٍّ: ${rec.speedBest}` : ''}</small>
+          <small class="muted">النجوم: ${'★'.repeat(rec.stars || 0)}${'☆'.repeat(3 - (rec.stars || 0))}</small>
         </div>`;
     }).join('') : '';
 

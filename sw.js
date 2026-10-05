@@ -1,5 +1,5 @@
 // خدمة بسيطة للعمل بدون إنترنت: الشبكة أولًا، وإن فشلت نستخدم النسخة المخزّنة.
-const CACHE = 'kalimati-v2';
+const CACHE = 'kalimati-v3';
 const CORE = [
   './', 'index.html', 'manifest.webmanifest', 'icon.svg', 'css/style.css',
   'js/util.js', 'js/data.js', 'js/sfx.js', 'js/speech.js', 'js/store.js',
