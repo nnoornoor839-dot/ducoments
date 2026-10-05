@@ -14,7 +14,7 @@ const Cur = (() => {
     index = {};
     data.grades.forEach(g => {
       g.units = g.units || [];
-      g.units.forEach(u => { if (u.num === undefined) u.num = unitNumOf(u); });
+      g.units.forEach(u => { u.gradeId = g.id; if (u.num === undefined) u.num = unitNumOf(u); });
       g.units.sort((a, b) => a.num - b.num);
       g.units.forEach(u => (u.words = u.words || []).forEach(w => {
         const base = w.key || U.slug(w.en);
@@ -112,14 +112,32 @@ const Progress = (() => {
     if (!r || !r.seen) return 'new';
     return r.box >= MASTERED_BOX ? 'mastered' : 'learning';
   }
+  // النطاق المسند للطالب في وحدة: [من، إلى، نهاية الإسناد السابق] أو null إن لم يُسند شيء
+  function rangeOf(s, unit) {
+    const r = s.ranges && s.ranges[unit.gradeId + '.' + unit.id];
+    if (!r || !(r[1] >= r[0]) || r[1] < 1) return null;
+    const total = unit.words.length;
+    const from = Math.max(1, r[0]);
+    const to = Math.min(total, r[1]);
+    if (to < from) return null;
+    const prev = r[2] >= from - 1 && r[2] < to ? r[2] : to;
+    return [from, to, prev];
+  }
+  // الكلمات المسندة (بالترتيب) مع رقم كل كلمة في قائمة الوحدة وهل هي جديدة
+  function assigned(s, unit) {
+    const r = rangeOf(s, unit);
+    if (!r) return [];
+    return unit.words.slice(r[0] - 1, r[1]).map((w, i) => ({ w, n: r[0] + i, isNew: r[0] + i > r[2] }));
+  }
   function unitStats(s, unit) {
     let mastered = 0, learning = 0, fresh = 0;
-    unit.words.forEach(w => {
+    const list = assigned(s, unit);
+    list.forEach(({ w }) => {
       const st = wordStatus(s, w.id);
       if (st === 'mastered') mastered++; else if (st === 'learning') learning++; else fresh++;
     });
-    const total = unit.words.length;
-    return { total, mastered, learning, fresh, pct: total ? Math.round(mastered / total * 100) : 0 };
+    const total = list.length;
+    return { total, mastered, learning, fresh, all: unit.words.length, pct: total ? Math.round(mastered / total * 100) : 0 };
   }
   function gradeStats(s, grade) {
     const t = { total: 0, mastered: 0, learning: 0, fresh: 0, pct: 0 };
@@ -160,7 +178,7 @@ const Progress = (() => {
       .map(([id, r]) => ({ word: Cur.word(id), wrong: r.wrong, seen: r.seen }));
   }
 
-  return { LEVELS, DAILY_GOAL, wordStatus, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, INTERVAL_DAYS };
+  return { LEVELS, DAILY_GOAL, wordStatus, rangeOf, assigned, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, INTERVAL_DAYS };
 })();
 
 // ---------- التخزين ----------
@@ -542,27 +560,49 @@ const Store = (() => {
       return !Object.values(state.students).some(s => s.grade === gradeId && s.pin === p && s.id !== excludeId);
     },
 
-    // نطاق الاختبار لكل طالب في كل وحدة
-    setRange(sid, gid, uid, from, to) {
+    // الكلمات المسندة لكل طالب في كل وحدة: [من، إلى، نهاية الإسناد السابق]. إلى = 0 تعني لا شيء مسند.
+    setRange(sid, gid, uid, from, to, prev) {
       const s = state.students[sid];
       if (!s) return;
       if (!s.ranges) s.ranges = {};
       const rk = gid + '.' + uid;
-      s.ranges[rk] = [from, to];
+      const range = [from, to, prev === undefined ? to : prev];
+      s.ranges[rk] = range;
       save();
-      queue({ key: `range:${sid}:${rk}`, op: 'range', sid, rk, range: [from, to] });
+      queue({ key: `range:${sid}:${rk}`, op: 'range', sid, rk, range });
     },
+    // النطاق الفعلي بعد ضبطه على حجم الوحدة، أو null إن لم يُسند شيء
     getRange(sid, gid, uid) {
-      const s = state.students[sid];
-      if (!s || !s.ranges) return null;
-      return s.ranges[gid + '.' + uid] || null;
+      const s = state.students[sid], unit = Cur.unit(gid, uid);
+      return s && unit ? Progress.rangeOf(s, unit) : null;
+    },
+    // إسناد n كلمات جديدة بعد المسند حاليًا (الاختبار يبقى تراكميًا من أول المسند)
+    addWords(sid, gid, uid, n) {
+      const s = state.students[sid], unit = Cur.unit(gid, uid);
+      if (!s || !unit) return null;
+      const cur = Progress.rangeOf(s, unit);
+      const from = cur ? cur[0] : 1, old = cur ? cur[1] : 0;
+      const to = Math.min(unit.words.length, old + n);
+      if (to <= old) return cur;
+      this.setRange(sid, gid, uid, from, to, old);
+      return [from, to, old];
+    },
+    // التراجع عن آخر إضافة
+    undoWords(sid, gid, uid) {
+      const s = state.students[sid], unit = Cur.unit(gid, uid);
+      if (!s || !unit) return null;
+      const cur = Progress.rangeOf(s, unit);
+      if (!cur || cur[2] >= cur[1]) return cur;
+      if (cur[2] < cur[0]) this.setRange(sid, gid, uid, 1, 0, 0);
+      else this.setRange(sid, gid, uid, cur[0], cur[2], cur[2]);
+      return Progress.rangeOf(s, unit);
     },
 
-    // حصالة الكلمات: الكلمات الخاطئة في وحدة
+    // حصالة الكلمات: الكلمات الخاطئة ضمن المسند في وحدة
     getWrongWords(s, gid, uid) {
       const unit = Cur.unit(gid, uid);
       if (!unit) return [];
-      return unit.words.filter(w => {
+      return Progress.assigned(s, unit).map(a => a.w).filter(w => {
         const r = s.words[w.id];
         return r && r.wrong > 0 && r.box < 3;
       });
@@ -671,7 +711,9 @@ const Store = (() => {
         s.lastActive = U.ymd(d);
         s.streak = daysAgo === 0 ? 5 : 1;
         s.xp = Math.round(level * 420);
+        s.ranges = {};
         grade.units.forEach((u, i) => {
+          s.ranges[grade.id + '.' + u.id] = [1, u.words.length, u.words.length];
           s.units[grade.id + '.' + u.id] = { stars: Math.max(0, Math.round(level * 3) - (i % 2)), speedBest: Math.round(level * 14) };
           s.log.push({ t: d.getTime() - i * 36e5, mode: i % 2 ? 'cloze' : 'test', gradeId: grade.id, unitId: u.id, correct: Math.round(level * 9), total: 10 });
         });

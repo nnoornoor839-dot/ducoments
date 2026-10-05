@@ -2,13 +2,13 @@
 const Games = (() => {
   // أسماء الأنماط: القديمة محفوظة لعرض سجل النشاط القديم في لوحة المعلم
   const MODES = {
-    dictation: { icon: '🎯', title: 'تسميع الكلمات', desc: 'استمع واختر المعنى أو الكلمة' },
-    test: { icon: '🎯', title: 'تسميع' },
-    cloze: { icon: '🧩', title: 'أكمل الجملة' },
-    listen: { icon: '👂', title: 'استمع واختر' },
-    scramble: { icon: '🔀', title: 'رتّب الجملة' },
-    speed: { icon: '⚡', title: 'تحدي السرعة' },
-    review: { icon: '🔁', title: 'مراجعة' }
+    dictation: { icon: 'target', title: 'تسميع الكلمات', desc: 'استمع واختر المعنى أو الكلمة' },
+    test: { icon: 'target', title: 'تسميع' },
+    cloze: { icon: 'edit', title: 'أكمل الجملة' },
+    listen: { icon: 'volume', title: 'استمع واختر' },
+    scramble: { icon: 'shuffle', title: 'رتّب الجملة' },
+    speed: { icon: 'zap', title: 'تحدي السرعة' },
+    review: { icon: 'repeat', title: 'مراجعة' }
   };
   let active = null;
 
@@ -77,7 +77,7 @@ const Games = (() => {
     appEl.innerHTML = `
       <section class="play">
         <div class="play-top">
-          <button class="icon-btn" data-act="exit" aria-label="خروج">✕</button>
+          <button class="icon-btn" data-act="exit" aria-label="خروج">${ic('x')}</button>
           <div class="bar"><i id="pbar"></i></div>
           <div class="counter" id="counter"></div>
         </div>
@@ -109,11 +109,11 @@ const Games = (() => {
       let html = '';
       if (q.type === 'listen') {
         html = `<p class="q-title">استمع واختر الكلمة الصحيحة</p>
-          <button class="big-play" data-act="q-play" aria-label="استمع">🔊</button>
+          <button class="big-play" data-act="q-play" aria-label="استمع">${ic('volume')}</button>
           <div class="opts">${q.opts.map(o => optBtn(o, 'en')).join('')}</div>`;
       } else if (q.type === 'meaning') {
         html = `<p class="q-title">استمع واختر المعنى الصحيح</p>
-          <button class="big-play" data-act="q-play" aria-label="استمع">🔊</button>
+          <button class="big-play" data-act="q-play" aria-label="استمع">${ic('volume')}</button>
           <div class="opts one">${q.opts.map(o => optBtn(o, 'ar')).join('')}</div>`;
       }
       $q.innerHTML = html;
@@ -153,7 +153,7 @@ const Games = (() => {
       const last = idx + 1 >= queue.length;
       $fb.innerHTML = `
         <div class="fb ${ok ? 'ok' : 'bad'}">
-          <div class="fb-title">${ok ? '✅ أحسنت!' : '❌ الإجابة الصحيحة:'}</div>
+          <div class="fb-title">${ic(ok ? 'check-circle' : 'x-circle')} ${ok ? 'أحسنت!' : 'الإجابة الصحيحة:'}</div>
           <div class="fb-body ${q.type === 'listen' ? 'en' : ''}" ${q.type === 'listen' ? 'dir="ltr"' : ''}>${correctHtml}</div>
           ${q.w.ar ? `<div class="fb-ar">${esc(q.w.en)} = ${esc(q.w.ar)}</div>` : ''}
           <button class="btn" data-act="next" id="next-btn">${last ? 'عرض النتيجة' : 'التالي'}</button>
@@ -183,8 +183,8 @@ const Games = (() => {
       const threshold = Store.getRetryThreshold();
       const mustRetry = threshold > 0 && wrongList.length >= threshold;
       const titles = mustRetry
-        ? ['يجب إعادة الاختبار! 💪']
-        : ['لا بأس، حاول مرة أخرى 💪', 'محاولة جيدة 👍', 'أحسنت! 👏', 'ممتاز! أنت بطل 🌟'];
+        ? ['يلزم إعادة الاختبار']
+        : ['لا بأس، حاول مرة أخرى', 'محاولة جيدة', 'أحسنت', 'ممتاز، نتيجة رائعة'];
       const titleIdx = mustRetry ? 0 : starsN;
       if (!mustRetry && starsN >= 2) { Sfx.win(); confetti(); }
       appEl.innerHTML = `
@@ -194,13 +194,13 @@ const Games = (() => {
           <p class="score">${firstCorrect} من ${firstTotal} إجابة صحيحة</p>
           ${mustRetry ? `<p class="retry-msg">أخطأت في ${wrongList.length} كلمات — أعد الاختبار للتأكد من حفظها.</p>` : ''}
           <div class="chips">
-            <span class="chip-stat">+${res.xpGained || 0} نقطة ⭐</span>
+            <span class="chip-stat">+${res.xpGained || 0} نقطة</span>
           </div>
-          ${wrongList.length ? `<div class="wrong-list"><b>كلمات تحتاج مراجعة:</b><div class="en" dir="ltr">${wrongList.map(w => `<button class="tag" data-act="say" data-text="${esc(w.en)}">${esc(w.en)} = ${esc(w.ar || '')} 🔊</button>`).join('')}</div></div>` : ''}
+          ${wrongList.length ? `<div class="wrong-list"><b>كلمات تحتاج مراجعة:</b><div class="en" dir="ltr">${wrongList.map(w => `<button class="tag" data-act="say" data-text="${esc(w.en)}">${esc(w.en)} = ${esc(w.ar || '')} ${ic('volume', 'sm')}</button>`).join('')}</div></div>` : ''}
           <div class="actions">
             ${mustRetry
-              ? '<button class="btn" data-act="again">🔁 أعد الاختبار</button>'
-              : '<button class="btn" data-act="again">🔁 مرة أخرى</button>'}
+              ? `<button class="btn" data-act="again">${ic('repeat', 'sm')} أعد الاختبار</button>`
+              : `<button class="btn" data-act="again">${ic('repeat', 'sm')} مرة أخرى</button>`}
             <button class="btn ghost" data-go="${backHash}">العودة للوحدة</button>
           </div>
         </section>`;
@@ -209,8 +209,9 @@ const Games = (() => {
     function confetti() {
       const box = document.createElement('div');
       box.className = 'confetti';
-      box.innerHTML = Array.from({ length: 26 }, () =>
-        `<span style="left:${Math.random() * 100}%;animation-delay:${(Math.random() * 0.8).toFixed(2)}s">${U.pick(['🎉', '⭐', '✨', '🎈', '🌟'])}</span>`).join('');
+      const colors = ['#F59E0B', '#3B82F6', '#10B981', '#EF4444', '#8B5CF6'];
+      box.innerHTML = Array.from({ length: 36 }, () =>
+        `<span style="left:${Math.random() * 100}%;background:${U.pick(colors)};animation-delay:${(Math.random() * 0.8).toFixed(2)}s"></span>`).join('');
       document.body.appendChild(box);
       setTimeout(() => box.remove(), 3500);
     }
@@ -259,13 +260,8 @@ const Games = (() => {
       if (!words.length) { App.toast('لا توجد كلمات خاطئة'); return App.go(`#/unit/${gid}/${uid}`); }
     } else {
       const range = Store.getRange(student.id, gid, uid);
-      if (range) {
-        const from = Math.max(0, range[0] - 1);
-        const to = Math.min(unit.words.length, range[1]);
-        words = unit.words.slice(from, to);
-      } else {
-        words = unit.words;
-      }
+      if (!range) { App.toast('لم يحدد المعلم كلمات هذه الوحدة بعد. تواصل معه.'); return App.go(`#/unit/${gid}/${uid}`); }
+      words = unit.words.slice(range[0] - 1, range[1]);
     }
     const pool = unit.words.concat(Cur.allWords(grade).filter(w => w.unitId !== unit.id));
     return run({ gradeId: gid, unitId: uid, words, pool, student });

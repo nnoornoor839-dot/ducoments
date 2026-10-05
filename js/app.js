@@ -73,9 +73,9 @@ const App = (() => {
       side = `<span class="who">${U.esc(student.name)}</span><button class="top-btn" data-act="logout">خروج</button>`;
     }
     document.getElementById('topbar').innerHTML = `
-      <a class="brand" href="#/">📚 كلماتي</a>
+      <a class="brand" href="#/">${ic('book')}<span>كلماتي</span></a>
       <div class="top-actions">${side}
-        <button class="top-btn icon" data-act="toggle-sound" aria-label="تشغيل أو إيقاف الصوت">${Sfx.isOn() ? '🔊' : '🔇'}</button>
+        <button class="top-btn icon" data-act="toggle-sound" aria-label="تشغيل أو إيقاف الصوت">${ic(Sfx.isOn() ? 'volume' : 'volume-off')}</button>
       </div>`;
   }
 
@@ -102,7 +102,7 @@ const App = (() => {
   }
 
   U.actions.logout = () => { Store.clearSession(); go('#/login'); };
-  U.actions['toggle-sound'] = el => { el.textContent = Sfx.toggle() ? '🔊' : '🔇'; };
+  U.actions['toggle-sound'] = el => { el.innerHTML = ic(Sfx.toggle() ? 'volume' : 'volume-off'); };
 
   document.addEventListener('click', e => {
     const g = e.target.closest('[data-go]');

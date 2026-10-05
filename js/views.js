@@ -9,7 +9,7 @@ const Views = (() => {
   function speedBar() {
     const cur = Speech.getSpeed();
     return `<div class="speedbar" role="group" aria-label="سرعة النطق">${Speech.SPEEDS.map(s =>
-      `<button class="sp ${s.id === cur ? 'on' : ''}" data-act="speed" data-id="${s.id}">${s.emoji} ${s.label}</button>`).join('')}</div>`;
+      `<button class="sp ${s.id === cur ? 'on' : ''}" data-act="speed" data-id="${s.id}">${s.label}</button>`).join('')}</div>`;
   }
 
   // ---------- الدخول: اختر دورك → صف → رمز سري ----------
@@ -19,15 +19,15 @@ const Views = (() => {
 
     app().innerHTML = `
       <section class="card login">
-        <h1>📚 كلماتي</h1>
+        <h1>${ic('book', 'lg')} كلماتي</h1>
         <p class="muted">مرحبًا بك! اختر للدخول:</p>
         <div class="role-pick">
           <button class="role-btn student" data-act="role-student">
-            <span class="role-icon">🎒</span>
+            <span class="role-icon">${ic('cap')}</span>
             <b>أنا طالب</b>
           </button>
           <button class="role-btn teacher" data-act="role-teacher">
-            <span class="role-icon">👩‍🏫</span>
+            <span class="role-icon">${ic('board')}</span>
             <b>أنا معلم</b>
           </button>
         </div>
@@ -37,7 +37,7 @@ const Views = (() => {
           <div class="grade-list">
             ${gradesWithUnits.map(g => `
               <button class="grade-pick" data-act="pick-grade" data-id="${g.id}">
-                <span class="grade-icon">📘</span>
+                <span class="grade-icon">${ic('book')}</span>
                 <b>${esc(g.name)}</b>
               </button>`).join('') || '<p class="muted">لا توجد صفوف بها وحدات بعد.</p>'}
           </div>
@@ -90,7 +90,7 @@ const Views = (() => {
     let s;
     try { s = await Store.loginByPin(selectedGrade, pin); } finally { pinBusy = false; }
     if (s && !s.error) {
-      App.toast(`أهلًا بك يا ${s.name}! 👋`);
+      App.toast(`أهلًا بك يا ${s.name}`);
       App.go('#/');
       return;
     }
@@ -108,14 +108,16 @@ const Views = (() => {
       return `
         <button class="unit-card" data-go="#/unit/${grade.id}/${u.id}">
           <b class="en" dir="ltr">${esc(u.title)}</b>
-          <span class="meter"><i style="width:${st.pct}%"></i></span>
-          <small>${st.mastered} من ${st.total} كلمة محفوظة</small>
+          ${st.total
+            ? `<span class="meter"><i style="width:${st.pct}%"></i></span>
+               <small>${st.mastered} من ${st.total} كلمة محفوظة</small>`
+            : '<small class="unit-wait">لم يحدد المعلم كلمات هذه الوحدة بعد</small>'}
         </button>`;
     }).join('') : '';
 
     app().innerHTML = `
       <section class="card welcome-card">
-        <h2>أهلًا ${esc(s.name)} 👋</h2>
+        <h2>أهلًا ${esc(s.name)}</h2>
         <p class="muted">${esc(grade ? grade.name : '')}</p>
       </section>
 
@@ -123,37 +125,55 @@ const Views = (() => {
       ${units ? `<div class="units">${units}</div>` : '<p class="card muted empty">لم تُضف وحدات هذا الصف بعد. سيضيفها المعلم قريبًا.</p>'}`;
   }
 
-  // ---------- صفحة الوحدة: ثلاث أيقونات ----------
+  // ---------- صفحة الوحدة ----------
   function unit(s, gid, uid) {
     const grade = Cur.grade(gid), u = Cur.unit(gid, uid);
     if (!grade || !u) return App.go('#/');
     const st = Progress.unitStats(s, u);
-    const range = Store.getRange(s.id, gid, uid);
+    const range = Progress.rangeOf(s, u);
+
+    if (!range) {
+      app().innerHTML = `
+        <button class="back" data-go="#/">‹ رجوع للوحدات</button>
+        <section class="card unit-head"><h2 class="en" dir="ltr">${esc(u.title)}</h2></section>
+        <section class="card notice">
+          <span class="notice-ic">${ic('info')}</span>
+          <div>
+            <b>لم يحدد المعلم كلمات هذه الوحدة بعد</b>
+            <p class="muted">تواصل مع معلمك ليحدد لك الكلمات المطلوبة، وبعدها يمكنك الاختبار.</p>
+          </div>
+        </section>`;
+      return;
+    }
+
     const wrongWords = Store.getWrongWords(s, gid, uid);
-    const rangeLabel = range ? `الاختبار: كلمة ${range[0]} إلى ${range[1]}` : `الاختبار: كل الكلمات (${u.words.length})`;
+    const newCount = range[1] - range[2];
+    const newLine = newCount > 0
+      ? `<span class="badge today">${newCount} ${newCount === 1 ? 'كلمة جديدة' : 'كلمات جديدة'}: ${range[2] + 1} إلى ${range[1]}</span>`
+      : '';
 
     app().innerHTML = `
       <button class="back" data-go="#/">‹ رجوع للوحدات</button>
       <section class="card unit-head">
         <h2 class="en" dir="ltr">${esc(u.title)}</h2>
         <div class="meter"><i style="width:${st.pct}%"></i></div>
-        <p class="muted small">${st.mastered} من ${st.total} كلمة محفوظة</p>
-        <p class="muted small">📏 ${rangeLabel}</p>
+        <p class="muted small">حفظت ${st.mastered} من ${st.total} كلمة مسندة</p>
+        <p class="assign-line">${ic('ruler', 'sm')} الكلمات المسندة: من ${range[0]} إلى ${range[1]} ${newLine}</p>
       </section>
 
       <div class="unit-actions three">
         <button class="unit-action-btn" data-go="#/words/${gid}/${uid}">
-          <span class="unit-action-icon">📖</span>
+          <span class="unit-action-icon">${ic('book')}</span>
           <b>كلمات الوحدة</b>
           <small>اعرض الكلمات والجمل واستمع لها</small>
         </button>
         <button class="unit-action-btn" data-go="#/play/dictation/${gid}/${uid}">
-          <span class="unit-action-icon">🎯</span>
+          <span class="unit-action-icon">${ic('target')}</span>
           <b>تسميع الكلمات</b>
-          <small>استمع واختر المعنى أو الكلمة</small>
+          <small>اختبار تراكمي في ${st.total} ${st.total === 1 ? 'كلمة' : 'كلمات'}</small>
         </button>
         <button class="unit-action-btn ${wrongWords.length ? 'has-badge' : ''}" data-go="#/bank/${gid}/${uid}">
-          <span class="unit-action-icon">🏦</span>
+          <span class="unit-action-icon">${ic('bookmark')}</span>
           <b>حصالة الكلمات</b>
           <small>${wrongWords.length ? wrongWords.length + ' كلمة تحتاج مراجعة' : 'لا توجد كلمات خاطئة'}</small>
         </button>
@@ -168,7 +188,7 @@ const Views = (() => {
 
     app().innerHTML = `
       <button class="back" data-go="#/unit/${gid}/${uid}">‹ رجوع للوحدة</button>
-      <h2 class="section-title">🏦 حصالة الكلمات: <span class="en" dir="ltr">${esc(u.title)}</span></h2>
+      <h2 class="section-title">${ic('bookmark')} حصالة الكلمات: <span class="en" dir="ltr">${esc(u.title)}</span></h2>
       ${wrongWords.length ? `
         <p class="muted small">هذه الكلمات أخطأت فيها. راجعها ثم اختبر نفسك.</p>
         ${Speech.supported ? '' : '<p class="card warn">متصفحك لا يدعم نطق الكلمات.</p>'}
@@ -178,17 +198,17 @@ const Views = (() => {
           return `
             <article class="wcard bank-card" data-wid="${w.id}">
               <div class="w-head">
-                <button class="w-en en" data-act="word" dir="ltr">${esc(w.en)} <i class="spk">🔊</i></button>
+                <button class="w-en en" data-act="word" dir="ltr">${esc(w.en)} <i class="spk">${ic('volume')}</i></button>
                 <span class="wrong-n">${r.wrong} ${r.wrong === 1 ? 'خطأ' : 'أخطاء'}</span>
               </div>
               ${w.ar ? `<div class="w-ar">${esc(w.ar)}</div>` : ''}
-              ${w.sentence ? `<button class="w-sent en" data-act="sent" dir="ltr">${Games.hl(w)} <i class="spk">🔊</i></button>` : ''}
+              ${w.sentence ? `<button class="w-sent en" data-act="sent" dir="ltr">${Games.hl(w)} <i class="spk">${ic('volume')}</i></button>` : ''}
             </article>`;
         }).join('')}</div>
-        <button class="btn big" data-go="#/play/bank/${gid}/${uid}">🎯 اختبر حصالتي</button>
+        <button class="btn big" data-go="#/play/bank/${gid}/${uid}">${ic('target')} اختبر حصالتي</button>
       ` : `
         <section class="card empty-bank">
-          <p class="big-emoji">🎉</p>
+          <div class="empty-ic">${ic('check-circle')}</div>
           <h3>ممتاز! لا توجد كلمات خاطئة</h3>
           <p class="muted">أجبت على كل الكلمات بشكل صحيح.</p>
           <button class="btn" data-go="#/unit/${gid}/${uid}">رجوع للوحدة</button>
@@ -202,39 +222,41 @@ const Views = (() => {
   function gapBar() {
     const cur = Speech.getGap();
     return `<div class="gapbar" role="group" aria-label="التوقف بين مرات التكرار">
-      <span class="muted small">⏱ التوقف بين المرات:</span>
+      <span class="muted small">${ic('clock', 'sm')} التوقف بين المرات:</span>
       ${Speech.GAPS.map(g => `<button class="sp ${g.ms === cur ? 'on' : ''}" data-act="gap" data-ms="${g.ms}">${g.label} ${g.sec}</button>`).join('')}
     </div>`;
   }
 
-  function wordCard(s, w) {
+  function wordCard(s, w, n, isNew) {
     return `
-      <article class="wcard" data-wid="${w.id}">
+      <article class="wcard ${isNew ? 'is-new' : ''}" data-wid="${w.id}">
         <div class="w-head">
-          <button class="w-en en" data-act="word" dir="ltr">${esc(w.en)} <i class="spk">🔊</i></button>
+          <span class="w-num" aria-label="رقم الكلمة">${n}</span>
+          <button class="w-en en" data-act="word" dir="ltr">${esc(w.en)} <i class="spk">${ic('volume')}</i></button>
+          ${isNew ? '<span class="badge today">جديدة</span>' : ''}
         </div>
         ${w.ar ? `<div class="w-ar">${esc(w.ar)}</div>` : ''}
         ${w.sentence ? `
-          <button class="w-sent en" data-act="sent" dir="ltr">${Games.hl(w)} <i class="spk">🔊</i></button>
+          <button class="w-sent en" data-act="sent" dir="ltr">${Games.hl(w)} <i class="spk">${ic('volume')}</i></button>
           ${w.sentenceAr ? `<div class="w-tr">${esc(w.sentenceAr)}</div>` : ''}` : ''}
-        ${w.page ? `<span class="pg">📖 صفحة ${esc(w.page)}</span>` : ''}
+        ${w.page ? `<span class="pg">${ic('book', 'sm')} صفحة ${esc(w.page)}</span>` : ''}
         <div class="reps">
           <div class="rep-set">
-            <span class="rep-lbl">🔁 كرّر</span>
+            <span class="rep-lbl">${ic('repeat', 'sm')} كرّر</span>
             <button class="step" data-act="rep-minus" aria-label="أقل">−</button>
             <b class="rep-n" data-n="${repDefault()}">${repDefault()}</b>
             <button class="step" data-act="rep-plus" aria-label="أكثر">+</button>
             <span class="rep-lbl">مرة</span>
           </div>
           <div class="rep-go">
-            <button class="mini go" data-act="rep-word">▶ الكلمة</button>
-            ${w.sentence ? '<button class="mini go" data-act="rep-sent">▶ الجملة</button>' : ''}
+            <button class="mini go" data-act="rep-word">${ic('play', 'sm')} الكلمة</button>
+            ${w.sentence ? `<button class="mini go" data-act="rep-sent">${ic('play', 'sm')} الجملة</button>` : ''}
           </div>
         </div>
         <div class="rep-live hidden">
           <b class="rep-count">1 من 1</b>
           <span class="meter"><i></i></span>
-          <button class="mini stop" data-act="rep-stop">⏹ إيقاف</button>
+          <button class="mini stop" data-act="rep-stop">${ic('stop', 'sm')} إيقاف</button>
         </div>
         <small class="rep-total muted">${repsOf(s, w.id) ? `مجموع تكرارك: ${repsOf(s, w.id)} مرة` : ''}</small>
       </article>`;
@@ -243,14 +265,20 @@ const Views = (() => {
   function wordList(s, gid, uid) {
     const grade = Cur.grade(gid), u = Cur.unit(gid, uid);
     if (!grade || !u) return App.go('#/');
+    const list = Progress.assigned(s, u);
+    if (!list.length) return App.go(`#/unit/${gid}/${uid}`);
+    const fresh = list.filter(x => x.isNew), old = list.filter(x => !x.isNew);
+    const group = (title, items) => items.length ? `
+      ${title ? `<h3 class="section-title">${title} <small class="muted">(${items.length})</small></h3>` : ''}
+      <div class="words">${items.map(x => wordCard(s, x.w, x.n, x.isNew)).join('')}</div>` : '';
 
     app().innerHTML = `
       <button class="back" data-go="#/unit/${gid}/${uid}">‹ رجوع للوحدة</button>
-      <h2 class="section-title">📖 كلمات الوحدة: <span class="en" dir="ltr">${esc(u.title)}</span></h2>
+      <h2 class="section-title">${ic('book')} كلمات الوحدة: <span class="en" dir="ltr">${esc(u.title)}</span></h2>
       ${Speech.supported ? '' : '<p class="card warn">متصفحك لا يدعم نطق الكلمات. جرّب Chrome أو Safari.</p>'}
       ${gapBar()}
       <div class="sticky-speed">${speedBar()}</div>
-      <div class="words">${u.words.map(w => wordCard(s, w)).join('')}</div>`;
+      ${old.length ? group(fresh.length ? 'الكلمات الجديدة' : '', fresh) + group(fresh.length ? 'الكلمات السابقة' : '', old) : group('', fresh)}`;
   }
 
   // ---------- أحداث الكلمات والسرعة ----------
@@ -307,7 +335,7 @@ const Views = (() => {
     const total = card.querySelector('.rep-total');
     if (total && mine) total.textContent = `مجموع تكرارك: ${repsOf(mine, w.id)} مرة`;
     App.toast(done === n
-      ? `أحسنت! كرّرت ${done} مرة 🎉${res && res.xpGained ? ` (+${res.xpGained} نقطة)` : ''}`
+      ? `أحسنت! كرّرت ${done} مرة${res && res.xpGained ? ` (+${res.xpGained} نقطة)` : ''}`
       : `كرّرت ${done} مرة`);
   }
   U.actions['rep-word'] = el => runReps(el, 'word');

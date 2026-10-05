@@ -36,7 +36,7 @@ const Teacher = (() => {
     if (typeof status === 'object') {
       app().innerHTML = `
         <section class="card login">
-          <h1>👩‍🏫 دخول المعلم</h1>
+          <h1>${ic('board', 'lg')} دخول المعلم</h1>
           <p class="err">${AUTH_ERRORS[status.error]}</p>
           <button class="btn" data-go="#/teacher">إعادة المحاولة</button>
           <button class="btn ghost" data-go="#/login">رجوع</button>
@@ -46,7 +46,7 @@ const Teacher = (() => {
     const first = !status;
     app().innerHTML = `
       <section class="card login">
-        <h1>👩‍🏫 ${first ? 'إنشاء حساب المعلم' : 'دخول المعلم'}</h1>
+        <h1>${ic('board', 'lg')} ${first ? 'إنشاء حساب المعلم' : 'دخول المعلم'}</h1>
         <p class="muted">${first ? 'اختر كلمة مرور للوحة المعلم (4 أحرف على الأقل).' : 'اكتب كلمة المرور.'}</p>
         <form data-form="t-login" class="stack">
           <input name="pass" type="password" autocomplete="${first ? 'new-password' : 'current-password'}" placeholder="كلمة المرور" required minlength="4" aria-label="كلمة المرور">
@@ -92,40 +92,39 @@ const Teacher = (() => {
     const rows = sorted.map(s => {
       const g = Cur.grade(s.grade);
       const gs = g ? Progress.gradeStats(s, g) : { pct: 0, mastered: 0, total: 0 };
-      const info = Progress.levelInfo(s.xp);
       const late = needsFollowUp(s);
       const activeToday = s.lastActive === today;
       return `
         <button class="t-student ${late ? 'late' : ''}" data-go="#/teacher/s/${s.id}" data-name="${esc(s.name)}" data-today="${activeToday}" data-late="${late}">
           <span class="t-main">
             <b>${esc(s.name)}</b>
-            <small>${esc(gradeName(s.grade))} • مستوى ${info.level} • <span class="t-pin">🔑 ${esc(s.pin)}</span></small>
+            <small>${esc(gradeName(s.grade))} • ${gs.total ? `${gs.total} كلمة مسندة` : '<span class="warn-text">لم تُسند كلمات</span>'} • <span class="t-pin">${ic('key', 'sm')} ${esc(s.pin)}</span></small>
             <span class="meter"><i style="width:${gs.pct}%"></i></span>
           </span>
           <span class="t-side">
-            <b>${gs.pct}٪</b>
-            <small class="${late ? 'warn-text' : ''}">${late ? '⚠️ ' : ''}${U.ago(s.lastActive)}</small>
+            <b>${gs.total ? gs.pct + '٪' : '—'}</b>
+            <small class="${late ? 'warn-text' : ''}">${late ? ic('alert', 'sm') + ' ' : ''}${U.ago(s.lastActive)}</small>
           </span>
         </button>`;
     }).join('');
 
     app().innerHTML = `
-      <h2 class="section-title">👩‍🏫 لوحة المعلم</h2>
+      <h2 class="section-title">${ic('board')} لوحة المعلم</h2>
       <div class="tiles">
         <button class="tile on" data-act="t-filter" data-f="all"><b>${students.length}</b><small>الكل</small></button>
         <button class="tile" data-act="t-filter" data-f="today"><b>${active}</b><small>دخلوا اليوم</small></button>
         <button class="tile ${idle ? 'alert' : ''}" data-act="t-filter" data-f="idle"><b>${idle}</b><small>يحتاجون متابعة</small></button>
       </div>
-      <button class="btn big" data-go="#/teacher/content">📝 إدارة الكلمات (الصفوف والوحدات والصفحات)</button>
+      <button class="btn big" data-go="#/teacher/content">${ic('edit')} إدارة الكلمات (الصفوف والوحدات والصفحات)</button>
       <div class="row">
-        <button class="btn" data-go="#/teacher/add">➕ إضافة طالب</button>
+        <button class="btn" data-go="#/teacher/add">${ic('plus')} إضافة طالب</button>
         ${students.some(s => s.demo)
-          ? '<button class="btn ghost" data-act="t-demo-clear">🗑️ حذف الطلاب التجريبيين</button>'
-          : '<button class="btn ghost" data-act="t-demo">🧪 بيانات تجريبية للعرض</button>'}
+          ? `<button class="btn ghost" data-act="t-demo-clear">${ic('trash')} حذف الطلاب التجريبيين</button>`
+          : `<button class="btn ghost" data-act="t-demo">${ic('flask')} بيانات تجريبية للعرض</button>`}
       </div>
       ${students.length > 3 ? `
         <div class="t-search">
-          <input type="search" id="t-search-in" placeholder="🔍 ابحث عن طالب..." aria-label="بحث عن طالب" autocomplete="off">
+          <input type="search" id="t-search-in" placeholder="ابحث عن طالب..." aria-label="بحث عن طالب" autocomplete="off">
         </div>` : ''}
       ${rows ? `<div class="t-list" id="t-list">${rows}</div>` : '<p class="card muted empty">لا يوجد طلاب بعد. أضف أول طالب، أو حمّل بيانات تجريبية لترى كيف تبدو اللوحة.</p>'}
       ${syncNote()}`;
@@ -146,9 +145,9 @@ const Teacher = (() => {
   function syncNote() {
     const sync = Store.syncState();
     if (!sync.cloud) return '<p class="muted small note">ملاحظة: البيانات تُحفظ على هذا الجهاز فقط (الربط السحابي غير مفعّل).</p>';
-    if (!sync.online) return '<p class="warn-text small note">⚠️ لا يوجد اتصال — تُعرض آخر بيانات محفوظة على هذا الجهاز وقد لا تكون محدّثة.</p>';
+    if (!sync.online) return `<p class="warn-text small note">${ic('alert', 'sm')} لا يوجد اتصال — تُعرض آخر بيانات محفوظة على هذا الجهاز وقد لا تكون محدّثة.</p>`;
     const waiting = sync.pending ? ` (${sync.pending} تغييرات بانتظار الرفع)` : '';
-    return `<p class="muted small note">☁️ متصل بالسحابة — بيانات الطلاب تتزامن بين الأجهزة.${waiting}</p>`;
+    return `<p class="muted small note">${ic('cloud', 'sm')} متصل بالسحابة — بيانات الطلاب تتزامن بين الأجهزة.${waiting}</p>`;
   }
 
   // ---------- إضافة طالب ----------
@@ -157,7 +156,7 @@ const Teacher = (() => {
     app().innerHTML = `
       <button class="back" data-go="#/teacher">‹ رجوع</button>
       <section class="card login">
-        <h2>➕ إضافة طالب</h2>
+        <h2>${ic('plus')} إضافة طالب</h2>
         <form data-form="t-add" class="stack">
           <label>اسم الطالب<input name="name" maxlength="20" required></label>
           <label>الصف<select name="grade">${Cur.grades.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select></label>
@@ -185,15 +184,15 @@ const Teacher = (() => {
     const gs = g ? Progress.gradeStats(s, g) : { mastered: 0, total: 0, pct: 0 };
     const info = Progress.levelInfo(s.xp);
     const hard = Progress.hardWords(s, 5).map(h => h.word.en).join('، ');
-    const units = g ? g.units.map(u => {
+    const units = g ? g.units.filter(u => Progress.rangeOf(s, u)).map(u => {
       const st = Progress.unitStats(s, u);
       return `- ${u.title}: ${st.mastered}/${st.total}`;
     }).join('\n') : '';
     return [
-      `📊 تقرير الطالب: ${s.name}`,
+      `تقرير الطالب: ${s.name}`,
       `الصف: ${gradeName(s.grade)}`,
       `المستوى: ${info.level} (${info.title}) | السلسلة: ${Progress.streak(s)} يوم`,
-      `الكلمات المحفوظة: ${gs.mastered} من ${gs.total} (${gs.pct}٪)`,
+      gs.total ? `الكلمات المحفوظة: ${gs.mastered} من ${gs.total} كلمة مسندة (${gs.pct}٪)` : 'لم تُسند له كلمات بعد',
       `آخر دخول: ${U.ago(s.lastActive)}`,
       units ? `\nالوحدات:\n${units}` : '',
       hard ? `\nكلمات تحتاج مراجعة: ${hard}` : ''
@@ -212,6 +211,7 @@ const Teacher = (() => {
     const unitRows = g ? g.units.map(u => {
       const st = Progress.unitStats(s, u);
       const rec = s.units[g.id + '.' + u.id] || {};
+      if (!st.total) return `<div class="u-row"><div class="u-top"><b class="en" dir="ltr">${esc(u.title)}</b><span class="muted small">لم تُسند كلمات</span></div></div>`;
       return `
         <div class="u-row">
           <div class="u-top"><b class="en" dir="ltr">${esc(u.title)}</b><span>${st.mastered}/${st.total}</span></div>
@@ -232,14 +232,47 @@ const Teacher = (() => {
     const logRows = s.log.slice(0, 12).map(l => {
       if (l.mode === 'reps') {
         const rw = Cur.word(l.wid);
-        return `<li><span>🔁 تكرار ${rw ? `«<span class="en" dir="ltr">${esc(rw.en)}</span>»` : 'كلمة'}</span>
+        return `<li><span>${ic('repeat', 'sm')} تكرار ${rw ? `«<span class="en" dir="ltr">${esc(rw.en)}</span>»` : 'كلمة'}</span>
           <span class="muted">${l.correct} مرة • ${U.ago(U.ymd(new Date(l.t)))}</span></li>`;
       }
-      const m = Games.MODES[l.mode] || { icon: '•', title: l.mode };
+      const m = Games.MODES[l.mode] || { icon: 'target', title: l.mode };
       const u = l.unitId ? Cur.unit(l.gradeId, l.unitId) : null;
-      return `<li><span>${m.icon} ${esc(m.title)}${u ? ` — <span class="en" dir="ltr">${esc(u.title)}</span>` : ''}</span>
+      return `<li><span>${ic(m.icon, 'sm')} ${esc(m.title)}${u ? ` — <span class="en" dir="ltr">${esc(u.title)}</span>` : ''}</span>
         <span class="muted">${l.correct}/${l.total} • ${U.ago(U.ymd(new Date(l.t)))}</span></li>`;
     }).join('');
+
+    const assignN = (() => { const v = Number(U.lsGet('kalimati.assignN', '10')); return [5, 10, 15, 20].includes(v) ? v : 10; })();
+    const assignHtml = g ? g.units.map(u => {
+      const r = Progress.rangeOf(s, u);
+      const total = u.words.length;
+      const list = Progress.assigned(s, u);
+      const full = !!r && r[1] >= total;
+      const nNew = r ? r[1] - r[2] : 0;
+      return `
+        <div class="assign" data-sid="${s.id}" data-gid="${g.id}" data-uid="${u.id}">
+          <div class="assign-head">
+            <b class="en" dir="ltr">${esc(u.title)}</b>
+            <span class="${r ? 'assign-on' : 'assign-off'}">${r ? `المسند: ${r[0]} إلى ${r[1]} من ${total}` : 'لم تُسند كلمات'}</span>
+          </div>
+          <div class="meter"><i style="width:${r ? Math.round(r[1] / total * 100) : 0}%"></i></div>
+          ${nNew ? `<p class="small muted">آخر إضافة: الكلمات من ${r[2] + 1} إلى ${r[1]} (${nNew})</p>` : ''}
+          <div class="assign-actions">
+            <label>عدد الكلمات<select class="assign-n" aria-label="عدد الكلمات المضافة">${[5, 10, 15, 20].map(n => `<option value="${n}" ${n === assignN ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+            <button class="btn small-btn" data-act="t-add-words" ${full ? 'disabled' : ''}>${ic('plus', 'sm')} ${full ? 'أُسندت كل الكلمات' : r ? 'إضافة كلمات جديدة' : 'إسناد أول الكلمات'}</button>
+            ${nNew ? `<button class="btn ghost small-btn" data-act="t-undo-words">${ic('undo', 'sm')} تراجع</button>` : ''}
+          </div>
+          <details class="assign-more">
+            <summary>الكلمات المسندة وتعديل يدوي</summary>
+            ${list.length ? `<div class="wchips" dir="ltr">${list.map(x => `<span class="wchip ${x.isNew ? 'new' : ''}"><i>${x.n}</i>${esc(x.w.en)}</span>`).join('')}</div>` : '<p class="muted small">لا توجد كلمات مسندة.</p>'}
+            <div class="range-controls">
+              <label>من <input type="number" data-k="from" min="1" max="${total}" value="${r ? r[0] : 1}"></label>
+              <label>إلى <input type="number" data-k="to" min="1" max="${total}" value="${r ? r[1] : Math.min(10, total)}"></label>
+              <button class="btn ghost small-btn" data-act="t-set-range">حفظ النطاق</button>
+              ${r ? `<button class="btn ghost small-btn" data-act="t-clear-words">${ic('x', 'sm')} إلغاء الإسناد</button>` : ''}
+            </div>
+          </details>
+        </div>`;
+    }).join('') : '<p class="muted">لا توجد وحدات.</p>';
 
     app().innerHTML = `
       <button class="back" data-go="#/teacher">‹ رجوع للوحة</button>
@@ -250,8 +283,8 @@ const Teacher = (() => {
         </div>
       </section>
       <div class="tiles">
-        <div class="tile"><b>${gs.pct}٪</b><small>الحفظ (${gs.mastered}/${gs.total})</small></div>
-        <div class="tile"><b>🔥 ${Progress.streak(s)}</b><small>أيام متتالية</small></div>
+        <div class="tile"><b>${gs.total ? gs.pct + '٪' : '—'}</b><small>${gs.total ? `الحفظ (${gs.mastered}/${gs.total})` : 'لم تُسند كلمات'}</small></div>
+        <div class="tile"><b>${ic('flame')} ${Progress.streak(s)}</b><small>أيام متتالية</small></div>
         <div class="tile ${late ? 'alert' : ''}"><b>${U.ago(s.lastActive)}</b><small>آخر دخول</small></div>
       </div>
       <p class="muted small">المستوى ${info.level} (${esc(info.title)}) • ${s.xp} نقطة</p>
@@ -259,24 +292,11 @@ const Teacher = (() => {
       <h3 class="section-title">الوحدات</h3>
       <div class="card">${unitRows || '<p class="muted">لا توجد وحدات لهذا الصف.</p>'}</div>
 
-      <h3 class="section-title">📏 نطاق الاختبار</h3>
-      <div class="card">${g ? g.units.map(u => {
-        const range = Store.getRange(s.id, g.id, u.id);
-        const from = range ? range[0] : 1;
-        const to = range ? range[1] : u.words.length;
-        return `
-          <div class="range-row" data-gid="${g.id}" data-uid="${u.id}">
-            <b class="en" dir="ltr">${esc(u.title)}</b> <small class="muted">(${u.words.length} كلمة)</small>
-            <div class="range-controls">
-              <label>من <input type="number" class="range-in" data-k="from" min="1" max="${u.words.length}" value="${from}"></label>
-              <label>إلى <input type="number" class="range-in" data-k="to" min="1" max="${u.words.length}" value="${to}"></label>
-              <button class="btn small-btn" data-act="t-set-range" data-sid="${s.id}" data-gid="${g.id}" data-uid="${u.id}">حفظ</button>
-            </div>
-          </div>`;
-      }).join('') : '<p class="muted">لا توجد وحدات.</p>'}
-      </div>
+      <h3 class="section-title">${ic('ruler')} الكلمات المسندة</h3>
+      <p class="muted small">يُختبر الطالب تراكميًا في كل الكلمات المسندة من أول القائمة. أضف كلمات جديدة كلما تقدّم.</p>
+      <div class="card">${assignHtml}</div>
 
-      <h3 class="section-title">⚙️ إعدادات الاختبار</h3>
+      <h3 class="section-title">${ic('settings')} إعدادات الاختبار</h3>
       <div class="card">
         <label>أعد الاختبار إذا أخطأ في أكثر من:
           <select id="t-threshold">
@@ -286,7 +306,7 @@ const Teacher = (() => {
         </label>
       </div>
 
-      <h3 class="section-title">🔁 التكرار</h3>
+      <h3 class="section-title">${ic('repeat')} التكرار</h3>
       <div class="card">
         <p>كرّر <b>${reps.total}</b> مرة (اليوم: <b>${todayReps}</b>)</p>
         ${topReps.length
@@ -294,24 +314,24 @@ const Teacher = (() => {
           : '<p class="muted small">لم يستخدم التكرار بعد.</p>'}
       </div>
 
-      <h3 class="section-title">⚠️ كلمات يكثر فيها الخطأ</h3>
+      <h3 class="section-title">${ic('alert')} كلمات يكثر فيها الخطأ</h3>
       <div class="card">${hardRows ? `<ul class="plain">${hardRows}</ul>` : '<p class="muted">لا توجد أخطاء مسجلة بعد.</p>'}</div>
 
       <h3 class="section-title">آخر النشاط</h3>
       <div class="card">${logRows ? `<ul class="plain log">${logRows}</ul>` : '<p class="muted">لم يلعب بعد.</p>'}</div>
 
       <div class="row wrap">
-        <button class="btn" data-act="t-copy" data-id="${s.id}">📋 نسخ التقرير (لولي الأمر)</button>
-        <button class="btn ghost" data-act="t-pin" data-id="${s.id}">🔑 تغيير الرمز</button>
-        <button class="btn ghost" data-act="t-reset" data-id="${s.id}">♻️ تصفير التقدم</button>
-        <button class="btn danger" data-act="t-delete" data-id="${s.id}">🗑️ حذف الطالب</button>
+        <button class="btn" data-act="t-copy" data-id="${s.id}">${ic('clipboard')} نسخ التقرير (لولي الأمر)</button>
+        <button class="btn ghost" data-act="t-pin" data-id="${s.id}">${ic('key')} تغيير الرمز</button>
+        <button class="btn ghost" data-act="t-reset" data-id="${s.id}">${ic('reset')} تصفير التقدم</button>
+        <button class="btn danger" data-act="t-delete" data-id="${s.id}">${ic('trash')} حذف الطالب</button>
       </div>`;
 
     const thresholdSel = document.getElementById('t-threshold');
     if (thresholdSel) {
       thresholdSel.addEventListener('change', () => {
         Store.setRetryThreshold(Number(thresholdSel.value));
-        App.toast('تم حفظ إعداد الإعادة ✅');
+        App.toast('تم حفظ إعداد الإعادة');
       });
     }
   }
@@ -333,7 +353,7 @@ const Teacher = (() => {
     const s = await Store.getStudent(el.dataset.id);
     if (!s) return;
     const text = report(s);
-    if (await copyText(text)) App.toast('تم نسخ التقرير ✅ الصقه في واتساب');
+    if (await copyText(text)) App.toast('تم نسخ التقرير. الصقه في واتساب');
     else App.showText('انسخ التقرير من هنا', text);
   };
   U.actions['t-pin'] = async el => {
@@ -378,14 +398,50 @@ const Teacher = (() => {
     }
     dashboard();
   };
+  const assignCtx = el => {
+    const box = el.closest('.assign');
+    return { box, sid: box.dataset.sid, gid: box.dataset.gid, uid: box.dataset.uid };
+  };
+  async function rerender(sid) {
+    const y = window.scrollY;
+    await studentView(sid);
+    window.scrollTo(0, y);
+  }
+  U.actions['t-add-words'] = el => {
+    const { box, sid, gid, uid } = assignCtx(el);
+    const n = Number(box.querySelector('.assign-n').value) || 10;
+    U.lsSet('kalimati.assignN', String(n));
+    const r = Store.addWords(sid, gid, uid, n);
+    if (!r) return;
+    App.toast(`تم إسناد الكلمات من ${r[2] + 1} إلى ${r[1]}`);
+    rerender(sid);
+  };
+  U.actions['t-undo-words'] = el => {
+    const { sid, gid, uid } = assignCtx(el);
+    Store.undoWords(sid, gid, uid);
+    App.toast('تم التراجع عن آخر إضافة');
+    rerender(sid);
+  };
   U.actions['t-set-range'] = el => {
-    const row = el.closest('.range-row');
-    const sid = el.dataset.sid, gid = el.dataset.gid, uid = el.dataset.uid;
-    const from = Number(row.querySelector('[data-k="from"]').value);
-    const to = Number(row.querySelector('[data-k="to"]').value);
-    if (from < 1 || to < from) { App.toast('تأكد من النطاق'); return; }
-    Store.setRange(sid, gid, uid, from, to);
-    App.toast(`تم حفظ النطاق: كلمة ${from} إلى ${to} ✅`);
+    const { box, sid, gid, uid } = assignCtx(el);
+    const total = Cur.unit(gid, uid).words.length;
+    const from = Number(box.querySelector('[data-k="from"]').value);
+    const to = Number(box.querySelector('[data-k="to"]').value);
+    if (!Number.isInteger(from) || !Number.isInteger(to) || from < 1 || to < from || to > total) {
+      App.toast(`أدخل نطاقًا صحيحًا بين 1 و ${total}`);
+      return;
+    }
+    const old = Store.getRange(sid, gid, uid);
+    Store.setRange(sid, gid, uid, from, to, old && to > old[1] ? old[1] : to);
+    App.toast(`تم حفظ النطاق: من ${from} إلى ${to}`);
+    rerender(sid);
+  };
+  U.actions['t-clear-words'] = async el => {
+    const { sid, gid, uid } = assignCtx(el);
+    if (!(await App.confirm('إلغاء إسناد كلمات هذه الوحدة؟ لن يستطيع الطالب الاختبار فيها حتى تُسند من جديد.', { okLabel: 'إلغاء الإسناد', danger: true }))) return;
+    Store.setRange(sid, gid, uid, 1, 0, 0);
+    App.toast('تم إلغاء الإسناد');
+    rerender(sid);
   };
 
   U.actions['t-filter'] = el => {

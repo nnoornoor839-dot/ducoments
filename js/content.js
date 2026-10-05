@@ -78,7 +78,7 @@ const Content = (() => {
         <thead><tr><th></th><th>الكلمة</th><th>المعنى</th><th>الجملة</th><th>ص</th><th>ملاحظات</th></tr></thead>
         <tbody>${pending.map(r => `
           <tr>
-            <td>${r.skip ? '❌' : r.notes.length ? '⚠️' : '✅'}</td>
+            <td>${r.skip ? `<span class="st-bad">${ic('x-circle', 'sm')}</span>` : r.notes.length ? `<span class="st-warn">${ic('alert', 'sm')}</span>` : `<span class="st-ok">${ic('check-circle', 'sm')}</span>`}</td>
             <td class="en" dir="ltr">${esc(r.en)}</td>
             <td>${esc(r.ar)}</td>
             <td class="en" dir="ltr">${esc(r.sentence)}${r.form ? ` <small class="muted">(${esc(r.form)})</small>` : ''}</td>
@@ -96,16 +96,16 @@ const Content = (() => {
     const g = Cur.grade(gid) || grades.find(x => x.units.length) || grades[0];
     app().innerHTML = `
       <button class="back" data-go="#/teacher">‹ رجوع للوحة</button>
-      <h2 class="section-title">📝 إدارة الكلمات</h2>
+      <h2 class="section-title">${ic('edit')} إدارة الكلمات</h2>
       ${Store.isCurriculumStale() ? `
         <div class="card warn small">
           نُشرت <b>كلمات جديدة</b> في التطبيق، وما تراه الآن نسخة قديمة محفوظة على هذا الجهاز.
           انسخ كلماتك أولًا (من «نسخ كل الكلمات») إن أضفت شيئًا تريد الاحتفاظ به.
-          <div class="row"><button class="btn" data-act="c-reset">♻️ تحميل الكلمات الجديدة</button></div>
+          <div class="row"><button class="btn" data-act="c-reset">${ic('reset')} تحميل الكلمات الجديدة</button></div>
         </div>` : (!Store.isCustomCurriculum() && (window.CURRICULUM || {}).sample ? `
         <div class="card warn small">
           الكلمات الحالية <b>أمثلة تجريبية</b> وضعتها للتجربة.
-          <div class="row"><button class="btn ghost" data-act="c-clear">🗑️ حذف الأمثلة والبدء بكلماتك</button></div>
+          <div class="row"><button class="btn ghost" data-act="c-clear">${ic('trash')} حذف الأمثلة والبدء بكلماتك</button></div>
         </div>` : '')}
       <div class="gchips">${grades.map(x =>
         `<button class="gchip ${x.id === g.id ? 'on' : ''}" data-go="#/teacher/content/${x.id}">${esc(x.name)} <small>(${gradeCount(x)})</small></button>`).join('')}</div>
@@ -116,14 +116,14 @@ const Content = (() => {
             <small class="muted">${u.words.length} كلمة${pageRange(u) ? ' • ' + pageRange(u) : ''}</small></div>
           <button class="btn ghost" data-go="#/teacher/unit/${g.id}/${u.id}">تعديل</button>
         </div>`).join('') || '<p class="card muted empty">لا توجد وحدات لهذا الصف بعد.</p>'}
-      <button class="btn big" data-go="#/teacher/unit/${g.id}/new">➕ وحدة جديدة في ${esc(g.name)}</button>
+      <button class="btn big" data-go="#/teacher/unit/${g.id}/new">${ic('plus')} وحدة جديدة في ${esc(g.name)}</button>
 
       <h3 class="section-title">نقل الكلمات بين الأجهزة</h3>
       <p class="muted small">الكلمات تُحفظ على هذا الجهاز. انسخها هنا والصقها على جهاز آخر، مثل جهاز الطلاب.</p>
       <div class="row wrap">
-        <button class="btn ghost" data-act="c-export">📤 نسخ كل الكلمات</button>
-        <button class="btn ghost" data-act="c-import">📥 استيراد كلمات</button>
-        ${Store.isCustomCurriculum() ? '<button class="btn ghost" data-act="c-reset">♻️ العودة للكلمات المضمّنة</button>' : ''}
+        <button class="btn ghost" data-act="c-export">${ic('upload')} نسخ كل الكلمات</button>
+        <button class="btn ghost" data-act="c-import">${ic('download')} استيراد كلمات</button>
+        ${Store.isCustomCurriculum() ? `<button class="btn ghost" data-act="c-reset">${ic('reset')} العودة للكلمات المضمّنة</button>` : ''}
       </div>`;
   }
 
@@ -148,7 +148,7 @@ const Content = (() => {
       </section>
 
       <details class="card" ${secOpen('quick')}>
-        <summary>⚡ إدخال سريع (الصق عدة كلمات)</summary>
+        <summary>${ic('zap', 'sm')} إدخال سريع (الصق عدة كلمات)</summary>
         <p class="muted small">سطر لكل كلمة، والأعمدة مفصولة بـ <b>|</b> بهذا الترتيب:<br>
           <b>الكلمة | المعنى | الجملة من الكتاب | رقم الصفحة | ترجمة الجملة (اختياري)</b><br>
           ويمكنك نسخ الجدول من Excel ولصقه مباشرة.</p>
@@ -161,7 +161,7 @@ const Content = (() => {
       </details>
 
       <details class="card" id="word-form" ${secOpen('single') || (editing ? 'open' : '')}>
-        <summary>${editing ? '✏️ تعديل كلمة' : '➕ إضافة كلمة واحدة'}</summary>
+        <summary>${editing ? ic('pencil', 'sm') + ' تعديل كلمة' : ic('plus', 'sm') + ' إضافة كلمة واحدة'}</summary>
         <form data-form="c-word" class="form-grid">
           <div class="form-2">
             <label>الكلمة<input name="en" dir="ltr" required value="${esc(ed.en || '')}" autocomplete="off"></label>
@@ -186,17 +186,17 @@ const Content = (() => {
           <div class="c-word-head">
             <span><b class="en" dir="ltr">${esc(w.en)}</b> <span class="muted">${esc(w.ar)}</span></span>
             <span class="c-actions">
-              <button class="mini" data-act="c-edit" data-id="${w.id}" aria-label="تعديل">✏️</button>
-              <button class="mini" data-act="c-del" data-id="${w.id}" aria-label="حذف">🗑️</button>
+              <button class="mini" data-act="c-edit" data-id="${w.id}" aria-label="تعديل">${ic('pencil', 'sm')}</button>
+              <button class="mini" data-act="c-del" data-id="${w.id}" aria-label="حذف">${ic('trash', 'sm')}</button>
             </span>
           </div>
           ${w.sentence ? `<small class="en muted" dir="ltr">${Games.hl(w)}</small>` : ''}
-          <small class="muted">${w.page ? '📖 صفحة ' + esc(w.page) : ''}${w.sentence && !Cur.blank(w) ? ' <span class="warn-t">⚠️ الكلمة غير موجودة في الجملة</span>' : ''}</small>
+          <small class="muted">${w.page ? ic('book', 'sm') + ' صفحة ' + esc(w.page) : ''}${w.sentence && !Cur.blank(w) ? ` <span class="warn-t">${ic('alert', 'sm')} الكلمة غير موجودة في الجملة</span>` : ''}</small>
         </li>`).join('')}</ul>` : '<p class="muted empty">لا توجد كلمات بعد. استخدم الإدخال السريع أعلاه.</p>'}
       </div>
       <div class="row wrap">
         <button class="btn ghost" data-go="#/teacher/content/${gid}">تم</button>
-        <button class="btn danger" data-act="c-del-unit">🗑️ حذف الوحدة</button>
+        <button class="btn danger" data-act="c-del-unit">${ic('trash')} حذف الوحدة</button>
       </div>`;
   }
 
@@ -205,7 +205,7 @@ const Content = (() => {
     app().innerHTML = `
       <button class="back" data-go="#/teacher/content/${g.id}">‹ ${esc(g.name)}</button>
       <section class="card login">
-        <h2>➕ وحدة جديدة — ${esc(g.name)}</h2>
+        <h2>${ic('plus')} وحدة جديدة — ${esc(g.name)}</h2>
         <form data-form="c-unit-new" class="stack">
           <label>رقم الوحدة<input name="num" type="number" min="1" max="99" value="${nextNum}" required></label>
           <label>عنوان الوحدة كما في الكتاب (اختياري)<input name="title" dir="ltr" placeholder="Unit ${nextNum}: At the Zoo" autocomplete="off"></label>
@@ -249,7 +249,7 @@ const Content = (() => {
     }
     openSection = 'single';
     unitView(ctx.gid, ctx.uid);
-    App.toast(found ? 'تم الحفظ ✅' : 'تم الحفظ، لكن الكلمة غير موجودة في الجملة. أضف شكلها في خانة «شكل الكلمة».');
+    App.toast(found ? 'تم الحفظ' : 'تم الحفظ، لكن الكلمة غير موجودة في الجملة. أضف شكلها في خانة «شكل الكلمة».');
   };
 
   // ---------- الإجراءات ----------
@@ -271,7 +271,7 @@ const Content = (() => {
     pending = [];
     openSection = 'quick';
     unitView(ctx.gid, ctx.uid);
-    App.toast(`أُضيفت ${rows.length} كلمة ✅`);
+    App.toast(`أُضيفت ${rows.length} كلمة`);
   };
   U.actions['c-edit'] = el => {
     editingId = el.dataset.id;
@@ -321,7 +321,7 @@ const Content = (() => {
   }
   U.actions['c-export'] = async () => {
     const text = JSON.stringify(Cur.snapshot());
-    if (await copyText(text)) App.toast('تم نسخ كل الكلمات ✅ الصقها في الجهاز الآخر');
+    if (await copyText(text)) App.toast('تم نسخ كل الكلمات. الصقها في الجهاز الآخر');
     else App.showText('انسخ هذا النص', text);
   };
 
@@ -352,7 +352,7 @@ const Content = (() => {
     try { data = sanitize(raw); } catch (e) { App.toast('النص غير صحيح. انسخه من «نسخ كل الكلمات» ثم الصقه كاملًا.'); return; }
     const count = data.grades.reduce((n, g) => n + g.units.reduce((m, u) => m + u.words.length, 0), 0);
     Store.saveCurriculum(data);
-    App.toast(`تم استيراد ${count} كلمة ✅`);
+    App.toast(`تم استيراد ${count} كلمة`);
     home(ctx.gid);
   };
 
