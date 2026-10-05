@@ -1,9 +1,9 @@
 // خدمة بسيطة للعمل بدون إنترنت: الشبكة أولًا، وإن فشلت نستخدم النسخة المخزّنة.
-const CACHE = 'kalimati-v1';
+const CACHE = 'kalimati-v2';
 const CORE = [
   './', 'index.html', 'manifest.webmanifest', 'icon.svg', 'css/style.css',
   'js/util.js', 'js/data.js', 'js/sfx.js', 'js/speech.js', 'js/store.js',
-  'js/games.js', 'js/views.js', 'js/teacher.js', 'js/app.js'
+  'js/games.js', 'js/views.js', 'js/content.js', 'js/teacher.js', 'js/app.js'
 ];
 
 self.addEventListener('install', e => {

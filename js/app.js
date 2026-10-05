@@ -12,7 +12,7 @@ const App = (() => {
   }
 
   // نافذة داخل الصفحة بدل confirm/prompt (لا تعمل في بعض العارضات وتزعج على الجوال)
-  function modal({ title, message, input, textarea, okLabel = 'موافق', cancelLabel = 'إلغاء', danger = false, cancel = true }) {
+  function modal({ title, message, input, textarea, editable = false, okLabel = 'موافق', cancelLabel = 'إلغاء', danger = false, cancel = true }) {
     return new Promise(resolve => {
       const wrap = document.createElement('div');
       wrap.className = 'modal-wrap';
@@ -21,7 +21,7 @@ const App = (() => {
           ${title ? `<h3>${U.esc(title)}</h3>` : ''}
           ${message ? `<p>${U.esc(message)}</p>` : ''}
           ${input !== undefined ? `<input id="modal-in" value="${U.esc(input)}" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="${U.esc(message || '')}">` : ''}
-          ${textarea !== undefined ? `<textarea id="modal-ta" readonly rows="9" aria-label="${U.esc(title || '')}">${U.esc(textarea)}</textarea>` : ''}
+          ${textarea !== undefined ? `<textarea id="modal-ta" ${editable ? '' : 'readonly'} rows="9" dir="ltr" aria-label="${U.esc(title || '')}">${U.esc(textarea)}</textarea>` : ''}
           <div class="row">
             <button class="btn ${danger ? 'danger' : ''}" data-m="ok">${U.esc(okLabel)}</button>
             ${cancel ? `<button class="btn ghost" data-m="cancel">${U.esc(cancelLabel)}</button>` : ''}
@@ -29,7 +29,8 @@ const App = (() => {
         </div>`;
       const field = wrap.querySelector('#modal-in');
       const area = wrap.querySelector('#modal-ta');
-      const result = ok => (ok ? (field ? field.value : true) : (field ? null : false));
+      const textual = !!field || (!!area && editable);
+      const result = ok => (ok ? (field ? field.value : (textual ? area.value : true)) : (textual ? null : false));
       const close = ok => { document.removeEventListener('keydown', onKey); wrap.remove(); resolve(result(ok)); };
       function onKey(e) {
         if (e.key === 'Escape' && cancel) close(false);
@@ -50,6 +51,7 @@ const App = (() => {
   const confirmBox = (message, opts = {}) => modal({ message, okLabel: 'نعم', ...opts });
   const askBox = (message, value = '') => modal({ message, input: value });
   const showText = (title, text) => modal({ title, textarea: text, okLabel: 'تم', cancel: false });
+  const pasteBox = (title, message) => modal({ title, message, textarea: '', editable: true, okLabel: 'استيراد' });
 
   function go(hash) {
     if (location.hash === hash) route(); else location.hash = hash;
@@ -118,5 +120,5 @@ const App = (() => {
   }
 
   route();
-  return { toast, go, currentStudent, confirm: confirmBox, ask: askBox, showText };
+  return { toast, go, currentStudent, confirm: confirmBox, ask: askBox, showText, paste: pasteBox };
 })();

@@ -4,28 +4,99 @@
 
 // ---------- المنهج ----------
 const Cur = (() => {
-  const data = window.CURRICULUM || { grades: [] };
-  const index = {};
-  data.grades.forEach(g => g.units.forEach(u => u.words.forEach(w => {
-    let id = `${g.id}.${u.id}.${U.slug(w.en)}`;
-    for (let i = 2; index[id]; i++) id = `${g.id}.${u.id}.${U.slug(w.en)}-${i}`;
-    w.id = id; w.gradeId = g.id; w.unitId = u.id;
-    index[id] = w;
-  })));
+  let data = { grades: [] };
+  let index = {};
+  const WORD_FIELDS = ['sentence', 'sentenceAr', 'page', 'form', 'key'];
+  const unitNumOf = u => parseInt(String(u.id).replace(/\D/g, ''), 10) || 0;
+
+  // يبني المنهج من مصدر (نسخة عميقة) ويعطي كل كلمة معرّفًا ثابتًا
+  function build(src) {
+    data = JSON.parse(JSON.stringify(src || { grades: [] }));
+    index = {};
+    data.grades.forEach(g => {
+      g.units = g.units || [];
+      g.units.forEach(u => { if (u.num === undefined) u.num = unitNumOf(u); });
+      g.units.sort((a, b) => a.num - b.num);
+      g.units.forEach(u => (u.words = u.words || []).forEach(w => {
+        const base = w.key || U.slug(w.en);
+        let id = `${g.id}.${u.id}.${base}`;
+        for (let i = 2; index[id]; i++) id = `${g.id}.${u.id}.${base}-${i}`;
+        w.id = id; w.gradeId = g.id; w.unitId = u.id;
+        index[id] = w;
+      }));
+    });
+  }
+
+  // أين تقع العبارة في الجملة؟ يُرجع النص كما كُتب في الجملة أو null
+  function findIn(sentence, phrase) {
+    const re = new RegExp('(^|[^A-Za-z])(' + U.escRe(phrase) + ')(?![A-Za-z])', 'i');
+    const m = re.exec(sentence);
+    return m ? { index: m.index + m[1].length, text: m[2] } : null;
+  }
+
+  const IRREGULAR = {
+    go: ['goes', 'went', 'gone', 'going'], have: ['has', 'had', 'having'],
+    be: ['is', 'are', 'am', 'was', 'were', 'been', 'being'], do: ['does', 'did', 'done', 'doing'],
+    eat: ['ate', 'eaten'], see: ['saw', 'seen'], take: ['took', 'taken'], come: ['came'],
+    get: ['got'], make: ['made'], write: ['wrote', 'written'], run: ['ran', 'running'],
+    buy: ['bought'], give: ['gave', 'given'], know: ['knew', 'known'], sit: ['sat', 'sitting'],
+    swim: ['swam', 'swimming'], drink: ['drank', 'drunk'], wake: ['woke', 'woken'],
+    child: ['children'], man: ['men'], woman: ['women'], foot: ['feet'], mouse: ['mice']
+  };
+
+  // الكلمة قد ترد بصيغة مختلفة في الجملة (eat -> eats). نحاول تخمينها تلقائيًا.
+  // يُرجع {found, form}: form فارغ إن كانت الكلمة موجودة كما هي.
+  function guessForm(en, sentence) {
+    if (!sentence || !en) return { found: false, form: '' };
+    if (findIn(sentence, en)) return { found: true, form: '' };
+    const parts = en.trim().split(/\s+/);
+    const first = parts[0].toLowerCase();
+    const rest = parts.slice(1).join(' ');
+    const stems = new Set(['s', 'es', 'ed', 'd', 'ing', 'er', 'est', 'ly'].map(x => first + x));
+    if (/y$/.test(first)) ['ies', 'ied', 'ier', 'iest'].forEach(x => stems.add(first.slice(0, -1) + x));
+    if (/e$/.test(first)) stems.add(first.slice(0, -1) + 'ing');
+    const last = first.slice(-1);
+    stems.add(first + last + 'ing'); stems.add(first + last + 'ed'); stems.add(first + last + 'er');
+    (IRREGULAR[first] || []).forEach(x => stems.add(x));
+    for (const st of stems) {
+      const hit = findIn(sentence, rest ? st + ' ' + rest : st);
+      if (hit) return { found: true, form: hit.text };
+    }
+    return { found: false, form: '' };
+  }
+
+  build(window.CURRICULUM);
+
   return {
-    grades: data.grades,
+    get grades() { return data.grades; },
     grade: id => data.grades.find(g => g.id === id),
     unit: (gid, uid) => (data.grades.find(g => g.id === gid) || { units: [] }).units.find(u => u.id === uid),
     word: id => index[id],
     allWords: g => g.units.flatMap(u => u.words),
+    reload: build,
+    guessForm,
+    // نسخة نظيفة قابلة للحفظ (بدون الحقول المحسوبة وقت التشغيل)
+    snapshot() {
+      return {
+        grades: data.grades.map(g => ({
+          id: g.id, name: g.name, short: g.short,
+          units: g.units.map(u => ({
+            id: u.id, title: u.title, num: u.num,
+            words: u.words.map(w => {
+              const o = { en: w.en, ar: w.ar || '' };
+              WORD_FIELDS.forEach(k => { if (w[k]) o[k] = w[k]; });
+              return o;
+            })
+          }))
+        }))
+      };
+    },
     // الجملة مقسّمة حول الكلمة: {before, match, after} أو null
     blank(w) {
       if (!w.sentence) return null;
-      const re = new RegExp('(^|[^A-Za-z])(' + U.escRe(w.form || w.en) + ')(?![A-Za-z])', 'i');
-      const m = re.exec(w.sentence);
-      if (!m) return null;
-      const start = m.index + m[1].length;
-      return { before: w.sentence.slice(0, start), match: m[2], after: w.sentence.slice(start + m[2].length) };
+      const hit = findIn(w.sentence, w.form || w.en);
+      if (!hit) return null;
+      return { before: w.sentence.slice(0, hit.index), match: hit.text, after: w.sentence.slice(hit.index + hit.text.length) };
     }
   };
 })();
@@ -113,6 +184,13 @@ const Store = (() => {
     for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0;
     return String(h);
   }
+  // أي نشاط حقيقي اليوم يحافظ على السلسلة
+  function touchStreak(s, today) {
+    if (s.lastActive !== today) {
+      s.streak = s.lastActive && U.dayDiff(s.lastActive, today) === 1 ? s.streak + 1 : 1;
+      s.lastActive = today;
+    }
+  }
   function newStudent({ name, grade, pin, demo }) {
     return {
       id: 's' + U.rid(), name: name.trim(), grade, pin: String(pin),
@@ -152,7 +230,7 @@ const Store = (() => {
     async resetProgress(id) {
       const s = state.students[id];
       if (!s) return;
-      Object.assign(s, { xp: 0, streak: 0, lastActive: null, daily: { date: '', n: 0 }, words: {}, units: {}, log: [] });
+      Object.assign(s, { xp: 0, streak: 0, lastActive: null, daily: { date: '', n: 0 }, words: {}, units: {}, log: [], reps: { total: 0, byWord: {}, daily: { date: '', n: 0 } } });
       save();
     },
     async loginStudent(id, pin) {
@@ -160,6 +238,31 @@ const Store = (() => {
       if (!s || s.pin !== String(pin).trim()) return null;
       state.session = { role: 'student', id }; save();
       return s;
+    },
+
+    // ---- المنهج الذي يدخله المعلم (محلي على هذا الجهاز حاليًا) ----
+    curriculumSource() { return state.curriculum || window.CURRICULUM; },
+    isCustomCurriculum() { return !!state.curriculum; },
+    saveCurriculum(data) { state.curriculum = data; save(); Cur.reload(data); },
+    resetCurriculum() { delete state.curriculum; save(); Cur.reload(window.CURRICULUM); },
+
+    // تسجيل مرات تكرار كلمة (للمعلم: كم كرّر الطالب)
+    async recordReps(sid, wid, n) {
+      const s = state.students[sid];
+      if (!s || !n) return null;
+      const today = U.ymd();
+      const r = s.reps || (s.reps = { total: 0, byWord: {}, daily: { date: '', n: 0 } });
+      r.total += n;
+      r.byWord[wid] = (r.byWord[wid] || 0) + n;
+      r.daily = { date: today, n: (r.daily.date === today ? r.daily.n : 0) + n };
+      const xpGained = Math.min(20, Math.floor(n / 5));
+      s.xp += xpGained;
+      touchStreak(s, today);
+      const w = Cur.word(wid);
+      s.log.unshift({ t: Date.now(), mode: 'reps', gradeId: w ? w.gradeId : null, unitId: w ? w.unitId : null, wid, correct: n, total: n });
+      s.log = s.log.slice(0, 60);
+      save();
+      return { xpGained, total: r.total, today: r.daily.n };
     },
 
     // تسجيل إجابة واحدة على كلمة
@@ -182,11 +285,7 @@ const Store = (() => {
       const xpGained = correct * 10 + (total && correct / total >= 0.8 ? 20 : 0);
       s.xp += xpGained;
 
-      // السلسلة
-      if (s.lastActive !== today) {
-        s.streak = s.lastActive && U.dayDiff(s.lastActive, today) === 1 ? s.streak + 1 : 1;
-        s.lastActive = today;
-      }
+      touchStreak(s, today);
       // الهدف اليومي
       const wasDone = Progress.dailyCount(s) >= Progress.DAILY_GOAL;
       s.daily = { date: today, n: Progress.dailyCount(s) + correct };
@@ -237,3 +336,6 @@ const Store = (() => {
     }
   };
 })();
+
+// المنهج المحفوظ (إن أدخل المعلم كلماته) يحل محل الأمثلة
+Cur.reload(Store.curriculumSource());

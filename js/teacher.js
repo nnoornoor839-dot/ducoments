@@ -78,6 +78,7 @@ const Teacher = (() => {
         <div class="tile"><b>${active}</b><small>دخلوا اليوم</small></div>
         <div class="tile ${idle ? 'alert' : ''}"><b>${idle}</b><small>يحتاجون متابعة</small></div>
       </div>
+      <button class="btn big" data-go="#/teacher/content">📝 إدارة الكلمات (الصفوف والوحدات والصفحات)</button>
       <div class="row">
         <button class="btn" data-go="#/teacher/add">➕ إضافة طالب</button>
         ${students.some(s => s.demo)
@@ -154,12 +155,21 @@ const Teacher = (() => {
         </div>`;
     }).join('') : '';
 
+    const reps = s.reps || { total: 0, byWord: {}, daily: { date: '', n: 0 } };
+    const todayReps = reps.daily.date === U.ymd() ? reps.daily.n : 0;
+    const topReps = Object.entries(reps.byWord).filter(([id]) => Cur.word(id)).sort((a, b) => b[1] - a[1]).slice(0, 6);
+
     const hardRows = hard.map(h => `
       <li><b class="en" dir="ltr">${esc(h.word.en)}</b> <span class="muted">${esc(h.word.ar || '')}</span>
         <span class="wrong-n">${h.wrong} ${h.wrong === 1 ? 'خطأ' : 'أخطاء'}</span>
         ${h.word.sentence ? `<div class="en sent" dir="ltr">${Games.hl(h.word)}</div>` : ''}</li>`).join('');
 
     const logRows = s.log.slice(0, 12).map(l => {
+      if (l.mode === 'reps') {
+        const rw = Cur.word(l.wid);
+        return `<li><span>🔁 تكرار ${rw ? `«<span class="en" dir="ltr">${esc(rw.en)}</span>»` : 'كلمة'}</span>
+          <span class="muted">${l.correct} مرة • ${U.ago(U.ymd(new Date(l.t)))}</span></li>`;
+      }
       const m = Games.MODES[l.mode] || { icon: '•', title: l.mode };
       const u = l.unitId ? Cur.unit(l.gradeId, l.unitId) : null;
       return `<li><span>${m.icon} ${esc(m.title)}${u ? ` — <span class="en" dir="ltr">${esc(u.title)}</span>` : ''}</span>
@@ -184,6 +194,14 @@ const Teacher = (() => {
 
       <h3 class="section-title">الوحدات</h3>
       <div class="card">${unitRows || '<p class="muted">لا توجد وحدات لهذا الصف.</p>'}</div>
+
+      <h3 class="section-title">🔁 التكرار</h3>
+      <div class="card">
+        <p>كرّر <b>${reps.total}</b> مرة (اليوم: <b>${todayReps}</b>)</p>
+        ${topReps.length
+          ? `<div class="chips en" dir="ltr">${topReps.map(([id, n]) => `<span class="chip-stat">${esc(Cur.word(id).en)} × ${n}</span>`).join('')}</div>`
+          : '<p class="muted small">لم يستخدم التكرار بعد.</p>'}
+      </div>
 
       <h3 class="section-title">⚠️ كلمات يكثر فيها الخطأ</h3>
       <div class="card">${hardRows ? `<ul class="plain">${hardRows}</ul>` : '<p class="muted">لا توجد أخطاء مسجلة بعد.</p>'}</div>
@@ -257,6 +275,7 @@ const Teacher = (() => {
     const [sub, id] = parts;
     if (sub === 'add') return addView();
     if (sub === 's' && id) return studentView(id);
+    if (sub === 'content' || sub === 'unit') return Content.route(parts);
     return dashboard();
   }
 

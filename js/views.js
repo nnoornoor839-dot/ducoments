@@ -4,6 +4,8 @@ const Views = (() => {
   const app = () => document.getElementById('app');
   const STATUS = { new: 'جديدة', learning: 'أتعلمها', mastered: 'محفوظة' };
   let pendingStudent = null;
+  const REP_STEPS = [3, 5, 10, 15, 20, 30, 50, 100];
+  const repDefault = () => { const v = Number(U.lsGet('kalimati.repn', '10')); return REP_STEPS.includes(v) ? v : 10; };
 
   function speedBar() {
     const cur = Speech.getSpeed();
@@ -144,6 +146,16 @@ const Views = (() => {
   }
 
   // ---------- الوحدة ----------
+  const repsOf = (s, wid) => (s.reps && s.reps.byWord && s.reps.byWord[wid]) || 0;
+
+  function gapBar() {
+    const cur = Speech.getGap();
+    return `<div class="gapbar" role="group" aria-label="التوقف بين مرات التكرار">
+      <span class="muted small">⏱ التوقف بين المرات (ليردّد الطالب):</span>
+      ${Speech.GAPS.map(g => `<button class="sp ${g.ms === cur ? 'on' : ''}" data-act="gap" data-ms="${g.ms}">${g.label} ${g.sec}</button>`).join('')}
+    </div>`;
+  }
+
   function wordCard(s, w) {
     const st = Progress.wordStatus(s, w.id);
     return `
@@ -156,8 +168,26 @@ const Views = (() => {
         ${w.sentence ? `
           <button class="w-sent en" data-act="sent" dir="ltr">${Games.hl(w)} <i class="spk">🔊</i></button>
           ${w.sentenceAr ? `<div class="w-tr hidden">${esc(w.sentenceAr)}</div>` : ''}` : ''}
+        <div class="reps">
+          <div class="rep-set">
+            <span class="rep-lbl">🔁 كرّر</span>
+            <button class="step" data-act="rep-minus" aria-label="أقل">−</button>
+            <b class="rep-n" data-n="${repDefault()}">${repDefault()}</b>
+            <button class="step" data-act="rep-plus" aria-label="أكثر">+</button>
+            <span class="rep-lbl">مرة</span>
+          </div>
+          <div class="rep-go">
+            <button class="mini go" data-act="rep-word">▶ الكلمة</button>
+            ${w.sentence ? '<button class="mini go" data-act="rep-sent">▶ الجملة</button>' : ''}
+          </div>
+        </div>
+        <div class="rep-live hidden">
+          <b class="rep-count">1 من 1</b>
+          <span class="meter"><i></i></span>
+          <button class="mini stop" data-act="rep-stop">⏹ إيقاف</button>
+        </div>
+        <small class="rep-total muted">${repsOf(s, w.id) ? `مجموع تكرارك لهذه الكلمة: ${repsOf(s, w.id)} مرة` : ''}</small>
         <div class="w-actions">
-          <button class="mini" data-act="rep">🔁 ×3</button>
           <button class="mini" data-act="spell">🔤 تهجئة</button>
           ${w.sentenceAr ? '<button class="mini" data-act="tr">🈯 ترجمة الجملة</button>' : ''}
           ${w.page ? `<span class="pg">📖 صفحة ${esc(w.page)}</span>` : ''}
@@ -190,6 +220,7 @@ const Views = (() => {
 
       <h3 class="section-title">كلمات الوحدة <small class="muted">(اضغط على الكلمة أو الجملة لتسمعها)</small></h3>
       ${Speech.supported ? '' : '<p class="card warn">متصفحك لا يدعم نطق الكلمات. جرّب Chrome أو Safari.</p>'}
+      ${gapBar()}
       <div class="sticky-speed">${speedBar()}</div>
       <div class="words">${u.words.map(w => wordCard(s, w)).join('')}</div>`;
   }
@@ -210,7 +241,55 @@ const Views = (() => {
 
   U.actions.word = el => speak(el, w => Speech.word(w.en));
   U.actions.sent = el => speak(el, w => Speech.sentence(w.sentence));
-  U.actions.rep = el => speak(el, w => Speech.repeat(w.en, 3));
+  function stepRep(el, dir) {
+    const b = el.closest('.wcard').querySelector('.rep-n');
+    const i = Math.max(0, Math.min(REP_STEPS.length - 1, REP_STEPS.indexOf(Number(b.dataset.n)) + dir));
+    b.dataset.n = REP_STEPS[i];
+    b.textContent = REP_STEPS[i];
+    U.lsSet('kalimati.repn', String(REP_STEPS[i]));
+  }
+  U.actions['rep-minus'] = el => stepRep(el, -1);
+  U.actions['rep-plus'] = el => stepRep(el, 1);
+
+  // تكرار الكلمة أو الجملة n مرة مع عدّاد حي، ثم تسجيل العدد للمعلم
+  async function runReps(el, kind) {
+    const ctx = wordOf(el);
+    if (!ctx) return;
+    if (!Speech.supported) { App.toast('المتصفح لا يدعم النطق'); return; }
+    const { card, w } = ctx;
+    const n = Number(card.querySelector('.rep-n').dataset.n);
+    const set = card.querySelector('.reps'), live = card.querySelector('.rep-live');
+    const count = live.querySelector('.rep-count'), bar = live.querySelector('.meter i');
+    document.querySelectorAll('.wcard.playing').forEach(c => c.classList.remove('playing'));
+    set.classList.add('hidden');
+    live.classList.remove('hidden');
+    card.classList.add('playing');
+    count.textContent = `0 من ${n}`;
+    bar.style.width = '0';
+    const done = await Speech.loop(kind === 'sent' ? w.sentence : w.en, n, i => {
+      count.textContent = `${i} من ${n}`;
+      bar.style.width = (i / n * 100) + '%';
+    });
+    set.classList.remove('hidden');
+    live.classList.add('hidden');
+    card.classList.remove('playing');
+    if (!done) return;
+    const sess = Store.getSession();
+    const res = sess ? await Store.recordReps(sess.id, w.id, done) : null;
+    const mine = sess ? await Store.getStudent(sess.id) : null;
+    const total = card.querySelector('.rep-total');
+    if (total && mine) total.textContent = `مجموع تكرارك لهذه الكلمة: ${repsOf(mine, w.id)} مرة`;
+    App.toast(done === n
+      ? `أحسنت! كرّرت ${done} مرة 🎉${res && res.xpGained ? ` (+${res.xpGained} نقطة)` : ''}`
+      : `كرّرت ${done} مرة`);
+  }
+  U.actions['rep-word'] = el => runReps(el, 'word');
+  U.actions['rep-sent'] = el => runReps(el, 'sent');
+  U.actions['rep-stop'] = () => Speech.stop();
+  U.actions.gap = el => {
+    Speech.setGap(Number(el.dataset.ms));
+    document.querySelectorAll('.gapbar .sp').forEach(b => b.classList.toggle('on', b.dataset.ms === el.dataset.ms));
+  };
   U.actions.spell = el => speak(el, w => Speech.spell(w.en));
   U.actions.tr = el => {
     const ctx = wordOf(el);
