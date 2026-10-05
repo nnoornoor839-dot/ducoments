@@ -426,10 +426,20 @@ table.pv th, table.pv td { padding: .3rem .5rem; border-bottom: 1px solid var(--
   .unit-actions.three { grid-template-columns: 1fr; }
   .role-pick { grid-template-columns: 1fr; }
 }
-/* تجميع الطلاب حسب الصف */
-.grade-group { margin-bottom: 1.2rem; }
-.grade-title { font-size: 1rem; font-weight: 700; margin: 0 0 .4rem; display: flex; align-items: center; gap: .4rem; }
-.grade-title .muted { font-weight: 400; }
+/* بطاقات الصفوف في لوحة المعلم */
+.grade-cards { display: grid; gap: .8rem; margin: .4rem 0 1rem; }
+.grade-card { display: flex; align-items: center; gap: .9rem; width: 100%; text-align: start; background: var(--card); border: 0; border-radius: 20px; box-shadow: var(--shadow); padding: 1rem 1.1rem; border-right: 6px solid var(--brand); transition: transform .1s; }
+.grade-card:active { transform: scale(.98); }
+.gc-ic { display: grid; place-items: center; width: 52px; height: 52px; flex: none; border-radius: 16px; background: var(--brand-soft); color: var(--brand-dark); }
+.gc-main { flex: 1; display: grid; gap: .15rem; min-width: 0; }
+.gc-main b { font-size: 1.1rem; }
+.gc-main small { color: var(--muted); }
+.gc-chips { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .2rem; }
+.gc-side { text-align: center; flex: none; }
+.gc-side b { display: block; font-size: 1.7rem; line-height: 1.1; color: var(--brand-dark); }
+.gc-side small { color: var(--muted); }
+.tile.static { cursor: default; }
+.tile.static:active { transform: none; }
 
 /* تفاصيل الوحدة في صفحة الطالب */
 .u-detail { display: block; font-size: .85rem; color: var(--muted); }

@@ -78,7 +78,7 @@ const Teacher = (() => {
     App.go('#/teacher');
   };
 
-  // ---------- اللوحة ----------
+  // ---------- اللوحة: بطاقة لكل صف ----------
   async function dashboard() {
     const students = await Store.listStudents();
     if (!Store.teacherAuthed()) return loginView();
@@ -86,64 +86,92 @@ const Teacher = (() => {
     const active = students.filter(s => s.lastActive === today).length;
     const idle = students.filter(needsFollowUp).length;
 
-    // تجميع الطلاب حسب الصف
-    const byGrade = {};
-    students.forEach(s => {
-      if (!byGrade[s.grade]) byGrade[s.grade] = [];
-      byGrade[s.grade].push(s);
-    });
-
-    const gradeCards = Cur.grades.map(g => {
-      const list = byGrade[g.id] || [];
-      if (!list.length) return '';
-      list.sort((a, b) => (needsFollowUp(b) - needsFollowUp(a)) || a.name.localeCompare(b.name, 'ar'));
-      const rows = list.map(s => {
-        const gs = Progress.gradeStats(s, g);
-        const late = needsFollowUp(s);
-        return `
-          <button class="t-student ${late ? 'late' : ''}" data-go="#/teacher/s/${s.id}" data-name="${esc(s.name)}" data-today="${s.lastActive === today}" data-late="${late}">
-            <span class="t-main">
-              <b>${esc(s.name)}</b>
-              <small>${gs.total ? `${gs.total} كلمة` : '<span class="warn-text">لم تُسند كلمات</span>'} • ${ic('key', 'sm')} ${esc(s.pin)}</small>
-              <span class="meter"><i style="width:${gs.pct}%"></i></span>
-            </span>
-            <span class="t-side">
-              <b>${gs.total ? gs.pct + '٪' : '—'}</b>
-              <small class="${late ? 'warn-text' : ''}">${late ? ic('alert', 'sm') + ' ' : ''}${U.ago(s.lastActive)}</small>
-            </span>
-          </button>`;
-      }).join('');
+    const cards = Cur.grades.map(g => {
+      const list = students.filter(s => s.grade === g.id);
+      const todayN = list.filter(s => s.lastActive === today).length;
+      const idleN = list.filter(needsFollowUp).length;
+      const words = Cur.allWords(g).length;
+      const units = g.units.length;
       return `
-        <div class="grade-group">
-          <h3 class="grade-title">${ic('book')} ${esc(g.name)} <span class="muted small">(${list.length} ${list.length === 1 ? 'طالب' : 'طلاب'})</span></h3>
-          <div class="t-list">${rows}</div>
-        </div>`;
+        <button class="grade-card" data-go="#/teacher/g/${g.id}">
+          <span class="gc-ic">${ic('book', 'lg')}</span>
+          <span class="gc-main">
+            <b>${esc(g.name)}</b>
+            <small>${words ? `${units} ${units === 1 ? 'وحدة' : 'وحدات'} • ${words} كلمة` : 'لم تُضف كلمات بعد'}</small>
+            ${todayN || idleN ? `<span class="gc-chips">
+              ${todayN ? `<span class="chip-stat good">دخلوا اليوم: ${todayN}</span>` : ''}
+              ${idleN ? `<span class="chip-stat">يحتاجون متابعة: ${idleN}</span>` : ''}
+            </span>` : ''}
+          </span>
+          <span class="gc-side"><b>${list.length}</b><small>${list.length === 1 ? 'طالب' : 'طلاب'}</small></span>
+        </button>`;
     }).join('');
 
     app().innerHTML = `
       <h2 class="section-title">${ic('board')} لوحة المعلم</h2>
       <div class="tiles">
+        <div class="tile static"><b>${students.length}</b><small>كل الطلاب</small></div>
+        <div class="tile static"><b>${active}</b><small>دخلوا اليوم</small></div>
+        <div class="tile static ${idle ? 'alert' : ''}"><b>${idle}</b><small>يحتاجون متابعة</small></div>
+      </div>
+      <h3 class="section-title">الصفوف</h3>
+      <div class="grade-cards">${cards || '<p class="card muted empty">لا توجد صفوف.</p>'}</div>
+      ${syncNote()}`;
+  }
+
+  // ---------- صف واحد: طلابه وإدارة كلماته ----------
+  async function gradeView(gid) {
+    const g = Cur.grade(gid);
+    if (!g) return App.go('#/teacher');
+    const all = await Store.listStudents();
+    if (!Store.teacherAuthed()) return loginView();
+    const today = U.ymd();
+    const students = all.filter(s => s.grade === g.id)
+      .sort((a, b) => (needsFollowUp(b) - needsFollowUp(a)) || a.name.localeCompare(b.name, 'ar'));
+    const active = students.filter(s => s.lastActive === today).length;
+    const idle = students.filter(needsFollowUp).length;
+
+    const rows = students.map(s => {
+      const gs = Progress.gradeStats(s, g);
+      const late = needsFollowUp(s);
+      return `
+        <button class="t-student ${late ? 'late' : ''}" data-go="#/teacher/s/${s.id}" data-name="${esc(s.name)}" data-today="${s.lastActive === today}" data-late="${late}">
+          <span class="t-main">
+            <b>${esc(s.name)}</b>
+            <small>${gs.total ? `${gs.total} كلمة مسندة` : '<span class="warn-text">لم تُسند كلمات</span>'} • ${ic('key', 'sm')} ${esc(s.pin)}</small>
+            <span class="meter"><i style="width:${gs.pct}%"></i></span>
+          </span>
+          <span class="t-side">
+            <b>${gs.total ? gs.pct + '٪' : '—'}</b>
+            <small class="${late ? 'warn-text' : ''}">${late ? ic('alert', 'sm') + ' ' : ''}${U.ago(s.lastActive)}</small>
+          </span>
+        </button>`;
+    }).join('');
+
+    app().innerHTML = `
+      <button class="back" data-go="#/teacher">‹ لوحة المعلم</button>
+      <h2 class="section-title">${ic('book')} ${esc(g.name)}</h2>
+      <div class="row">
+        <button class="btn" data-go="#/teacher/add/${g.id}">${ic('plus')} إضافة طالب</button>
+        <button class="btn ghost" data-go="#/teacher/content/${g.id}">${ic('edit')} إدارة الكلمات</button>
+      </div>
+      <div class="tiles">
         <button class="tile on" data-act="t-filter" data-f="all"><b>${students.length}</b><small>الكل</small></button>
         <button class="tile" data-act="t-filter" data-f="today"><b>${active}</b><small>دخلوا اليوم</small></button>
         <button class="tile ${idle ? 'alert' : ''}" data-act="t-filter" data-f="idle"><b>${idle}</b><small>يحتاجون متابعة</small></button>
-      </div>
-      <div class="row">
-        <button class="btn" data-go="#/teacher/content">${ic('edit')} إدارة الكلمات</button>
-        <button class="btn" data-go="#/teacher/add">${ic('plus')} إضافة طالب</button>
       </div>
       ${students.length > 3 ? `
         <div class="t-search">
           <input type="search" id="t-search-in" placeholder="ابحث عن طالب..." aria-label="بحث عن طالب" autocomplete="off">
         </div>` : ''}
-      ${gradeCards || '<p class="card muted empty">لا يوجد طلاب بعد. أضف أول طالب من الزر أعلاه.</p>'}
+      ${rows ? `<div class="t-list" id="t-list">${rows}</div>` : `<p class="card muted empty">لا يوجد طلاب في ${esc(g.name)} بعد. اضغط «إضافة طالب».</p>`}
       ${syncNote()}`;
 
-    // تفعيل البحث
     const searchIn = document.getElementById('t-search-in');
     if (searchIn) {
       searchIn.addEventListener('input', () => {
         const q = searchIn.value.trim().toLowerCase();
-        document.querySelectorAll('.t-list .t-student').forEach(el => {
+        document.querySelectorAll('#t-list .t-student').forEach(el => {
           const name = (el.dataset.name || '').toLowerCase();
           el.style.display = !q || name.includes(q) ? '' : 'none';
         });
@@ -160,15 +188,18 @@ const Teacher = (() => {
   }
 
   // ---------- إضافة طالب ----------
-  function addView() {
+  function addView(gid) {
+    const fixed = Cur.grade(gid);
     const pin = String(Math.floor(1000 + Math.random() * 9000));
     app().innerHTML = `
-      <button class="back" data-go="#/teacher">‹ رجوع</button>
+      <button class="back" data-go="${fixed ? '#/teacher/g/' + fixed.id : '#/teacher'}">‹ رجوع</button>
       <section class="card login">
-        <h2>${ic('plus')} إضافة طالب</h2>
+        <h2>${ic('plus')} إضافة طالب${fixed ? ` — ${esc(fixed.name)}` : ''}</h2>
         <form data-form="t-add" class="stack">
           <label>اسم الطالب<input name="name" maxlength="20" required></label>
-          <label>الصف<select name="grade">${Cur.grades.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select></label>
+          ${fixed
+            ? `<input type="hidden" name="grade" value="${fixed.id}">`
+            : `<label>الصف<select name="grade">${Cur.grades.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select></label>`}
           <label>الرمز السري (4 أرقام)<input name="pin" value="${pin}" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required></label>
           <button class="btn" type="submit">حفظ</button>
         </form>
@@ -184,7 +215,7 @@ const Teacher = (() => {
     const result = await Store.addStudent({ name, grade, pin });
     if (result && result.error) { failed(result); return; }
     App.toast(`تمت إضافة ${name} — الرمز السري: ${pin}`);
-    App.go('#/teacher');
+    App.go('#/teacher/g/' + grade);
   };
 
   // ---------- تفاصيل طالب ----------
@@ -304,7 +335,7 @@ const Teacher = (() => {
     }).join('') : '<p class="muted">لا توجد وحدات.</p>';
 
     app().innerHTML = `
-      <button class="back" data-go="#/teacher">‹ رجوع للوحة</button>
+      <button class="back" data-go="#/teacher/g/${s.grade}">‹ ${esc(gradeName(s.grade))}</button>
       <section class="card hero">
         <div class="hero-main">
           <h2>${esc(s.name)}</h2>
@@ -410,7 +441,7 @@ const Teacher = (() => {
     if (s && await App.confirm(`حذف الطالب ${s.name} نهائيًا؟`, { okLabel: 'حذف', danger: true })) {
       const r = await Store.deleteStudent(s.id);
       if (r.error) { failed(r); return; }
-      App.go('#/teacher');
+      App.go('#/teacher/g/' + s.grade);
     }
   };
   // البيانات التجريبية متاحة برمجيًا فقط (للاختبارات)
@@ -470,11 +501,6 @@ const Teacher = (() => {
       if (f === 'today') { row.style.display = row.dataset.today === 'true' ? '' : 'none'; return; }
       if (f === 'idle') { row.style.display = row.dataset.late === 'true' ? '' : 'none'; return; }
     });
-    // أخفِ عنوان الصف إن لم يبقَ طلاب ظاهرون تحته
-    document.querySelectorAll('.grade-group').forEach(group => {
-      const visible = group.querySelectorAll('.t-student:not([style*="display: none"])');
-      group.style.display = visible.length ? '' : 'none';
-    });
   };
 
   U.actions['t-exit'] = async () => { await Store.teacherLogout(); App.go('#/login'); };
@@ -483,7 +509,8 @@ const Teacher = (() => {
   async function route(parts) {
     if (!Store.teacherAuthed()) return loginView();
     const [sub, id] = parts;
-    if (sub === 'add') return addView();
+    if (sub === 'g' && id) return gradeView(id);
+    if (sub === 'add') return addView(id);
     if (sub === 's' && id) return studentView(id);
     if (sub === 'content' || sub === 'unit') return Content.route(parts);
     return dashboard();

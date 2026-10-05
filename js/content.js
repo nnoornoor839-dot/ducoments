@@ -14,7 +14,6 @@ const Content = (() => {
     fn(data);
     Store.saveCurriculum(data);
   }
-  const gradeCount = g => g.units.reduce((n, u) => n + u.words.length, 0);
   function pageRange(u) {
     const nums = u.words.map(w => parseInt(w.page, 10)).filter(n => !isNaN(n));
     if (!nums.length) return '';
@@ -92,11 +91,11 @@ const Content = (() => {
 
   // ---------- شاشة الصف ----------
   function home(gid) {
-    const grades = Cur.grades;
-    const g = Cur.grade(gid) || grades.find(x => x.units.length) || grades[0];
+    const g = Cur.grade(gid);
+    if (!g) return App.go('#/teacher');
     app().innerHTML = `
-      <button class="back" data-go="#/teacher">‹ رجوع للوحة</button>
-      <h2 class="section-title">${ic('edit')} إدارة الكلمات</h2>
+      <button class="back" data-go="#/teacher/g/${g.id}">‹ ${esc(g.name)}</button>
+      <h2 class="section-title">${ic('edit')} إدارة الكلمات — ${esc(g.name)}</h2>
       ${Store.isCurriculumStale() ? `
         <div class="card warn small">
           نُشرت <b>كلمات جديدة</b> في التطبيق، وما تراه الآن نسخة قديمة محفوظة على هذا الجهاز.
@@ -107,9 +106,6 @@ const Content = (() => {
           الكلمات الحالية <b>أمثلة تجريبية</b> وضعتها للتجربة.
           <div class="row"><button class="btn ghost" data-act="c-clear">${ic('trash')} حذف الأمثلة والبدء بكلماتك</button></div>
         </div>` : '')}
-      <div class="gchips">${grades.map(x =>
-        `<button class="gchip ${x.id === g.id ? 'on' : ''}" data-go="#/teacher/content/${x.id}">${esc(x.name)} <small>(${gradeCount(x)})</small></button>`).join('')}</div>
-      <h3>${esc(g.name)}</h3>
       ${g.units.map(u => `
         <div class="c-unit">
           <div><b class="en" dir="ltr">${esc(u.title)}</b>
@@ -119,7 +115,7 @@ const Content = (() => {
       <button class="btn big" data-go="#/teacher/unit/${g.id}/new">${ic('plus')} وحدة جديدة في ${esc(g.name)}</button>
 
       <h3 class="section-title">${ic('upload')} استيراد من Excel</h3>
-      <p class="muted small">حمّل القالب، املأه بكلماتك في Excel، ثم ارفعه هنا. يمكنك إضافة عدة وحدات وصفوف في ملف واحد.</p>
+      <p class="muted small">حمّل القالب، املأه بكلماتك في Excel، ثم ارفعه هنا. يمكنك إضافة عدة وحدات في ملف واحد، والسطر الذي لا يحدد الصف يُضاف إلى ${esc(g.name)}.</p>
       <div class="row wrap">
         <button class="btn ghost" data-act="c-excel-template">${ic('download')} تحميل قالب Excel</button>
         <label class="btn ghost file-label">${ic('upload')} استيراد ملف Excel
@@ -127,7 +123,7 @@ const Content = (() => {
         </label>
       </div>
 
-      <h3 class="section-title">نقل الكلمات بين الأجهزة</h3>
+      <h3 class="section-title">نقل الكلمات بين الأجهزة (كل الصفوف)</h3>
       <p class="muted small">الكلمات تُحفظ على هذا الجهاز. انسخها هنا والصقها على جهاز آخر، مثل جهاز الطلاب.</p>
       <div class="row wrap">
         <button class="btn ghost" data-act="c-export">${ic('upload')} نسخ كل الكلمات</button>
@@ -139,7 +135,7 @@ const Content = (() => {
   // ---------- شاشة الوحدة ----------
   function unitView(gid, uid) {
     const g = Cur.grade(gid);
-    if (!g) return App.go('#/teacher/content');
+    if (!g) return App.go('#/teacher');
     ctx.gid = gid; ctx.uid = uid;
     pending = [];
     if (uid === 'new') return newUnitView(g);
@@ -384,12 +380,13 @@ const Content = (() => {
     if (typeof XLSX === 'undefined') { App.toast('مكتبة Excel غير متوفرة. تأكد من اتصالك بالإنترنت وأعد تحميل الصفحة.'); return; }
     const headers = Object.values(EXCEL_HEADERS);
     const gradeIds = Cur.grades.map(g => `${g.id} = ${g.name}`).join(' | ');
+    const defId = (Cur.grade(ctx.gid) || Cur.grades[0] || { id: 'm2' }).id;
     const example = [
-      Cur.grades[0] ? Cur.grades[0].id : 'm2', '2', 'Unit 2: What Are They Making?',
+      defId, '2', 'Unit 2: What Are They Making?',
       'bread', 'خبز', 'I eat bread for breakfast.', 'آكل الخبز في الإفطار.', '24', ''
     ];
     const example2 = [
-      Cur.grades[0] ? Cur.grades[0].id : 'm2', '2', 'Unit 2: What Are They Making?',
+      defId, '2', 'Unit 2: What Are They Making?',
       'eat', 'يأكل', 'I eat bread for breakfast.', '', '24', 'eat'
     ];
     const ws = XLSX.utils.aoa_to_sheet([headers, example, example2]);
@@ -440,7 +437,7 @@ const Content = (() => {
       const en = String(row[colMap.word] || '').trim();
       if (!en) { skipped++; return; }
       const gradeVal = colMap.grade ? row[colMap.grade] : '';
-      const g = resolveGrade(gradeVal) || Cur.grades[0];
+      const g = resolveGrade(gradeVal) || Cur.grade(ctx.gid) || Cur.grades[0];
       if (!g) { warnings.push(`سطر ${ri + 2}: صف غير معروف «${gradeVal}»`); skipped++; return; }
 
       const unitNum = parseInt(String(colMap.unit ? row[colMap.unit] : '1'), 10) || 1;
@@ -513,7 +510,8 @@ const Content = (() => {
       if (ctx.gid !== a || ctx.uid !== b) { editingId = null; openSection = null; }
       return unitView(a, b);
     }
-    ctx.gid = a || ctx.gid;
+    if (!a || !Cur.grade(a)) return App.go('#/teacher');
+    ctx.gid = a;
     return home(a);
   }
 
