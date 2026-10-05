@@ -1,6 +1,6 @@
 // ملف مُولَّد تلقائيًا بواسطة tools/csv_to_data.py — لا تعدّله يدويًا
 window.CURRICULUM = {
- "version": "202610050630",
+ "version": "202610052239",
  "grades": [
   {
    "id": "g5",
@@ -12,7 +12,183 @@ window.CURRICULUM = {
    "id": "g6",
    "name": "السادس الابتدائي",
    "short": "6 ابتدائي",
-   "units": []
+   "units": [
+    {
+     "id": "u2",
+     "title": "Unit 2: House Designs",
+     "words": [
+      {
+       "en": "actually",
+       "ar": "في الحقيقة",
+       "sentence": "Actually, can we have chicken instead?",
+       "sentenceAr": "في الحقيقة، هل يمكننا تناول الدجاج بدلًا من ذلك؟",
+       "page": "28"
+      },
+      {
+       "en": "architect",
+       "ar": "مهندس معماري",
+       "sentence": "The architect made the perfect vacation home with strong materials.",
+       "sentenceAr": "صمّم المهندس المعماري منزل إجازة مثاليًا بمواد قوية.",
+       "page": "22"
+      },
+      {
+       "en": "basement",
+       "ar": "قبو",
+       "sentence": "Downstairs is the basement, on the bottom floor.",
+       "sentenceAr": "في الأسفل القبو، في الطابق السفلي.",
+       "page": "23"
+      },
+      {
+       "en": "corner",
+       "ar": "زاوية",
+       "sentence": "Right now, I have an empty closet in the corner of my room.",
+       "sentenceAr": "الآن لدي خزانة فارغة في زاوية غرفتي.",
+       "page": "30"
+      },
+      {
+       "en": "cushion",
+       "ar": "مخدة الكنب",
+       "sentence": "We're going to put big cushions in the corner of the room.",
+       "sentenceAr": "سنضع وسائد كبيرة في زاوية الغرفة.",
+       "page": "30",
+       "form": "cushions"
+      },
+      {
+       "en": "design",
+       "ar": "تصميم",
+       "sentence": "He spoke to our architect to draw the design he wants.",
+       "sentenceAr": "تحدّث إلى مهندسنا المعماري ليرسم التصميم الذي يريده.",
+       "page": "30"
+      },
+      {
+       "en": "else",
+       "ar": "آخر",
+       "sentence": "Is there anything else to eat?",
+       "sentenceAr": "هل هناك شيء آخر لنأكله؟",
+       "page": "28"
+      },
+      {
+       "en": "empty",
+       "ar": "فارغ",
+       "sentence": "We have empty stomachs!",
+       "sentenceAr": "بطوننا فارغة!",
+       "page": "28"
+      },
+      {
+       "en": "entrance",
+       "ar": "مدخل",
+       "sentence": "To get through the entrance, you have to find the key.",
+       "sentenceAr": "لتعبر المدخل عليك أن تجد المفتاح.",
+       "page": "23"
+      },
+      {
+       "en": "fridge",
+       "ar": "ثلاجة",
+       "sentence": "If you're feeling hungry, see what's in the fridge!",
+       "sentenceAr": "إن كنت تشعر بالجوع فانظر ماذا في الثلاجة!",
+       "page": "23"
+      },
+      {
+       "en": "front",
+       "ar": "مقدمة / أمام",
+       "sentence": "We're going to play in the front yard.",
+       "sentenceAr": "سنلعب في الفناء الأمامي.",
+       "page": "28"
+      },
+      {
+       "en": "gate",
+       "ar": "بوابة",
+       "sentence": "Once you're through the gate, you can come and find me!",
+       "sentenceAr": "حين تعبر البوابة يمكنك أن تأتي وتجدني!",
+       "page": "23"
+      },
+      {
+       "en": "instead",
+       "ar": "عوضًا عن ذلك",
+       "sentence": "Instead of the two small windows, the builders are going to put in one big window.",
+       "sentenceAr": "بدلًا من النافذتين الصغيرتين، سيضع البنّاؤون نافذة واحدة كبيرة.",
+       "page": "30"
+      },
+      {
+       "en": "key",
+       "ar": "مفتاح",
+       "sentence": "You will find the key under the mat.",
+       "sentenceAr": "ستجد المفتاح تحت السجادة.",
+       "page": "22"
+      },
+      {
+       "en": "later",
+       "ar": "لاحقًا",
+       "sentence": "See you later!",
+       "sentenceAr": "أراك لاحقًا!",
+       "page": "28"
+      },
+      {
+       "en": "layout",
+       "ar": "تخطيط معماري",
+       "sentence": "The layout has space for homes, shops, and offices.",
+       "sentenceAr": "يتضمن التخطيط مساحة للمنازل والمتاجر والمكاتب.",
+       "page": "32"
+      },
+      {
+       "en": "materials",
+       "ar": "مواد",
+       "sentence": "Builders are going to use strong, safe materials in the construction.",
+       "sentenceAr": "سيستخدم البنّاؤون مواد قوية وآمنة في البناء.",
+       "page": "32"
+      },
+      {
+       "en": "measurements",
+       "ar": "مقاسات",
+       "sentence": "First, I'm going to change the measurements of my bedroom.",
+       "sentenceAr": "أولًا، سأغيّر مقاسات غرفة نومي.",
+       "page": "30"
+      },
+      {
+       "en": "oven",
+       "ar": "فرن",
+       "sentence": "Turn the oven on or make a cold sandwich!",
+       "sentenceAr": "شغّل الفرن أو حضّر شطيرة باردة!",
+       "page": "23"
+      },
+      {
+       "en": "phone",
+       "ar": "هاتف",
+       "sentence": "For any problems, call me.",
+       "sentenceAr": "لأي مشكلة، اتصل بي.",
+       "page": "22"
+      },
+      {
+       "en": "screen",
+       "ar": "شاشة",
+       "sentence": "Turn on the Wi-Fi next to the TV screen.",
+       "sentenceAr": "شغّل الواي فاي بجانب شاشة التلفاز.",
+       "page": "22"
+      },
+      {
+       "en": "shelf",
+       "ar": "رف",
+       "sentence": "There was a shelf in the corner.",
+       "sentenceAr": "كان هناك رف في الزاوية.",
+       "page": "31"
+      },
+      {
+       "en": "take",
+       "ar": "يأخذ / يستغرق",
+       "sentence": "It'll take about an hour.",
+       "sentenceAr": "سيستغرق الأمر حوالي ساعة.",
+       "page": "28"
+      },
+      {
+       "en": "Wi-Fi",
+       "ar": "اتصال لاسلكي",
+       "sentence": "If you want technology, turn on the Wi-Fi.",
+       "sentenceAr": "إن أردت التكنولوجيا فشغّل الواي فاي.",
+       "page": "23"
+      }
+     ]
+    }
+   ]
   },
   {
    "id": "m2",
