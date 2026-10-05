@@ -118,6 +118,15 @@ const Content = (() => {
         </div>`).join('') || '<p class="card muted empty">لا توجد وحدات لهذا الصف بعد.</p>'}
       <button class="btn big" data-go="#/teacher/unit/${g.id}/new">${ic('plus')} وحدة جديدة في ${esc(g.name)}</button>
 
+      <h3 class="section-title">${ic('upload')} استيراد من Excel</h3>
+      <p class="muted small">حمّل القالب، املأه بكلماتك في Excel، ثم ارفعه هنا. يمكنك إضافة عدة وحدات وصفوف في ملف واحد.</p>
+      <div class="row wrap">
+        <button class="btn ghost" data-act="c-excel-template">${ic('download')} تحميل قالب Excel</button>
+        <label class="btn ghost file-label">${ic('upload')} استيراد ملف Excel
+          <input type="file" accept=".xlsx,.xls,.csv" data-act="c-excel-import" class="hidden-file">
+        </label>
+      </div>
+
       <h3 class="section-title">نقل الكلمات بين الأجهزة</h3>
       <p class="muted small">الكلمات تُحفظ على هذا الجهاز. انسخها هنا والصقها على جهاز آخر، مثل جهاز الطلاب.</p>
       <div class="row wrap">
@@ -355,6 +364,147 @@ const Content = (() => {
     App.toast(`تم استيراد ${count} كلمة`);
     home(ctx.gid);
   };
+
+  // ---------- استيراد Excel ----------
+  const EXCEL_HEADERS = {
+    grade: 'الصف (grade)',
+    unit: 'رقم الوحدة (unit)',
+    unit_title: 'عنوان الوحدة (unit_title)',
+    word: 'الكلمة (word)',
+    meaning: 'المعنى (meaning)',
+    sentence: 'الجملة (sentence)',
+    sentence_ar: 'ترجمة الجملة (sentence_ar)',
+    page: 'الصفحة (page)',
+    form: 'شكل الكلمة في الجملة (form)'
+  };
+  const GRADE_MAP = {};
+  Cur.grades.forEach(g => { GRADE_MAP[g.id] = g; GRADE_MAP[g.name] = g; GRADE_MAP[g.short] = g; });
+
+  U.actions['c-excel-template'] = () => {
+    if (typeof XLSX === 'undefined') { App.toast('مكتبة Excel غير متوفرة. تأكد من اتصالك بالإنترنت وأعد تحميل الصفحة.'); return; }
+    const headers = Object.values(EXCEL_HEADERS);
+    const gradeIds = Cur.grades.map(g => `${g.id} = ${g.name}`).join(' | ');
+    const example = [
+      Cur.grades[0] ? Cur.grades[0].id : 'm2', '2', 'Unit 2: What Are They Making?',
+      'bread', 'خبز', 'I eat bread for breakfast.', 'آكل الخبز في الإفطار.', '24', ''
+    ];
+    const example2 = [
+      Cur.grades[0] ? Cur.grades[0].id : 'm2', '2', 'Unit 2: What Are They Making?',
+      'eat', 'يأكل', 'I eat bread for breakfast.', '', '24', 'eat'
+    ];
+    const ws = XLSX.utils.aoa_to_sheet([headers, example, example2]);
+    ws['!cols'] = headers.map((_, i) => ({ wch: i === 5 || i === 6 ? 40 : i === 2 ? 30 : 15 }));
+    // ملاحظة في أول خلية
+    if (!ws.A1.c) ws.A1.c = [];
+    ws.A1.c.push({ a: 'كلماتي', t: `الصفوف المتاحة: ${gradeIds}` });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'كلمات');
+    XLSX.writeFile(wb, 'kalimati-template.xlsx');
+    App.toast('تم تحميل القالب. افتحه في Excel واملأ كلماتك.');
+  };
+
+  function resolveGrade(val) {
+    const v = String(val || '').trim();
+    if (!v) return null;
+    if (GRADE_MAP[v]) return GRADE_MAP[v];
+    const lower = v.toLowerCase();
+    return Cur.grades.find(g => g.id === lower || g.name === v || (g.short && g.short === v)) || null;
+  }
+
+  function parseExcel(wb) {
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+    if (!rows.length) return { error: 'الملف فارغ' };
+
+    // تعيين أسماء الأعمدة (يدعم الأسماء العربية والإنجليزية)
+    const colMap = {};
+    const firstKeys = Object.keys(rows[0]);
+    const mappings = [
+      ['grade', /grade|الصف/i], ['unit', /^unit$|رقم.*وحد/i], ['unit_title', /unit.?title|عنوان.*وحد/i],
+      ['word', /^word$|الكلمة/i], ['meaning', /meaning|المعنى/i], ['sentence', /^sentence$|الجملة/i],
+      ['sentence_ar', /sentence.?ar|ترجمة/i], ['page', /page|الصفح/i], ['form', /^form$|شكل/i]
+    ];
+    firstKeys.forEach(k => {
+      for (const [field, re] of mappings) {
+        if (re.test(k) && !colMap[field]) { colMap[field] = k; break; }
+      }
+    });
+    if (!colMap.word) return { error: 'لم أجد عمود الكلمة (word). تأكد من استخدام القالب.' };
+
+    // بناء المنهج من الأسطر
+    const data = Cur.snapshot();
+    let added = 0, skipped = 0;
+    const warnings = [];
+
+    rows.forEach((row, ri) => {
+      const en = String(row[colMap.word] || '').trim();
+      if (!en) { skipped++; return; }
+      const gradeVal = colMap.grade ? row[colMap.grade] : '';
+      const g = resolveGrade(gradeVal) || Cur.grades[0];
+      if (!g) { warnings.push(`سطر ${ri + 2}: صف غير معروف «${gradeVal}»`); skipped++; return; }
+
+      const unitNum = parseInt(String(colMap.unit ? row[colMap.unit] : '1'), 10) || 1;
+      const unitTitle = String(colMap.unit_title ? row[colMap.unit_title] : '').trim() || `Unit ${unitNum}`;
+
+      // أوجد أو أنشئ الصف والوحدة في البيانات
+      let dg = data.grades.find(x => x.id === g.id);
+      if (!dg) { dg = { id: g.id, name: g.name, short: g.short, units: [] }; data.grades.push(dg); }
+      let du = dg.units.find(x => x.num === unitNum);
+      if (!du) { du = { id: 'u' + unitNum, title: unitTitle, num: unitNum, words: [] }; dg.units.push(du); }
+      if (unitTitle && unitTitle !== `Unit ${unitNum}`) du.title = unitTitle;
+
+      // تجنب تكرار الكلمة
+      if (du.words.some(w => w.en.toLowerCase() === en.toLowerCase())) { skipped++; return; }
+
+      const w = wordFrom({
+        en,
+        ar: colMap.meaning ? String(row[colMap.meaning] || '') : '',
+        sentence: colMap.sentence ? String(row[colMap.sentence] || '') : '',
+        sentenceAr: colMap.sentence_ar ? String(row[colMap.sentence_ar] || '') : '',
+        page: colMap.page ? String(row[colMap.page] || '') : '',
+        form: colMap.form ? String(row[colMap.form] || '') : ''
+      });
+      if (!w.form) resolveForm(w);
+      du.words.push(w);
+      added++;
+    });
+
+    if (!added) return { error: `لم تُضف كلمات. ${skipped ? `تم تجاوز ${skipped} سطر (مكررة أو فارغة).` : ''}` };
+
+    // ترتيب الوحدات
+    data.grades.forEach(g => g.units.sort((a, b) => a.num - b.num));
+
+    return { data, added, skipped, warnings };
+  }
+
+  // معالج رفع الملف (يُفعَّل من الحدث مباشرة عبر delegation في app.js)
+  document.addEventListener('change', async e => {
+    const input = e.target;
+    if (!input.matches('[data-act="c-excel-import"]')) return;
+    const file = input.files && input.files[0];
+    if (!file) return;
+    input.value = ''; // أتح الرفع مرة أخرى
+
+    if (typeof XLSX === 'undefined') { App.toast('مكتبة Excel غير متوفرة. تأكد من اتصالك بالإنترنت وأعد تحميل الصفحة.'); return; }
+
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array' });
+      const result = parseExcel(wb);
+      if (result.error) { App.toast(result.error); return; }
+
+      const msg = `إضافة ${result.added} كلمة${result.skipped ? ` (تم تجاوز ${result.skipped} سطر مكرر أو فارغ)` : ''}؟`;
+      if (!(await App.confirm(msg, { okLabel: 'إضافة' }))) return;
+
+      Store.saveCurriculum(result.data);
+      App.toast(`تم استيراد ${result.added} كلمة`);
+      if (result.warnings.length) console.warn('تحذيرات الاستيراد:', result.warnings);
+      home(ctx.gid);
+    } catch (err) {
+      console.error('خطأ في قراءة الملف:', err);
+      App.toast('تعذر قراءة الملف. تأكد من أنه ملف Excel (.xlsx) صحيح.');
+    }
+  });
 
   // ---------- المسار ----------
   function route(parts) {

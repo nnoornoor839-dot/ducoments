@@ -426,6 +426,23 @@ table.pv th, table.pv td { padding: .3rem .5rem; border-bottom: 1px solid var(--
   .unit-actions.three { grid-template-columns: 1fr; }
   .role-pick { grid-template-columns: 1fr; }
 }
+/* تجميع الطلاب حسب الصف */
+.grade-group { margin-bottom: 1.2rem; }
+.grade-title { font-size: 1rem; font-weight: 700; margin: 0 0 .4rem; display: flex; align-items: center; gap: .4rem; }
+.grade-title .muted { font-weight: 400; }
+
+/* تفاصيل الوحدة في صفحة الطالب */
+.u-detail { display: block; font-size: .85rem; color: var(--muted); }
+.u-test { display: block; font-size: .85rem; color: var(--brand-dark); }
+.u-test b { font-weight: 700; }
+
+/* سطر ملخص النشاط */
+.activity-line { margin: .3rem 0 .8rem; }
+
+/* زر رفع ملف */
+.file-label { display: inline-flex; align-items: center; gap: .3rem; cursor: pointer; }
+.hidden-file { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }

@@ -110,7 +110,16 @@ const Progress = (() => {
   function wordStatus(s, wid) {
     const r = s.words[wid];
     if (!r || !r.seen) return 'new';
-    return r.box >= MASTERED_BOX ? 'mastered' : 'learning';
+    // محفوظة = أجاب صح من أول محاولة في آخر اختبار شمل هذه الكلمة
+    const w = Cur.word(wid);
+    if (!w) return 'learning';
+    const key = w.gradeId + '.' + w.unitId;
+    const ut = s.units && s.units[key];
+    const lt = ut && ut.lastTest;
+    if (!lt || !lt.tested) return 'learning';
+    if (lt.tested.indexOf(wid) < 0) return 'learning'; // أُسندت بعد آخر اختبار
+    if (lt.wrong && lt.wrong.indexOf(wid) >= 0) return 'learning';
+    return 'mastered';
   }
   // النطاق المسند للطالب في وحدة: [من، إلى، نهاية الإسناد السابق] أو null إن لم يُسند شيء
   function rangeOf(s, unit) {
@@ -137,7 +146,10 @@ const Progress = (() => {
       if (st === 'mastered') mastered++; else if (st === 'learning') learning++; else fresh++;
     });
     const total = list.length;
-    return { total, mastered, learning, fresh, all: unit.words.length, pct: total ? Math.round(mastered / total * 100) : 0 };
+    const key = unit.gradeId + '.' + unit.id;
+    const ut = s.units && s.units[key];
+    const lt = ut && ut.lastTest;
+    return { total, mastered, learning, fresh, all: unit.words.length, pct: total ? Math.round(mastered / total * 100) : 0, lastTest: lt || null };
   }
   function gradeStats(s, grade) {
     const t = { total: 0, mastered: 0, learning: 0, fresh: 0, pct: 0 };
@@ -178,7 +190,17 @@ const Progress = (() => {
       .map(([id, r]) => ({ word: Cur.word(id), wrong: r.wrong, seen: r.seen }));
   }
 
-  return { LEVELS, DAILY_GOAL, wordStatus, rangeOf, assigned, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, INTERVAL_DAYS };
+  // ملخص النشاط: أيام النشاط، عدد الاختبارات، مجموع التكرار
+  function activitySummary(s) {
+    const days = new Set();
+    if (s.lastActive) days.add(s.lastActive);
+    (s.log || []).forEach(l => { if (l.t) days.add(U.ymd(new Date(l.t))); });
+    const tests = (s.log || []).filter(l => l.mode && l.mode !== 'reps').length;
+    const reps = (s.reps && s.reps.total) || 0;
+    return { days: days.size, tests, reps };
+  }
+
+  return { LEVELS, DAILY_GOAL, wordStatus, rangeOf, assigned, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
 })();
 
 // ---------- التخزين ----------
@@ -662,7 +684,7 @@ const Store = (() => {
     },
 
     // إنهاء جلسة لعب: يحدّث النقاط والسلسلة والنجوم والسجل
-    async finishSession(sid, { mode, gradeId, unitId, correct, total, stars }) {
+    async finishSession(sid, { mode, gradeId, unitId, correct, total, stars, wrongIds, testedIds }) {
       const s = state.students[sid];
       if (!s) return null;
       const before = Progress.levelInfo(s.xp).level;
@@ -676,12 +698,13 @@ const Store = (() => {
       s.daily = { date: today, n: Progress.dailyCount(s) + correct };
       const goalReached = !wasDone && s.daily.n >= Progress.DAILY_GOAL;
 
-      // أفضل نتيجة للوحدة
+      // أفضل نتيجة للوحدة + نتيجة آخر اختبار
       if (unitId && mode !== 'review') {
         const key = gradeId + '.' + unitId;
         const u = s.units[key] || (s.units[key] = { stars: 0, speedBest: 0 });
         if (mode === 'speed') u.speedBest = Math.max(u.speedBest || 0, correct);
         else u.stars = Math.max(u.stars || 0, stars);
+        if (testedIds) u.lastTest = { date: today, correct, total, wrong: wrongIds || [], tested: testedIds };
       }
       s.log.unshift({ t: Date.now(), mode, gradeId, unitId: unitId || null, correct, total });
       s.log = s.log.slice(0, 60);

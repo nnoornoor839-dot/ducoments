@@ -86,26 +86,38 @@ const Teacher = (() => {
     const active = students.filter(s => s.lastActive === today).length;
     const idle = students.filter(needsFollowUp).length;
 
-    const sorted = students.slice().sort((a, b) =>
-      (needsFollowUp(b) - needsFollowUp(a)) || a.name.localeCompare(b.name, 'ar'));
+    // تجميع الطلاب حسب الصف
+    const byGrade = {};
+    students.forEach(s => {
+      if (!byGrade[s.grade]) byGrade[s.grade] = [];
+      byGrade[s.grade].push(s);
+    });
 
-    const rows = sorted.map(s => {
-      const g = Cur.grade(s.grade);
-      const gs = g ? Progress.gradeStats(s, g) : { pct: 0, mastered: 0, total: 0 };
-      const late = needsFollowUp(s);
-      const activeToday = s.lastActive === today;
+    const gradeCards = Cur.grades.map(g => {
+      const list = byGrade[g.id] || [];
+      if (!list.length) return '';
+      list.sort((a, b) => (needsFollowUp(b) - needsFollowUp(a)) || a.name.localeCompare(b.name, 'ar'));
+      const rows = list.map(s => {
+        const gs = Progress.gradeStats(s, g);
+        const late = needsFollowUp(s);
+        return `
+          <button class="t-student ${late ? 'late' : ''}" data-go="#/teacher/s/${s.id}" data-name="${esc(s.name)}" data-today="${s.lastActive === today}" data-late="${late}">
+            <span class="t-main">
+              <b>${esc(s.name)}</b>
+              <small>${gs.total ? `${gs.total} كلمة` : '<span class="warn-text">لم تُسند كلمات</span>'} • ${ic('key', 'sm')} ${esc(s.pin)}</small>
+              <span class="meter"><i style="width:${gs.pct}%"></i></span>
+            </span>
+            <span class="t-side">
+              <b>${gs.total ? gs.pct + '٪' : '—'}</b>
+              <small class="${late ? 'warn-text' : ''}">${late ? ic('alert', 'sm') + ' ' : ''}${U.ago(s.lastActive)}</small>
+            </span>
+          </button>`;
+      }).join('');
       return `
-        <button class="t-student ${late ? 'late' : ''}" data-go="#/teacher/s/${s.id}" data-name="${esc(s.name)}" data-today="${activeToday}" data-late="${late}">
-          <span class="t-main">
-            <b>${esc(s.name)}</b>
-            <small>${esc(gradeName(s.grade))} • ${gs.total ? `${gs.total} كلمة مسندة` : '<span class="warn-text">لم تُسند كلمات</span>'} • <span class="t-pin">${ic('key', 'sm')} ${esc(s.pin)}</span></small>
-            <span class="meter"><i style="width:${gs.pct}%"></i></span>
-          </span>
-          <span class="t-side">
-            <b>${gs.total ? gs.pct + '٪' : '—'}</b>
-            <small class="${late ? 'warn-text' : ''}">${late ? ic('alert', 'sm') + ' ' : ''}${U.ago(s.lastActive)}</small>
-          </span>
-        </button>`;
+        <div class="grade-group">
+          <h3 class="grade-title">${ic('book')} ${esc(g.name)} <span class="muted small">(${list.length} ${list.length === 1 ? 'طالب' : 'طلاب'})</span></h3>
+          <div class="t-list">${rows}</div>
+        </div>`;
     }).join('');
 
     app().innerHTML = `
@@ -115,18 +127,15 @@ const Teacher = (() => {
         <button class="tile" data-act="t-filter" data-f="today"><b>${active}</b><small>دخلوا اليوم</small></button>
         <button class="tile ${idle ? 'alert' : ''}" data-act="t-filter" data-f="idle"><b>${idle}</b><small>يحتاجون متابعة</small></button>
       </div>
-      <button class="btn big" data-go="#/teacher/content">${ic('edit')} إدارة الكلمات (الصفوف والوحدات والصفحات)</button>
       <div class="row">
+        <button class="btn" data-go="#/teacher/content">${ic('edit')} إدارة الكلمات</button>
         <button class="btn" data-go="#/teacher/add">${ic('plus')} إضافة طالب</button>
-        ${students.some(s => s.demo)
-          ? `<button class="btn ghost" data-act="t-demo-clear">${ic('trash')} حذف الطلاب التجريبيين</button>`
-          : `<button class="btn ghost" data-act="t-demo">${ic('flask')} بيانات تجريبية للعرض</button>`}
       </div>
       ${students.length > 3 ? `
         <div class="t-search">
           <input type="search" id="t-search-in" placeholder="ابحث عن طالب..." aria-label="بحث عن طالب" autocomplete="off">
         </div>` : ''}
-      ${rows ? `<div class="t-list" id="t-list">${rows}</div>` : '<p class="card muted empty">لا يوجد طلاب بعد. أضف أول طالب، أو حمّل بيانات تجريبية لترى كيف تبدو اللوحة.</p>'}
+      ${gradeCards || '<p class="card muted empty">لا يوجد طلاب بعد. أضف أول طالب من الزر أعلاه.</p>'}
       ${syncNote()}`;
 
     // تفعيل البحث
@@ -134,7 +143,7 @@ const Teacher = (() => {
     if (searchIn) {
       searchIn.addEventListener('input', () => {
         const q = searchIn.value.trim().toLowerCase();
-        document.querySelectorAll('#t-list .t-student').forEach(el => {
+        document.querySelectorAll('.t-list .t-student').forEach(el => {
           const name = (el.dataset.name || '').toLowerCase();
           el.style.display = !q || name.includes(q) ? '' : 'none';
         });
@@ -181,22 +190,35 @@ const Teacher = (() => {
   // ---------- تفاصيل طالب ----------
   function report(s) {
     const g = Cur.grade(s.grade);
-    const gs = g ? Progress.gradeStats(s, g) : { mastered: 0, total: 0, pct: 0 };
-    const info = Progress.levelInfo(s.xp);
-    const hard = Progress.hardWords(s, 5).map(h => h.word.en).join('، ');
-    const units = g ? g.units.filter(u => Progress.rangeOf(s, u)).map(u => {
-      const st = Progress.unitStats(s, u);
-      return `- ${u.title}: ${st.mastered}/${st.total}`;
-    }).join('\n') : '';
-    return [
-      `تقرير الطالب: ${s.name}`,
-      `الصف: ${gradeName(s.grade)}`,
-      `المستوى: ${info.level} (${info.title}) | السلسلة: ${Progress.streak(s)} يوم`,
-      gs.total ? `الكلمات المحفوظة: ${gs.mastered} من ${gs.total} كلمة مسندة (${gs.pct}٪)` : 'لم تُسند له كلمات بعد',
-      `آخر دخول: ${U.ago(s.lastActive)}`,
-      units ? `\nالوحدات:\n${units}` : '',
-      hard ? `\nكلمات تحتاج مراجعة: ${hard}` : ''
-    ].filter(Boolean).join('\n');
+    const lines = [`تقرير الطالب: ${s.name}`, `الصف: ${gradeName(s.grade)}`, ''];
+    if (g) {
+      g.units.forEach(u => {
+        const r = Progress.rangeOf(s, u);
+        if (!r) return;
+        const st = Progress.unitStats(s, u);
+        const remaining = st.total - st.mastered;
+        const reviewCount = st.lastTest ? st.lastTest.wrong.filter(wid => {
+          const w = Cur.word(wid);
+          return w && w.unitId === u.id;
+        }).length : 0;
+        lines.push(u.title);
+        lines.push(`المسند: ${st.total} كلمة`);
+        lines.push(`المحفوظ: ${st.mastered} كلمة`);
+        if (remaining > 0) {
+          lines.push(`المتبقي: ${remaining} كلمة${reviewCount ? `، منها ${reviewCount} للمراجعة` : ''}`);
+        }
+        if (st.lastTest) {
+          lines.push(`آخر اختبار: ${st.lastTest.correct}/${st.lastTest.total}`);
+        }
+        lines.push('');
+      });
+    }
+    const act = Progress.activitySummary(s);
+    if (act.days || act.tests || act.reps) {
+      lines.push(`أيام النشاط: ${act.days} • الاختبارات: ${act.tests} • التكرار: ${act.reps} مرة`);
+    }
+    lines.push(`آخر دخول: ${U.ago(s.lastActive)}`);
+    return lines.join('\n');
   }
 
   async function studentView(id) {
@@ -204,24 +226,31 @@ const Teacher = (() => {
     if (!s) return App.go('#/teacher');
     const g = Cur.grade(s.grade);
     const gs = g ? Progress.gradeStats(s, g) : { pct: 0, mastered: 0, total: 0 };
-    const info = Progress.levelInfo(s.xp);
     const late = needsFollowUp(s);
     const hard = Progress.hardWords(s, 8);
+    const act = Progress.activitySummary(s);
 
     const unitRows = g ? g.units.map(u => {
       const st = Progress.unitStats(s, u);
-      const rec = s.units[g.id + '.' + u.id] || {};
       if (!st.total) return `<div class="u-row"><div class="u-top"><b class="en" dir="ltr">${esc(u.title)}</b><span class="muted small">لم تُسند كلمات</span></div></div>`;
+      const remaining = st.total - st.mastered;
+      const reviewCount = st.lastTest ? st.lastTest.wrong.filter(wid => {
+        const w = Cur.word(wid);
+        return w && w.unitId === u.id;
+      }).length : 0;
       return `
         <div class="u-row">
           <div class="u-top"><b class="en" dir="ltr">${esc(u.title)}</b><span>${st.mastered}/${st.total}</span></div>
           <div class="meter"><i style="width:${st.pct}%"></i></div>
-          <small class="muted">النجوم: ${'★'.repeat(rec.stars || 0)}${'☆'.repeat(3 - (rec.stars || 0))}</small>
+          <small class="u-detail">
+            المحفوظ: ${st.mastered}
+            ${remaining > 0 ? ` • المتبقي: ${remaining}${reviewCount ? ` (منها ${reviewCount} للمراجعة)` : ''}` : ''}
+          </small>
+          ${st.lastTest ? `<small class="u-test">آخر اختبار: <b>${st.lastTest.correct}/${st.lastTest.total}</b> — ${U.ago(st.lastTest.date)}</small>` : '<small class="muted">لم يختبر بعد</small>'}
         </div>`;
     }).join('') : '';
 
     const reps = s.reps || { total: 0, byWord: {}, daily: { date: '', n: 0 } };
-    const todayReps = reps.daily.date === U.ymd() ? reps.daily.n : 0;
     const topReps = Object.entries(reps.byWord).filter(([id]) => Cur.word(id)).sort((a, b) => b[1] - a[1]).slice(0, 6);
 
     const hardRows = hard.map(h => `
@@ -284,10 +313,9 @@ const Teacher = (() => {
       </section>
       <div class="tiles">
         <div class="tile"><b>${gs.total ? gs.pct + '٪' : '—'}</b><small>${gs.total ? `الحفظ (${gs.mastered}/${gs.total})` : 'لم تُسند كلمات'}</small></div>
-        <div class="tile"><b>${ic('flame')} ${Progress.streak(s)}</b><small>أيام متتالية</small></div>
         <div class="tile ${late ? 'alert' : ''}"><b>${U.ago(s.lastActive)}</b><small>آخر دخول</small></div>
       </div>
-      <p class="muted small">المستوى ${info.level} (${esc(info.title)}) • ${s.xp} نقطة</p>
+      <p class="muted small activity-line">${ic('clock', 'sm')} أيام النشاط: ${act.days} • الاختبارات: ${act.tests} • كرّر ${act.reps} مرة</p>
 
       <h3 class="section-title">الوحدات</h3>
       <div class="card">${unitRows || '<p class="muted">لا توجد وحدات لهذا الصف.</p>'}</div>
@@ -306,19 +334,19 @@ const Teacher = (() => {
         </label>
       </div>
 
+      ${topReps.length ? `
       <h3 class="section-title">${ic('repeat')} التكرار</h3>
       <div class="card">
-        <p>كرّر <b>${reps.total}</b> مرة (اليوم: <b>${todayReps}</b>)</p>
-        ${topReps.length
-          ? `<div class="chips en" dir="ltr">${topReps.map(([id, n]) => `<span class="chip-stat">${esc(Cur.word(id).en)} × ${n}</span>`).join('')}</div>`
-          : '<p class="muted small">لم يستخدم التكرار بعد.</p>'}
-      </div>
+        <div class="chips en" dir="ltr">${topReps.map(([id, n]) => `<span class="chip-stat">${esc(Cur.word(id).en)} × ${n}</span>`).join('')}</div>
+      </div>` : ''}
 
+      ${hardRows ? `
       <h3 class="section-title">${ic('alert')} كلمات يكثر فيها الخطأ</h3>
-      <div class="card">${hardRows ? `<ul class="plain">${hardRows}</ul>` : '<p class="muted">لا توجد أخطاء مسجلة بعد.</p>'}</div>
+      <div class="card"><ul class="plain">${hardRows}</ul></div>` : ''}
 
+      ${logRows ? `
       <h3 class="section-title">آخر النشاط</h3>
-      <div class="card">${logRows ? `<ul class="plain log">${logRows}</ul>` : '<p class="muted">لم يلعب بعد.</p>'}</div>
+      <div class="card"><ul class="plain log">${logRows}</ul></div>` : ''}
 
       <div class="row wrap">
         <button class="btn" data-act="t-copy" data-id="${s.id}">${ic('clipboard')} نسخ التقرير (لولي الأمر)</button>
@@ -385,19 +413,9 @@ const Teacher = (() => {
       App.go('#/teacher');
     }
   };
-  U.actions['t-demo'] = async () => {
-    const r = await Store.seedDemo();
-    if (r.error) { failed(r); return; }
-    dashboard();
-  };
-  U.actions['t-demo-clear'] = async () => {
-    for (const s of await Store.listStudents()) {
-      if (!s.demo) continue;
-      const r = await Store.deleteStudent(s.id);
-      if (r.error) { failed(r); return; }
-    }
-    dashboard();
-  };
+  // البيانات التجريبية متاحة برمجيًا فقط (للاختبارات)
+  U.actions['t-demo'] = async () => { const r = await Store.seedDemo(); if (r.error) failed(r); else dashboard(); };
+  U.actions['t-demo-clear'] = async () => { for (const s of await Store.listStudents()) { if (s.demo) await Store.deleteStudent(s.id); } dashboard(); };
   const assignCtx = el => {
     const box = el.closest('.assign');
     return { box, sid: box.dataset.sid, gid: box.dataset.gid, uid: box.dataset.uid };
@@ -447,10 +465,15 @@ const Teacher = (() => {
   U.actions['t-filter'] = el => {
     const f = el.dataset.f;
     document.querySelectorAll('.tiles .tile').forEach(b => b.classList.toggle('on', b === el));
-    document.querySelectorAll('#t-list .t-student').forEach(row => {
+    document.querySelectorAll('.t-list .t-student').forEach(row => {
       if (f === 'all') { row.style.display = ''; return; }
       if (f === 'today') { row.style.display = row.dataset.today === 'true' ? '' : 'none'; return; }
       if (f === 'idle') { row.style.display = row.dataset.late === 'true' ? '' : 'none'; return; }
+    });
+    // أخفِ عنوان الصف إن لم يبقَ طلاب ظاهرون تحته
+    document.querySelectorAll('.grade-group').forEach(group => {
+      const visible = group.querySelectorAll('.t-student:not([style*="display: none"])');
+      group.style.display = visible.length ? '' : 'none';
     });
   };
 

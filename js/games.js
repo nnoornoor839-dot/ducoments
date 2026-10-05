@@ -174,7 +174,12 @@ const Games = (() => {
       finished = true;
       Speech.stop();
       const starsN = Progress.starsFor(firstCorrect, firstTotal);
-      const res = await Store.finishSession(student.id, { mode: 'dictation', gradeId, unitId, correct: firstCorrect, total: firstTotal, stars: starsN }) || {};
+      const res = await Store.finishSession(student.id, {
+        mode: 'dictation', gradeId, unitId,
+        correct: firstCorrect, total: firstTotal, stars: starsN,
+        wrongIds: [...wrongWords.keys()],
+        testedIds: words.map(w => w.id)
+      }) || {};
       renderResult(starsN, res);
     }
 
