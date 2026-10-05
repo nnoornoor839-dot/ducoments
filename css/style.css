@@ -95,6 +95,19 @@ input, select {
 input:focus, select:focus { outline: none; border-color: var(--brand); }
 .login { text-align: center; }
 .login .btn { width: 100%; }
+/* اختيار الدور */
+.role-pick { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 1.2rem 0; }
+.role-btn {
+  display: grid; justify-items: center; gap: .4rem; padding: 1.4rem 1rem;
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A); border: 3px solid transparent;
+  border-radius: 20px; box-shadow: 0 4px 12px rgba(180, 120, 40, .12);
+  transition: transform .1s, border-color .15s;
+}
+.role-btn:active { transform: scale(.96); }
+.role-btn.teacher { background: linear-gradient(135deg, var(--brand-soft), #BFDBFE); }
+.role-icon { font-size: 2.6rem; }
+.role-btn b { font-size: 1.1rem; }
+
 .login-links { display: grid; gap: .6rem; margin-top: 1rem; }
 
 /* اختيار الصف */
@@ -155,6 +168,7 @@ input:focus, select:focus { outline: none; border-color: var(--brand); }
 /* صفحة الوحدة — الأيقونتان */
 .unit-head { text-align: center; }
 .unit-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin-top: 1rem; }
+.unit-actions.three { grid-template-columns: 1fr 1fr 1fr; }
 .unit-action-btn {
   display: grid; gap: .3rem; justify-items: center; text-align: center;
   padding: 1.4rem 1rem; background: var(--card); border: 0; border-radius: var(--radius);
@@ -242,10 +256,13 @@ input:focus, select:focus { outline: none; border-color: var(--brand); }
 .t-search { margin-bottom: .8rem; }
 .t-search input { border-color: var(--line); }
 .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin: .6rem 0; }
-.tile { background: var(--card); border-radius: 16px; box-shadow: var(--shadow); padding: .8rem .4rem; text-align: center; display: grid; }
+.tile { background: var(--card); border: 3px solid transparent; border-radius: 16px; box-shadow: var(--shadow); padding: .8rem .4rem; text-align: center; display: grid; cursor: pointer; transition: transform .1s, border-color .15s; }
+.tile:active { transform: scale(.96); }
+.tile.on { border-color: var(--brand); background: var(--brand-soft); }
 .tile b { font-size: 1.4rem; }
 .tile small { color: var(--muted); }
 .tile.alert { background: var(--warn-soft); }
+.tile.alert.on { background: var(--warn-soft); border-color: var(--warn); }
 .t-list { display: grid; gap: .6rem; }
 .t-student { display: flex; align-items: center; gap: .8rem; text-align: start; width: 100%; background: var(--card); border: 0; border-radius: 18px; box-shadow: var(--shadow); padding: .8rem 1rem; border-right: 6px solid var(--good); }
 .t-student.late { border-right-color: var(--warn); background: #FFFBEB; }
@@ -331,12 +348,35 @@ table.pv th, table.pv td { padding: .3rem .5rem; border-bottom: 1px solid var(--
 @keyframes pop { 0% { transform: scale(.2); opacity: 0; } 70% { transform: scale(1.25); } 100% { transform: scale(1); opacity: 1; } }
 @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
 
+/* حصالة الكلمات */
+.bank-card { border-right-color: var(--warn); }
+.has-badge .unit-action-icon { position: relative; }
+.has-badge .unit-action-icon::after { content: ''; position: absolute; top: 2px; right: -4px; width: 12px; height: 12px; background: var(--bad); border-radius: 50%; border: 2px solid #fff; }
+.empty-bank { text-align: center; padding: 2rem 1rem; }
+.big-emoji { font-size: 3rem; margin-bottom: .5rem; }
+
+/* ترحيب */
+.welcome-card { text-align: center; padding: 1.5rem; }
+
+/* نطاق الاختبار */
+.range-row { margin-bottom: .8rem; padding-bottom: .8rem; border-bottom: 1px solid var(--line); }
+.range-row:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+.range-controls { display: flex; gap: .5rem; align-items: end; margin-top: .4rem; flex-wrap: wrap; }
+.range-controls label { font-size: .85rem; flex: 1; min-width: 70px; }
+.range-controls input { min-height: 40px; }
+.small-btn { min-height: 40px; padding: .3rem .8rem; font-size: .85rem; }
+
+/* رسالة إعادة الاختبار */
+.retry-msg { background: var(--warn-soft); border-radius: 14px; padding: .6rem; font-weight: 700; color: #92400E; margin: .5rem 0; }
+
 @media (max-width: 420px) {
   html { font-size: 16px; }
   .hero { flex-direction: column; text-align: center; }
   .hero .chips { justify-content: center; }
   .tiles .tile b { font-size: 1.15rem; }
   .unit-actions { grid-template-columns: 1fr; }
+  .unit-actions.three { grid-template-columns: 1fr; }
+  .role-pick { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }

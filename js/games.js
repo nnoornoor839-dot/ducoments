@@ -56,7 +56,7 @@ const Games = (() => {
         if (q) qs.push(q);
       }
     });
-    return U.shuffle(qs).slice(0, 20);
+    return U.shuffle(qs);
   }
 
   // ---------- تشغيل جولة ----------
@@ -179,20 +179,28 @@ const Games = (() => {
     }
 
     function renderResult(starsN, res) {
-      const titles = ['لا بأس، حاول مرة أخرى 💪', 'محاولة جيدة 👍', 'أحسنت! 👏', 'ممتاز! أنت بطل 🌟'];
       const wrongList = [...wrongWords.values()];
-      if (starsN >= 2) { Sfx.win(); confetti(); }
+      const threshold = Store.getRetryThreshold();
+      const mustRetry = threshold > 0 && wrongList.length >= threshold;
+      const titles = mustRetry
+        ? ['يجب إعادة الاختبار! 💪']
+        : ['لا بأس، حاول مرة أخرى 💪', 'محاولة جيدة 👍', 'أحسنت! 👏', 'ممتاز! أنت بطل 🌟'];
+      const titleIdx = mustRetry ? 0 : starsN;
+      if (!mustRetry && starsN >= 2) { Sfx.win(); confetti(); }
       appEl.innerHTML = `
         <section class="result card">
           <div class="stars-big">${[1, 2, 3].map(i => `<span class="${i <= starsN ? 'on' : ''}">★</span>`).join('')}</div>
-          <h2>${titles[starsN]}</h2>
+          <h2>${titles[titleIdx]}</h2>
           <p class="score">${firstCorrect} من ${firstTotal} إجابة صحيحة</p>
+          ${mustRetry ? `<p class="retry-msg">أخطأت في ${wrongList.length} كلمات — أعد الاختبار للتأكد من حفظها.</p>` : ''}
           <div class="chips">
             <span class="chip-stat">+${res.xpGained || 0} نقطة ⭐</span>
           </div>
           ${wrongList.length ? `<div class="wrong-list"><b>كلمات تحتاج مراجعة:</b><div class="en" dir="ltr">${wrongList.map(w => `<button class="tag" data-act="say" data-text="${esc(w.en)}">${esc(w.en)} = ${esc(w.ar || '')} 🔊</button>`).join('')}</div></div>` : ''}
           <div class="actions">
-            <button class="btn" data-act="again">🔁 مرة أخرى</button>
+            ${mustRetry
+              ? '<button class="btn" data-act="again">🔁 أعد الاختبار</button>'
+              : '<button class="btn" data-act="again">🔁 مرة أخرى</button>'}
             <button class="btn ghost" data-go="${backHash}">العودة للوحدة</button>
           </div>
         </section>`;
@@ -244,7 +252,21 @@ const Games = (() => {
     if (!grade) return App.go('#/');
     const unit = Cur.unit(gid, uid);
     if (!unit || !unit.words.length) return App.go('#/');
-    const words = unit.words;
+
+    let words;
+    if (mode === 'bank') {
+      words = Store.getWrongWords(student, gid, uid);
+      if (!words.length) { App.toast('لا توجد كلمات خاطئة'); return App.go(`#/unit/${gid}/${uid}`); }
+    } else {
+      const range = Store.getRange(student.id, gid, uid);
+      if (range) {
+        const from = Math.max(0, range[0] - 1);
+        const to = Math.min(unit.words.length, range[1]);
+        words = unit.words.slice(from, to);
+      } else {
+        words = unit.words;
+      }
+    }
     const pool = unit.words.concat(Cur.allWords(grade).filter(w => w.unitId !== unit.id));
     return run({ gradeId: gid, unitId: uid, words, pool, student });
   }

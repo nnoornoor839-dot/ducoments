@@ -70,7 +70,7 @@ const App = (() => {
     if (teacherRoute && Store.teacherAuthed()) {
       side = '<button class="top-btn" data-act="t-exit">خروج المعلم</button>';
     } else if (student) {
-      side = `<span class="who">${student.avatar} ${U.esc(student.name)}</span><button class="top-btn" data-act="logout">خروج</button>`;
+      side = `<span class="who">${U.esc(student.name)}</span><button class="top-btn" data-act="logout">خروج</button>`;
     }
     document.getElementById('topbar').innerHTML = `
       <a class="brand" href="#/">📚 كلماتي</a>
@@ -88,10 +88,10 @@ const App = (() => {
       const student = await currentStudent();
       renderTop(a === 'teacher', student);
       if (a === 'teacher') await Teacher.route(parts.slice(1));
-      else if (a === 'quick') Views.quick();
       else if (a === 'login' || !student) await Views.login();
       else if (a === 'words') Views.wordList(student, b, c);
       else if (a === 'unit') Views.unit(student, b, c);
+      else if (a === 'bank') Views.wordBank(student, b, c);
       else if (a === 'play') await Games.route(b, c, d);
       else await Views.home(student);
     } catch (e) {
@@ -115,10 +115,6 @@ const App = (() => {
     if (f) { e.preventDefault(); if (U.forms[f.dataset.form]) U.forms[f.dataset.form](f, e); }
   });
   window.addEventListener('hashchange', route);
-
-  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-    navigator.serviceWorker.register('sw.js').catch(() => { /* اختياري */ });
-  }
 
   route();
   return { toast, go, currentStudent, confirm: confirmBox, ask: askBox, showText, paste: pasteBox };

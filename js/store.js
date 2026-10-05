@@ -167,7 +167,6 @@ const Progress = (() => {
 // ---------- التخزين ----------
 const Store = (() => {
   const KEY = 'kalimati.v1';
-  const AVATARS = ['🦁', '🐼', '🦊', '🐯', '🐸', '🐵', '🦄', '🐙', '🐧', '🦉', '🐬', '🐢'];
   let state = null;
 
   function fresh() { return { v: 1, teacher: null, students: {}, session: null }; }
@@ -194,7 +193,7 @@ const Store = (() => {
   function newStudent({ name, grade, pin, demo }) {
     return {
       id: 's' + U.rid(), name: name.trim(), grade, pin: String(pin),
-      avatar: U.pick(AVATARS), createdAt: new Date().toISOString(), demo: !!demo,
+      createdAt: new Date().toISOString(), demo: !!demo,
       xp: 0, streak: 0, lastActive: null, daily: { date: '', n: 0 },
       words: {}, units: {}, log: []
     };
@@ -214,6 +213,7 @@ const Store = (() => {
     async listStudents() { return Object.values(state.students); },
     async getStudent(id) { return state.students[id] || null; },
     async addStudent(info) {
+      if (!this.isPinUnique(info.grade, info.pin)) return { error: 'pin-taken' };
       const s = newStudent(info);
       state.students[s.id] = s; save();
       return s;
@@ -239,6 +239,45 @@ const Store = (() => {
       state.session = { role: 'student', id }; save();
       return s;
     },
+    async loginByPin(gradeId, pin) {
+      const p = String(pin).trim();
+      const s = Object.values(state.students).find(s => s.grade === gradeId && s.pin === p);
+      if (!s) return null;
+      state.session = { role: 'student', id: s.id }; save();
+      return s;
+    },
+    isPinUnique(gradeId, pin, excludeId) {
+      const p = String(pin).trim();
+      return !Object.values(state.students).some(s => s.grade === gradeId && s.pin === p && s.id !== excludeId);
+    },
+
+    // نطاق الاختبار لكل طالب في كل وحدة
+    setRange(sid, gid, uid, from, to) {
+      const s = state.students[sid];
+      if (!s) return;
+      if (!s.ranges) s.ranges = {};
+      s.ranges[gid + '.' + uid] = [from, to];
+      save();
+    },
+    getRange(sid, gid, uid) {
+      const s = state.students[sid];
+      if (!s || !s.ranges) return null;
+      return s.ranges[gid + '.' + uid] || null;
+    },
+
+    // حصالة الكلمات: الكلمات الخاطئة في وحدة
+    getWrongWords(s, gid, uid) {
+      const unit = Cur.unit(gid, uid);
+      if (!unit) return [];
+      return unit.words.filter(w => {
+        const r = s.words[w.id];
+        return r && r.wrong > 0 && r.box < 3;
+      });
+    },
+
+    // عتبة إعادة الاختبار
+    getRetryThreshold() { return Number(U.lsGet('kalimati.retryMax', '3')); },
+    setRetryThreshold(n) { U.lsSet('kalimati.retryMax', String(n)); },
 
     // ---- المنهج الذي يدخله المعلم (محلي على هذا الجهاز حاليًا) ----
     curriculumSource() { return state.curriculum || window.CURRICULUM; },

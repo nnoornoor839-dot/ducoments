@@ -56,9 +56,9 @@ const Teacher = (() => {
       const gs = g ? Progress.gradeStats(s, g) : { pct: 0, mastered: 0, total: 0 };
       const info = Progress.levelInfo(s.xp);
       const late = needsFollowUp(s);
+      const activeToday = s.lastActive === today;
       return `
-        <button class="t-student ${late ? 'late' : ''}" data-go="#/teacher/s/${s.id}" data-name="${esc(s.name)}">
-          <span class="av">${s.avatar}</span>
+        <button class="t-student ${late ? 'late' : ''}" data-go="#/teacher/s/${s.id}" data-name="${esc(s.name)}" data-today="${activeToday}" data-late="${late}">
           <span class="t-main">
             <b>${esc(s.name)}</b>
             <small>${esc(gradeName(s.grade))} • مستوى ${info.level} • <span class="t-pin">🔑 ${esc(s.pin)}</span></small>
@@ -74,9 +74,9 @@ const Teacher = (() => {
     app().innerHTML = `
       <h2 class="section-title">👩‍🏫 لوحة المعلم</h2>
       <div class="tiles">
-        <div class="tile"><b>${students.length}</b><small>طالب</small></div>
-        <div class="tile"><b>${active}</b><small>دخلوا اليوم</small></div>
-        <div class="tile ${idle ? 'alert' : ''}"><b>${idle}</b><small>يحتاجون متابعة</small></div>
+        <button class="tile on" data-act="t-filter" data-f="all"><b>${students.length}</b><small>الكل</small></button>
+        <button class="tile" data-act="t-filter" data-f="today"><b>${active}</b><small>دخلوا اليوم</small></button>
+        <button class="tile ${idle ? 'alert' : ''}" data-act="t-filter" data-f="idle"><b>${idle}</b><small>يحتاجون متابعة</small></button>
       </div>
       <button class="btn big" data-go="#/teacher/content">📝 إدارة الكلمات (الصفوف والوحدات والصفحات)</button>
       <div class="row">
@@ -124,8 +124,11 @@ const Teacher = (() => {
   U.forms['t-add'] = async form => {
     const name = form.elements.name.value.trim();
     const pin = form.elements.pin.value.trim();
+    const grade = form.elements.grade.value;
     if (!name || !/^\d{4}$/.test(pin)) { App.toast('تأكد من الاسم والرمز (4 أرقام)'); return; }
-    await Store.addStudent({ name, grade: form.elements.grade.value, pin });
+    if (!Store.isPinUnique(grade, pin)) { App.toast('هذا الرمز مستخدم لطالب آخر في نفس الصف. اختر رمزًا مختلفًا.'); return; }
+    const result = await Store.addStudent({ name, grade, pin });
+    if (result && result.error === 'pin-taken') { App.toast('هذا الرمز مستخدم لطالب آخر في نفس الصف.'); return; }
     App.toast(`تمت إضافة ${name} — الرمز السري: ${pin}`);
     App.go('#/teacher');
   };
@@ -195,7 +198,6 @@ const Teacher = (() => {
     app().innerHTML = `
       <button class="back" data-go="#/teacher">‹ رجوع للوحة</button>
       <section class="card hero">
-        <div class="av big">${s.avatar}</div>
         <div class="hero-main">
           <h2>${esc(s.name)}</h2>
           <p class="muted">${esc(gradeName(s.grade))} • الرمز السري: <b dir="ltr">${esc(s.pin)}</b></p>
@@ -210,6 +212,33 @@ const Teacher = (() => {
 
       <h3 class="section-title">الوحدات</h3>
       <div class="card">${unitRows || '<p class="muted">لا توجد وحدات لهذا الصف.</p>'}</div>
+
+      <h3 class="section-title">📏 نطاق الاختبار</h3>
+      <div class="card">${g ? g.units.map(u => {
+        const range = Store.getRange(s.id, g.id, u.id);
+        const from = range ? range[0] : 1;
+        const to = range ? range[1] : u.words.length;
+        return `
+          <div class="range-row" data-gid="${g.id}" data-uid="${u.id}">
+            <b class="en" dir="ltr">${esc(u.title)}</b> <small class="muted">(${u.words.length} كلمة)</small>
+            <div class="range-controls">
+              <label>من <input type="number" class="range-in" data-k="from" min="1" max="${u.words.length}" value="${from}"></label>
+              <label>إلى <input type="number" class="range-in" data-k="to" min="1" max="${u.words.length}" value="${to}"></label>
+              <button class="btn small-btn" data-act="t-set-range" data-sid="${s.id}" data-gid="${g.id}" data-uid="${u.id}">حفظ</button>
+            </div>
+          </div>`;
+      }).join('') : '<p class="muted">لا توجد وحدات.</p>'}
+      </div>
+
+      <h3 class="section-title">⚙️ إعدادات الاختبار</h3>
+      <div class="card">
+        <label>أعد الاختبار إذا أخطأ في أكثر من:
+          <select id="t-threshold">
+            <option value="0" ${Store.getRetryThreshold() === 0 ? 'selected' : ''}>بدون إعادة</option>
+            ${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${Store.getRetryThreshold() === n ? 'selected' : ''}>${n} ${n === 1 ? 'كلمة' : 'كلمات'}</option>`).join('')}
+          </select>
+        </label>
+      </div>
 
       <h3 class="section-title">🔁 التكرار</h3>
       <div class="card">
@@ -231,6 +260,14 @@ const Teacher = (() => {
         <button class="btn ghost" data-act="t-reset" data-id="${s.id}">♻️ تصفير التقدم</button>
         <button class="btn danger" data-act="t-delete" data-id="${s.id}">🗑️ حذف الطالب</button>
       </div>`;
+
+    const thresholdSel = document.getElementById('t-threshold');
+    if (thresholdSel) {
+      thresholdSel.addEventListener('change', () => {
+        Store.setRetryThreshold(Number(thresholdSel.value));
+        App.toast('تم حفظ إعداد الإعادة ✅');
+      });
+    }
   }
 
   // ---------- الإجراءات ----------
@@ -259,6 +296,7 @@ const Teacher = (() => {
     const pin = await App.ask('الرمز السري الجديد (4 أرقام):', s.pin);
     if (pin === null) return;
     if (!/^\d{4}$/.test(pin.trim())) { App.toast('الرمز يجب أن يكون 4 أرقام'); return; }
+    if (!Store.isPinUnique(s.grade, pin.trim(), s.id)) { App.toast('هذا الرمز مستخدم لطالب آخر في نفس الصف.'); return; }
     await Store.updateStudent(s.id, { pin: pin.trim() });
     App.toast('تم تغيير الرمز');
     studentView(s.id);
@@ -283,6 +321,26 @@ const Teacher = (() => {
     for (const s of await Store.listStudents()) if (s.demo) await Store.deleteStudent(s.id);
     dashboard();
   };
+  U.actions['t-set-range'] = el => {
+    const row = el.closest('.range-row');
+    const sid = el.dataset.sid, gid = el.dataset.gid, uid = el.dataset.uid;
+    const from = Number(row.querySelector('[data-k="from"]').value);
+    const to = Number(row.querySelector('[data-k="to"]').value);
+    if (from < 1 || to < from) { App.toast('تأكد من النطاق'); return; }
+    Store.setRange(sid, gid, uid, from, to);
+    App.toast(`تم حفظ النطاق: كلمة ${from} إلى ${to} ✅`);
+  };
+
+  U.actions['t-filter'] = el => {
+    const f = el.dataset.f;
+    document.querySelectorAll('.tiles .tile').forEach(b => b.classList.toggle('on', b === el));
+    document.querySelectorAll('#t-list .t-student').forEach(row => {
+      if (f === 'all') { row.style.display = ''; return; }
+      if (f === 'today') { row.style.display = row.dataset.today === 'true' ? '' : 'none'; return; }
+      if (f === 'idle') { row.style.display = row.dataset.late === 'true' ? '' : 'none'; return; }
+    });
+  };
+
   U.actions['t-exit'] = () => { Store.setTeacherAuthed(false); App.go('#/login'); };
 
   // ---------- المسار ----------

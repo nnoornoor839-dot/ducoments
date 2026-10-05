@@ -1,8 +1,7 @@
-// شاشات الطالب: اختيار الصف، الدخول، الرئيسية، الوحدة، قائمة الكلمات
+// شاشات الطالب: اختيار الدور، الدخول، الرئيسية، الوحدة، قائمة الكلمات، حصالة الكلمات
 const Views = (() => {
   const esc = U.esc;
   const app = () => document.getElementById('app');
-  let pendingStudent = null;
   let selectedGrade = null;
   const REP_STEPS = [3, 5, 10, 15, 20, 30, 50, 100];
   const repDefault = () => { const v = Number(U.lsGet('kalimati.repn', '10')); return REP_STEPS.includes(v) ? v : 10; };
@@ -13,37 +12,43 @@ const Views = (() => {
       `<button class="sp ${s.id === cur ? 'on' : ''}" data-act="speed" data-id="${s.id}">${s.emoji} ${s.label}</button>`).join('')}</div>`;
   }
 
-  // ---------- الدخول: اختر الصف → ابحث عن اسمك → الرمز السري ----------
+  // ---------- الدخول: اختر دورك → صف → رمز سري ----------
   async function login() {
     selectedGrade = null;
-    pendingStudent = null;
     const gradesWithUnits = Cur.grades.filter(g => g.units.length);
 
     app().innerHTML = `
       <section class="card login">
         <h1>📚 كلماتي</h1>
-        <p class="muted">اختر صفك للدخول</p>
-        <div class="grade-list">
-          ${gradesWithUnits.map(g => `
-            <button class="grade-pick" data-act="pick-grade" data-id="${g.id}">
-              <span class="grade-icon">📘</span>
-              <b>${esc(g.name)}</b>
-            </button>`).join('') || '<p class="muted">لا توجد صفوف بها وحدات بعد.</p>'}
+        <p class="muted">مرحبًا بك! اختر للدخول:</p>
+        <div class="role-pick">
+          <button class="role-btn student" data-act="role-student">
+            <span class="role-icon">🎒</span>
+            <b>أنا طالب</b>
+          </button>
+          <button class="role-btn teacher" data-act="role-teacher">
+            <span class="role-icon">👩‍🏫</span>
+            <b>أنا معلم</b>
+          </button>
         </div>
-        <div id="grade-students" class="hidden">
-          <p class="muted" id="grade-label"></p>
-          <div class="student-list" id="student-grid"></div>
+
+        <div id="grade-section" class="hidden">
+          <p class="muted">اختر صفك:</p>
+          <div class="grade-list">
+            ${gradesWithUnits.map(g => `
+              <button class="grade-pick" data-act="pick-grade" data-id="${g.id}">
+                <span class="grade-icon">📘</span>
+                <b>${esc(g.name)}</b>
+              </button>`).join('') || '<p class="muted">لا توجد صفوف بها وحدات بعد.</p>'}
+          </div>
         </div>
+
         <form id="pin-form" data-form="pin" class="pin-form hidden">
-          <p id="pin-who"></p>
+          <p class="muted" id="pin-label">أدخل الرمز السري:</p>
           <input id="pin-in" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="الرمز السري (4 أرقام)" aria-label="الرمز السري">
           <button class="btn" type="submit">دخول</button>
           <p class="err" id="pin-err"></p>
         </form>
-        <div class="login-links">
-          <button class="btn ghost" data-go="#/quick">🚀 تجربة سريعة</button>
-          <button class="btn ghost" data-go="#/teacher">👩‍🏫 دخول المعلم</button>
-        </div>
       </section>`;
     const input = document.getElementById('pin-in');
     input.addEventListener('input', () => {
@@ -52,36 +57,15 @@ const Views = (() => {
     });
   }
 
-  U.actions['pick-grade'] = async el => {
+  U.actions['role-student'] = () => {
+    document.querySelector('.role-pick').classList.add('hidden');
+    document.getElementById('grade-section').classList.remove('hidden');
+  };
+  U.actions['role-teacher'] = () => { App.go('#/teacher'); };
+
+  U.actions['pick-grade'] = el => {
     selectedGrade = el.dataset.id;
     document.querySelectorAll('.grade-pick').forEach(b => b.classList.toggle('on', b.dataset.id === selectedGrade));
-
-    const students = (await Store.listStudents())
-      .filter(s => s.grade === selectedGrade)
-      .sort((a, b) => a.name.localeCompare(b.name, 'ar'));
-
-    const container = document.getElementById('grade-students');
-    const grid = document.getElementById('student-grid');
-    const label = document.getElementById('grade-label');
-
-    label.textContent = students.length ? 'اختر اسمك:' : 'لا يوجد طلاب في هذا الصف بعد. ادخل كمعلم لإضافة الطلاب.';
-    grid.innerHTML = students.map(s => `
-      <button class="student-pick" data-act="pick-student" data-id="${s.id}">
-        <span class="av">${s.avatar}</span><b>${esc(s.name)}</b>
-      </button>`).join('');
-    container.classList.remove('hidden');
-
-    // إخفاء نموذج الرمز إن كان ظاهرًا
-    document.getElementById('pin-form').classList.add('hidden');
-    pendingStudent = null;
-  };
-
-  U.actions['pick-student'] = async el => {
-    const s = await Store.getStudent(el.dataset.id);
-    if (!s) return;
-    pendingStudent = s.id;
-    document.querySelectorAll('.student-pick').forEach(b => b.classList.toggle('on', b === el));
-    document.getElementById('pin-who').textContent = `مرحبًا ${s.name}، اكتب رمزك السري:`;
     document.getElementById('pin-err').textContent = '';
     const f = document.getElementById('pin-form');
     f.classList.remove('hidden');
@@ -91,39 +75,19 @@ const Views = (() => {
   };
 
   U.forms.pin = async () => {
-    if (!pendingStudent) return;
+    if (!selectedGrade) return;
     const input = document.getElementById('pin-in');
-    const s = await Store.loginStudent(pendingStudent, input.value);
-    if (s) { App.go('#/'); return; }
+    const pin = input.value.trim();
+    if (pin.length < 4) return;
+    const s = await Store.loginByPin(selectedGrade, pin);
+    if (s) {
+      App.toast(`أهلًا بك يا ${s.name}! 👋`);
+      App.go('#/');
+      return;
+    }
     document.getElementById('pin-err').textContent = 'الرمز غير صحيح، حاول مرة أخرى';
     input.value = '';
     input.focus();
-  };
-
-  // ---------- تجربة سريعة ----------
-  function quick() {
-    app().innerHTML = `
-      <section class="card login">
-        <h1>تجربة سريعة 🚀</h1>
-        <p class="muted">أنشئ حسابًا تجريبيًا على هذا الجهاز وابدأ فورًا.</p>
-        <form data-form="quick" class="stack">
-          <label>الاسم<input name="name" value="ضيف" maxlength="20" required></label>
-          <label>الصف<select name="grade">${Cur.grades.map(g =>
-            `<option value="${g.id}" ${g.units.length ? '' : 'disabled'}>${esc(g.name)}${g.units.length ? '' : ' (لا وحدات بعد)'}</option>`).join('')}</select></label>
-          <button class="btn" type="submit">ابدأ</button>
-        </form>
-        <button class="btn ghost" data-go="#/login">رجوع</button>
-      </section>`;
-    const sel = document.querySelector('select[name=grade]');
-    const firstWithUnits = Cur.grades.find(g => g.units.length);
-    if (firstWithUnits) sel.value = firstWithUnits.id;
-  }
-
-  U.forms.quick = async form => {
-    const name = form.elements.name.value.trim() || 'ضيف';
-    const s = await Store.addStudent({ name, grade: form.elements.grade.value, pin: '0000' });
-    Store.setSession({ role: 'student', id: s.id });
-    App.go('#/');
   };
 
   // ---------- الرئيسية ----------
@@ -141,8 +105,7 @@ const Views = (() => {
     }).join('') : '';
 
     app().innerHTML = `
-      <section class="card" style="text-align:center">
-        <div class="av big">${s.avatar}</div>
+      <section class="card welcome-card">
         <h2>أهلًا ${esc(s.name)} 👋</h2>
         <p class="muted">${esc(grade ? grade.name : '')}</p>
       </section>
@@ -151,11 +114,14 @@ const Views = (() => {
       ${units ? `<div class="units">${units}</div>` : '<p class="card muted empty">لم تُضف وحدات هذا الصف بعد. سيضيفها المعلم قريبًا.</p>'}`;
   }
 
-  // ---------- صفحة الوحدة: أيقونتان ----------
+  // ---------- صفحة الوحدة: ثلاث أيقونات ----------
   function unit(s, gid, uid) {
     const grade = Cur.grade(gid), u = Cur.unit(gid, uid);
     if (!grade || !u) return App.go('#/');
     const st = Progress.unitStats(s, u);
+    const range = Store.getRange(s.id, gid, uid);
+    const wrongWords = Store.getWrongWords(s, gid, uid);
+    const rangeLabel = range ? `الاختبار: كلمة ${range[0]} إلى ${range[1]}` : `الاختبار: كل الكلمات (${u.words.length})`;
 
     app().innerHTML = `
       <button class="back" data-go="#/">‹ رجوع للوحدات</button>
@@ -163,9 +129,10 @@ const Views = (() => {
         <h2 class="en" dir="ltr">${esc(u.title)}</h2>
         <div class="meter"><i style="width:${st.pct}%"></i></div>
         <p class="muted small">${st.mastered} من ${st.total} كلمة محفوظة</p>
+        <p class="muted small">📏 ${rangeLabel}</p>
       </section>
 
-      <div class="unit-actions">
+      <div class="unit-actions three">
         <button class="unit-action-btn" data-go="#/words/${gid}/${uid}">
           <span class="unit-action-icon">📖</span>
           <b>كلمات الوحدة</b>
@@ -176,7 +143,48 @@ const Views = (() => {
           <b>تسميع الكلمات</b>
           <small>استمع واختر المعنى أو الكلمة</small>
         </button>
+        <button class="unit-action-btn ${wrongWords.length ? 'has-badge' : ''}" data-go="#/bank/${gid}/${uid}">
+          <span class="unit-action-icon">🏦</span>
+          <b>حصالة الكلمات</b>
+          <small>${wrongWords.length ? wrongWords.length + ' كلمة تحتاج مراجعة' : 'لا توجد كلمات خاطئة'}</small>
+        </button>
       </div>`;
+  }
+
+  // ---------- حصالة الكلمات ----------
+  function wordBank(s, gid, uid) {
+    const grade = Cur.grade(gid), u = Cur.unit(gid, uid);
+    if (!grade || !u) return App.go('#/');
+    const wrongWords = Store.getWrongWords(s, gid, uid);
+
+    app().innerHTML = `
+      <button class="back" data-go="#/unit/${gid}/${uid}">‹ رجوع للوحدة</button>
+      <h2 class="section-title">🏦 حصالة الكلمات: <span class="en" dir="ltr">${esc(u.title)}</span></h2>
+      ${wrongWords.length ? `
+        <p class="muted small">هذه الكلمات أخطأت فيها. راجعها ثم اختبر نفسك.</p>
+        ${Speech.supported ? '' : '<p class="card warn">متصفحك لا يدعم نطق الكلمات.</p>'}
+        <div class="sticky-speed">${speedBar()}</div>
+        <div class="words">${wrongWords.map(w => {
+          const r = s.words[w.id] || {};
+          return `
+            <article class="wcard bank-card" data-wid="${w.id}">
+              <div class="w-head">
+                <button class="w-en en" data-act="word" dir="ltr">${esc(w.en)} <i class="spk">🔊</i></button>
+                <span class="wrong-n">${r.wrong} ${r.wrong === 1 ? 'خطأ' : 'أخطاء'}</span>
+              </div>
+              ${w.ar ? `<div class="w-ar">${esc(w.ar)}</div>` : ''}
+              ${w.sentence ? `<button class="w-sent en" data-act="sent" dir="ltr">${Games.hl(w)} <i class="spk">🔊</i></button>` : ''}
+            </article>`;
+        }).join('')}</div>
+        <button class="btn big" data-go="#/play/bank/${gid}/${uid}">🎯 اختبر حصالتي</button>
+      ` : `
+        <section class="card empty-bank">
+          <p class="big-emoji">🎉</p>
+          <h3>ممتاز! لا توجد كلمات خاطئة</h3>
+          <p class="muted">أجبت على كل الكلمات بشكل صحيح.</p>
+          <button class="btn" data-go="#/unit/${gid}/${uid}">رجوع للوحدة</button>
+        </section>
+      `}`;
   }
 
   // ---------- قائمة الكلمات ----------
@@ -305,5 +313,5 @@ const Views = (() => {
     document.querySelectorAll('.speedbar .sp').forEach(b => b.classList.toggle('on', b.dataset.id === el.dataset.id));
   };
 
-  return { speedBar, login, quick, home, unit, wordList };
+  return { speedBar, login, home, unit, wordList, wordBank };
 })();
