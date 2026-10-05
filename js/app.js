@@ -50,6 +50,7 @@ const App = (() => {
   }
   const confirmBox = (message, opts = {}) => modal({ message, okLabel: 'نعم', ...opts });
   const askBox = (message, value = '') => modal({ message, input: value });
+  const alertBox = (title, message) => modal({ title, message, okLabel: 'حسنًا', cancel: false });
   const promptBox = (message, value = '') => modal({ message, input: value, numeric: false, okLabel: 'إضافة' });
   const showText = (title, text) => modal({ title, textarea: text, okLabel: 'تم', cancel: false });
 
@@ -119,5 +120,5 @@ const App = (() => {
   route();
   // المنهج والإعدادات من السحابة: نعرض المحفوظ فورًا ثم نحدّث الشاشة إن تغيّرت الكلمات
   Store.init().then(changed => { if (changed && !location.hash.startsWith('#/play')) route(); });
-  return { toast, go, currentStudent, confirm: confirmBox, ask: askBox, prompt: promptBox, showText };
+  return { toast, go, currentStudent, confirm: confirmBox, ask: askBox, prompt: promptBox, alert: alertBox, showText };
 })();

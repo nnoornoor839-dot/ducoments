@@ -353,6 +353,8 @@ table.pv th, table.pv td { padding: .3rem .5rem; border-bottom: 1px solid var(--
 .modal-wrap { position: fixed; inset: 0; background: rgba(60, 40, 10, .5); display: grid; place-items: center; padding: 1rem; z-index: 70; }
 .modal { background: var(--card); border-radius: var(--radius); padding: 1.2rem; width: 100%; max-width: 420px; box-shadow: 0 20px 50px rgba(60, 40, 10, .35); display: grid; gap: .8rem; }
 .modal h3, .modal p { margin: 0; }
+.modal p { white-space: pre-line; line-height: 1.7; }
+.modal { max-height: 90vh; overflow-y: auto; }
 .modal input { text-align: center; font-size: 1.3rem; letter-spacing: .4em; }
 .modal textarea { width: 100%; border: 2px solid var(--line); border-radius: 14px; padding: .6rem; font: inherit; font-size: .9rem; resize: none; background: #fff; color: var(--ink); }
 .modal .row { margin: 0; }
