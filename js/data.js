@@ -1,17 +1,11 @@
 // ملف مُولَّد تلقائيًا بواسطة tools/csv_to_data.py — لا تعدّله يدويًا
 window.CURRICULUM = {
- "version": "202610052239",
+ "version": "202610052318",
  "grades": [
   {
    "id": "g5",
    "name": "الخامس الابتدائي",
    "short": "5 ابتدائي",
-   "units": []
-  },
-  {
-   "id": "g6",
-   "name": "السادس الابتدائي",
-   "short": "6 ابتدائي",
    "units": [
     {
      "id": "u2",
@@ -28,14 +22,14 @@ window.CURRICULUM = {
        "en": "architect",
        "ar": "مهندس معماري",
        "sentence": "The architect made the perfect vacation home with strong materials.",
-       "sentenceAr": "صمّم المهندس المعماري منزل إجازة مثاليًا بمواد قوية.",
+       "sentenceAr": "صنع المهندس المعماري بيت الإجازة المثالي بمواد قوية.",
        "page": "22"
       },
       {
        "en": "basement",
        "ar": "قبو",
        "sentence": "Downstairs is the basement, on the bottom floor.",
-       "sentenceAr": "في الأسفل القبو، في الطابق السفلي.",
+       "sentenceAr": "في الأسفل يوجد القبو، في الطابق السفلي.",
        "page": "23"
       },
       {
@@ -47,7 +41,7 @@ window.CURRICULUM = {
       },
       {
        "en": "cushion",
-       "ar": "مخدة الكنب",
+       "ar": "مخدة (وسادة الكنب)",
        "sentence": "We're going to put big cushions in the corner of the room.",
        "sentenceAr": "سنضع وسائد كبيرة في زاوية الغرفة.",
        "page": "30",
@@ -78,7 +72,7 @@ window.CURRICULUM = {
        "en": "entrance",
        "ar": "مدخل",
        "sentence": "To get through the entrance, you have to find the key.",
-       "sentenceAr": "لتعبر المدخل عليك أن تجد المفتاح.",
+       "sentenceAr": "للمرور من المدخل عليك أن تجد المفتاح.",
        "page": "23"
       },
       {
@@ -113,7 +107,7 @@ window.CURRICULUM = {
        "en": "key",
        "ar": "مفتاح",
        "sentence": "You will find the key under the mat.",
-       "sentenceAr": "ستجد المفتاح تحت السجادة.",
+       "sentenceAr": "ستجد المفتاح تحت سجادة الباب.",
        "page": "22"
       },
       {
@@ -183,8 +177,241 @@ window.CURRICULUM = {
        "en": "Wi-Fi",
        "ar": "اتصال لاسلكي",
        "sentence": "If you want technology, turn on the Wi-Fi.",
-       "sentenceAr": "إن أردت التكنولوجيا فشغّل الواي فاي.",
+       "sentenceAr": "إن أردت التقنية فشغّل الواي فاي.",
        "page": "23"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "g6",
+   "name": "السادس الابتدائي",
+   "short": "6 ابتدائي",
+   "units": [
+    {
+     "id": "u2",
+     "title": "Unit 2: Lifestyles",
+     "words": [
+      {
+       "en": "bandage",
+       "ar": "ضمادة",
+       "sentence": "Need a bandage? We sell them here!",
+       "sentenceAr": "هل تحتاج إلى ضمادة؟ نبيعها هنا!",
+       "page": "22"
+      },
+      {
+       "en": "break",
+       "ar": "يكسر",
+       "sentence": "Did I break my toe?",
+       "sentenceAr": "هل كسرتُ إصبع قدمي؟",
+       "page": "22"
+      },
+      {
+       "en": "bread",
+       "ar": "خبز",
+       "sentence": "I was cutting bread with a knife.",
+       "sentenceAr": "كنت أقطع الخبز بسكين.",
+       "page": "22"
+      },
+      {
+       "en": "broken",
+       "ar": "مكسور",
+       "sentence": "I think it's broken.",
+       "sentenceAr": "أظنه مكسورًا.",
+       "page": "22"
+      },
+      {
+       "en": "burn",
+       "ar": "حرق / يحرق",
+       "sentence": "I burned my hand on the barbecue.",
+       "sentenceAr": "حرقتُ يدي على الشواء.",
+       "page": "22",
+       "form": "burned"
+      },
+      {
+       "en": "cereal",
+       "ar": "حبوب الفطور",
+       "sentence": "To eat my cereal in the morning, I use a spoon.",
+       "sentenceAr": "لآكل حبوب الفطور في الصباح أستخدم ملعقة.",
+       "page": "28"
+      },
+      {
+       "en": "cut",
+       "ar": "يقطع / يجرح",
+       "sentence": "I cut my finger and it's really sore!",
+       "sentenceAr": "جرحتُ إصبعي وهو مؤلم جدًا!",
+       "page": "23"
+      },
+      {
+       "en": "delicious",
+       "ar": "لذيذ",
+       "sentence": "Those pancakes look delicious!",
+       "sentenceAr": "تبدو تلك الفطائر لذيذة!",
+       "page": "26"
+      },
+      {
+       "en": "egg",
+       "ar": "بيضة",
+       "sentence": "Do you want salt and pepper with your eggs?",
+       "sentenceAr": "هل تريد ملحًا وفلفلًا مع بيضك؟",
+       "page": "28",
+       "form": "eggs"
+      },
+      {
+       "en": "elbow",
+       "ar": "مرفق",
+       "sentence": "If you fall on your elbow, you will break it.",
+       "sentenceAr": "إن سقطت على مرفقك فسوف تكسره.",
+       "page": "25"
+      },
+      {
+       "en": "fall over",
+       "ar": "يسقط",
+       "sentence": "I fell over and I hurt my knee!",
+       "sentenceAr": "وقعتُ وآذيتُ ركبتي!",
+       "page": "23",
+       "form": "fell over"
+      },
+      {
+       "en": "finger",
+       "ar": "إصبع",
+       "sentence": "Yes! I broke my finger last summer.",
+       "sentenceAr": "نعم! كسرتُ إصبعي الصيف الماضي.",
+       "page": "23"
+      },
+      {
+       "en": "fork",
+       "ar": "شوكة",
+       "page": "28"
+      },
+      {
+       "en": "hand",
+       "ar": "يد",
+       "sentence": "I burned my hand. Can you help me, please?",
+       "sentenceAr": "حرقتُ يدي. هل تساعدني من فضلك؟",
+       "page": "23"
+      },
+      {
+       "en": "jam",
+       "ar": "مربى",
+       "sentence": "Yes! And a little strawberry jam.",
+       "sentenceAr": "نعم! وقليل من مربى الفراولة.",
+       "page": "29"
+      },
+      {
+       "en": "knee",
+       "ar": "ركبة",
+       "sentence": "I fell over and hurt my knee.",
+       "sentenceAr": "وقعتُ وآذيتُ ركبتي.",
+       "page": "22"
+      },
+      {
+       "en": "knife",
+       "ar": "سكين",
+       "sentence": "We cut bread with a knife.",
+       "sentenceAr": "نقطع الخبز بسكين.",
+       "page": "23"
+      },
+      {
+       "en": "medicine",
+       "ar": "دواء / علاج",
+       "sentence": "We have all the medicine you need!",
+       "sentenceAr": "لدينا كل الدواء الذي تحتاجه!",
+       "page": "22"
+      },
+      {
+       "en": "milk",
+       "ar": "حليب",
+       "sentence": "If we want to make more pancakes, we will need more milk.",
+       "sentenceAr": "إن أردنا صنع فطائر أكثر فسنحتاج حليبًا أكثر.",
+       "page": "26"
+      },
+      {
+       "en": "olive",
+       "ar": "زيتون",
+       "sentence": "OK! Why don't we add a few olives?",
+       "sentenceAr": "حسنًا! لماذا لا نضيف بضع حبات زيتون؟",
+       "page": "29",
+       "form": "olives"
+      },
+      {
+       "en": "pepper",
+       "ar": "فلفل",
+       "sentence": "Do you want salt and pepper with your eggs?",
+       "sentenceAr": "هل تريد ملحًا وفلفلًا مع بيضك؟",
+       "page": "28"
+      },
+      {
+       "en": "pharmacy",
+       "ar": "صيدلية",
+       "sentence": "Visit our local pharmacy.",
+       "sentenceAr": "زُر صيدليتنا المحلية.",
+       "page": "22"
+      },
+      {
+       "en": "pizza",
+       "ar": "بيتزا",
+       "sentence": "Let's make a special pizza for Dad!",
+       "sentenceAr": "لنصنع بيتزا خاصة لأبي!",
+       "page": "29"
+      },
+      {
+       "en": "restaurant",
+       "ar": "مطعم",
+       "sentence": "In another restaurant close by, we went looking for dessert.",
+       "sentenceAr": "في مطعم آخر قريب ذهبنا نبحث عن الحلوى.",
+       "page": "30"
+      },
+      {
+       "en": "salt",
+       "ar": "ملح",
+       "sentence": "Maybe a few strawberries and a little salt and pepper!",
+       "sentenceAr": "ربما بضع فراولات وقليل من الملح والفلفل!",
+       "page": "29"
+      },
+      {
+       "en": "soap",
+       "ar": "صابون",
+       "sentence": "Remember to wash your hands with soap and water.",
+       "sentenceAr": "تذكّر أن تغسل يديك بالماء والصابون.",
+       "page": "22"
+      },
+      {
+       "en": "sore",
+       "ar": "التهاب / مؤلم",
+       "sentence": "It's really sore.",
+       "sentenceAr": "إنه مؤلم جدًا.",
+       "page": "22"
+      },
+      {
+       "en": "spoon",
+       "ar": "ملعقة",
+       "sentence": "To eat my cereal in the morning, I use a spoon.",
+       "sentenceAr": "لآكل حبوب الفطور في الصباح أستخدم ملعقة.",
+       "page": "28"
+      },
+      {
+       "en": "strawberry",
+       "ar": "فراولة",
+       "sentence": "For dinner, my dad is preparing chicken and peas, and strawberries for dessert.",
+       "sentenceAr": "على العشاء يحضّر أبي الدجاج والبازلاء، والفراولة للتحلية.",
+       "page": "28",
+       "form": "strawberries"
+      },
+      {
+       "en": "toe",
+       "ar": "إصبع القدم",
+       "sentence": "I hurt my toe, I think it might be broken!",
+       "sentenceAr": "آذيتُ إصبع قدمي وأظنه مكسورًا!",
+       "page": "23"
+      },
+      {
+       "en": "x-ray",
+       "ar": "أشعة إكس",
+       "sentence": "If you go to the hospital, they will give you an X-ray.",
+       "sentenceAr": "إن ذهبت إلى المستشفى فسيجرون لك أشعة سينية.",
+       "page": "24"
       }
      ]
     }
