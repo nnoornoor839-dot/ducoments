@@ -89,6 +89,18 @@ const Content = (() => {
       <button class="btn" data-act="c-quick-add" ${ok.length ? '' : 'disabled'}>إضافة ${ok.length} كلمة</button>`;
   }
 
+  // حالة الكلمات: هل يعرض هذا الجهاز الكلمات المنشورة أم نسخة محفوظة عليه، وهل هي محدّثة
+  function versionNote() {
+    const v = String((window.CURRICULUM || {}).version || '');
+    const when = /^\d{12}$/.test(v) ? `${v.slice(0, 4)}-${v.slice(4, 6)}-${v.slice(6, 8)} ${v.slice(8, 10)}:${v.slice(10, 12)} UTC` : v;
+    const state = !Store.isCustomCurriculum()
+      ? 'هذا الجهاز يعرض الكلمات المنشورة في التطبيق، وتتحدّث تلقائيًا.'
+      : Store.isCurriculumStale()
+        ? '<b class="warn-t">نسختك المحفوظة على هذا الجهاز أقدم من الكلمات المنشورة.</b>'
+        : 'نسختك المحفوظة على هذا الجهاز محدّثة.';
+    return `<p class="muted small data-status">${ic('info', 'sm')} إصدار الكلمات المنشورة: <b dir="ltr">${esc(when)}</b> • ${state}</p>`;
+  }
+
   // ---------- شاشة الصف ----------
   function home(gid) {
     const g = Cur.grade(gid);
@@ -96,6 +108,7 @@ const Content = (() => {
     app().innerHTML = `
       <button class="back" data-go="#/teacher/g/${g.id}">‹ ${esc(g.name)}</button>
       <h2 class="section-title">${ic('edit')} إدارة الكلمات — ${esc(g.name)}</h2>
+      ${versionNote()}
       ${Store.isCurriculumStale() ? `
         <div class="card warn small">
           نُشرت <b>كلمات جديدة</b> في التطبيق، وما تراه الآن نسخة قديمة محفوظة على هذا الجهاز.
