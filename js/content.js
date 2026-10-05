@@ -99,7 +99,7 @@ const Content = (() => {
       ${Store.isCurriculumStale() ? `
         <div class="card warn small">
           نُشرت <b>كلمات جديدة</b> في التطبيق، وما تراه الآن نسخة قديمة محفوظة على هذا الجهاز.
-          انسخ كلماتك أولًا (من «نسخ كل الكلمات») إن أضفت شيئًا تريد الاحتفاظ به.
+          تحميل الكلمات الجديدة <b>يستبدل</b> الكلمات التي أدخلتها أنت.
           <div class="row"><button class="btn" data-act="c-reset">${ic('reset')} تحميل الكلمات الجديدة</button></div>
         </div>` : (!Store.isCustomCurriculum() && (window.CURRICULUM || {}).sample ? `
         <div class="card warn small">
@@ -121,14 +121,6 @@ const Content = (() => {
         <label class="btn ghost file-label">${ic('upload')} استيراد ملف Excel
           <input type="file" accept=".xlsx,.xls,.csv" data-act="c-excel-import" class="hidden-file">
         </label>
-      </div>
-
-      <h3 class="section-title">نقل الكلمات بين الأجهزة (كل الصفوف)</h3>
-      <p class="muted small">الكلمات تُحفظ على هذا الجهاز. انسخها هنا والصقها على جهاز آخر، مثل جهاز الطلاب.</p>
-      <div class="row wrap">
-        <button class="btn ghost" data-act="c-export">${ic('upload')} نسخ كل الكلمات</button>
-        <button class="btn ghost" data-act="c-import">${ic('download')} استيراد كلمات</button>
-        ${Store.isCustomCurriculum() ? `<button class="btn ghost" data-act="c-reset">${ic('reset')} العودة للكلمات المضمّنة</button>` : ''}
       </div>`;
   }
 
@@ -309,58 +301,6 @@ const Content = (() => {
   U.actions['c-reset'] = async () => {
     if (!(await App.confirm('العودة للكلمات المضمّنة في التطبيق؟ ستُحذف التعديلات التي أدخلتها على هذا الجهاز.', { okLabel: 'نعم، استبدلها', danger: true }))) return;
     Store.resetCurriculum();
-    home(ctx.gid);
-  };
-
-  // ---------- نقل الكلمات ----------
-  async function copyText(text) {
-    try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* نجرب الطريقة القديمة */ }
-    try {
-      const ta = document.createElement('textarea');
-      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
-      const ok = document.execCommand('copy');
-      ta.remove();
-      return ok;
-    } catch (e) { return false; }
-  }
-  U.actions['c-export'] = async () => {
-    const text = JSON.stringify(Cur.snapshot());
-    if (await copyText(text)) App.toast('تم نسخ كل الكلمات. الصقها في الجهاز الآخر');
-    else App.showText('انسخ هذا النص', text);
-  };
-
-  // يتحقق من النص الملصوق وينظّفه قبل الاستبدال
-  function sanitize(raw) {
-    const data = JSON.parse(raw);
-    if (!data || !Array.isArray(data.grades)) throw new Error('شكل غير صحيح');
-    const str = v => (v === undefined || v === null ? '' : String(v));
-    // الصفوف الحالية، وأي صف أنشأه المعلم على الجهاز الآخر
-    const extra = data.grades.filter(g => g && g.id && g.name && !Cur.grade(String(g.id)))
-      .map(g => ({ id: str(g.id), name: str(g.name).slice(0, 40), short: str(g.short || g.name).slice(0, 40) }));
-    const grades = Cur.grades.concat(extra).map(base => {
-      const src = data.grades.find(g => g && g.id === base.id);
-      const units = (src && Array.isArray(src.units) ? src.units : []).filter(u => u && u.id).map(u => ({
-        id: str(u.id), title: str(u.title) || `Unit ${u.num || ''}`.trim(),
-        num: Number(u.num) || parseInt(str(u.id).replace(/\D/g, ''), 10) || 0,
-        words: (Array.isArray(u.words) ? u.words : []).filter(w => w && w.en).map(w => {
-          const o = { en: str(w.en), ar: str(w.ar) };
-          ['sentence', 'sentenceAr', 'page', 'form', 'key'].forEach(k => { if (w[k]) o[k] = str(w[k]); });
-          return o;
-        })
-      }));
-      return { id: base.id, name: base.name, short: base.short, units };
-    });
-    return { grades };
-  }
-  U.actions['c-import'] = async () => {
-    const raw = await App.paste('استيراد كلمات', 'الصق هنا النص الذي نسخته من الجهاز الآخر. سيحل محل الكلمات الحالية.');
-    if (raw === null || !raw.trim()) return;
-    let data;
-    try { data = sanitize(raw); } catch (e) { App.toast('النص غير صحيح. انسخه من «نسخ كل الكلمات» ثم الصقه كاملًا.'); return; }
-    const count = data.grades.reduce((n, g) => n + g.units.reduce((m, u) => m + u.words.length, 0), 0);
-    Store.saveCurriculum(data);
-    App.toast(`تم استيراد ${count} كلمة`);
     home(ctx.gid);
   };
 

@@ -52,7 +52,6 @@ const App = (() => {
   const askBox = (message, value = '') => modal({ message, input: value });
   const promptBox = (message, value = '') => modal({ message, input: value, numeric: false, okLabel: 'إضافة' });
   const showText = (title, text) => modal({ title, textarea: text, okLabel: 'تم', cancel: false });
-  const pasteBox = (title, message) => modal({ title, message, textarea: '', editable: true, okLabel: 'استيراد' });
 
   function go(hash) {
     if (location.hash === hash) route(); else location.hash = hash;
@@ -120,5 +119,5 @@ const App = (() => {
   route();
   // المنهج والإعدادات من السحابة: نعرض المحفوظ فورًا ثم نحدّث الشاشة إن تغيّرت الكلمات
   Store.init().then(changed => { if (changed && !location.hash.startsWith('#/play')) route(); });
-  return { toast, go, currentStudent, confirm: confirmBox, ask: askBox, prompt: promptBox, showText, paste: pasteBox };
+  return { toast, go, currentStudent, confirm: confirmBox, ask: askBox, prompt: promptBox, showText };
 })();
