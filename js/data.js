@@ -1,6 +1,6 @@
 // ملف مُولَّد تلقائيًا بواسطة tools/csv_to_data.py — لا تعدّله يدويًا
 window.CURRICULUM = {
- "version": "202610052320",
+ "version": "202610052324",
  "grades": [
   {
    "id": "g5",
@@ -232,7 +232,7 @@ window.CURRICULUM = {
        "en": "cereal",
        "ar": "حبوب الفطور",
        "sentence": "To eat my cereal in the morning, I use a spoon.",
-       "sentenceAr": "لآكل حبوب الفطور في الصباح أستخدم ملعقة.",
+       "sentenceAr": "لتناول حبوب الفطور في الصباح أستخدم ملعقة.",
        "page": "28"
       },
       {
@@ -322,8 +322,8 @@ window.CURRICULUM = {
       {
        "en": "milk",
        "ar": "حليب",
-       "sentence": "If we want to make more pancakes, we will need more milk.",
-       "sentenceAr": "إن أردنا صنع فطائر أكثر فسنحتاج حليبًا أكثر.",
+       "sentence": "\"If we want to make more pancakes, we will need more milk,\" said Omar.",
+       "sentenceAr": "«إن أردنا صنع فطائر أكثر فسنحتاج حليبًا أكثر»، قال عمر.",
        "page": "26"
       },
       {
@@ -365,8 +365,8 @@ window.CURRICULUM = {
       {
        "en": "salt",
        "ar": "ملح",
-       "sentence": "Maybe a few strawberries and a little salt and pepper!",
-       "sentenceAr": "ربما بضع فراولات وقليل من الملح والفلفل!",
+       "sentence": "Maybe a few strawberries ... and a little salt and pepper!",
+       "sentenceAr": "ربما بضع فراولات ... وقليل من الملح والفلفل!",
        "page": "29"
       },
       {
@@ -387,7 +387,7 @@ window.CURRICULUM = {
        "en": "spoon",
        "ar": "ملعقة",
        "sentence": "To eat my cereal in the morning, I use a spoon.",
-       "sentenceAr": "لآكل حبوب الفطور في الصباح أستخدم ملعقة.",
+       "sentenceAr": "لتناول حبوب الفطور في الصباح أستخدم ملعقة.",
        "page": "28"
       },
       {
