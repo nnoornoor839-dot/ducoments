@@ -93,19 +93,21 @@ const Teacher = (() => {
       const words = Cur.allWords(g).length;
       const units = g.units.length;
       return `
-        <button class="grade-card" data-go="#/teacher/g/${g.id}">
-          <span class="gc-ic">${ic('book', 'lg')}</span>
-          <span class="gc-main">
-            <b>${esc(g.name)}</b>
-            <small>${words ? `${units} ${units === 1 ? 'وحدة' : 'وحدات'} • ${words} كلمة` : 'لم تُضف كلمات بعد'}</small>
-            ${todayN || idleN ? `<span class="gc-chips">
-              ${todayN ? `<span class="chip-stat good">دخلوا اليوم: ${todayN}</span>` : ''}
-              ${idleN ? `<span class="chip-stat">يحتاجون متابعة: ${idleN}</span>` : ''}
-            </span>` : ''}
-          </span>
-          <span class="gc-side"><b>${list.length}</b><small>${list.length === 1 ? 'طالب' : 'طلاب'}</small></span>
+        <button class="role-btn student grade-card" data-go="#/teacher/g/${g.id}">
+          <span class="role-icon">${ic('cap')}</span>
+          <b>${esc(g.name)}</b>
+          <small>${list.length} ${list.length === 1 ? 'طالب' : 'طلاب'}</small>
+          <small>${words ? `${units} ${units === 1 ? 'وحدة' : 'وحدات'} • ${words} كلمة` : 'لم تُضف كلمات بعد'}</small>
+          ${todayN || idleN ? `<span class="gc-chips">
+            ${todayN ? `<span class="chip-stat good">دخلوا اليوم: ${todayN}</span>` : ''}
+            ${idleN ? `<span class="chip-stat">يحتاجون متابعة: ${idleN}</span>` : ''}
+          </span>` : ''}
         </button>`;
-    }).join('');
+    }).join('') + `
+        <button class="role-btn grade-card add" data-act="t-add-grade">
+          <span class="role-icon">${ic('plus')}</span>
+          <b>إضافة صف جديد</b>
+        </button>`;
 
     app().innerHTML = `
       <h2 class="section-title">${ic('board')} لوحة المعلم</h2>
@@ -115,7 +117,7 @@ const Teacher = (() => {
         <div class="tile static ${idle ? 'alert' : ''}"><b>${idle}</b><small>يحتاجون متابعة</small></div>
       </div>
       <h3 class="section-title">الصفوف</h3>
-      <div class="grade-cards">${cards || '<p class="card muted empty">لا توجد صفوف.</p>'}</div>
+      <div class="grade-cards">${cards}</div>
       ${syncNote()}`;
   }
 
@@ -130,6 +132,9 @@ const Teacher = (() => {
       .sort((a, b) => (needsFollowUp(b) - needsFollowUp(a)) || a.name.localeCompare(b.name, 'ar'));
     const active = students.filter(s => s.lastActive === today).length;
     const idle = students.filter(needsFollowUp).length;
+    // الصف الذي أنشأه المعلم يُحذف إن كان فارغًا فقط (لا طلاب ولا وحدات)؛ الصفوف المضمّنة لا تُحذف
+    const builtIn = ((window.CURRICULUM || {}).grades || []).some(x => x.id === g.id);
+    const canDelete = !builtIn && !students.length && !g.units.length;
 
     const rows = students.map(s => {
       const gs = Progress.gradeStats(s, g);
@@ -150,11 +155,8 @@ const Teacher = (() => {
 
     app().innerHTML = `
       <button class="back" data-go="#/teacher">‹ لوحة المعلم</button>
-      <h2 class="section-title">${ic('book')} ${esc(g.name)}</h2>
-      <div class="row">
-        <button class="btn" data-go="#/teacher/add/${g.id}">${ic('plus')} إضافة طالب</button>
-        <button class="btn ghost" data-go="#/teacher/content/${g.id}">${ic('edit')} إدارة الكلمات</button>
-      </div>
+      <h2 class="section-title">${ic('cap')} ${esc(g.name)}</h2>
+      <button class="btn big" data-go="#/teacher/add/${g.id}">${ic('plus')} إضافة طالب</button>
       <div class="tiles">
         <button class="tile on" data-act="t-filter" data-f="all"><b>${students.length}</b><small>الكل</small></button>
         <button class="tile" data-act="t-filter" data-f="today"><b>${active}</b><small>دخلوا اليوم</small></button>
@@ -165,6 +167,8 @@ const Teacher = (() => {
           <input type="search" id="t-search-in" placeholder="ابحث عن طالب..." aria-label="بحث عن طالب" autocomplete="off">
         </div>` : ''}
       ${rows ? `<div class="t-list" id="t-list">${rows}</div>` : `<p class="card muted empty">لا يوجد طلاب في ${esc(g.name)} بعد. اضغط «إضافة طالب».</p>`}
+      <button class="btn big words-btn" data-go="#/teacher/content/${g.id}">${ic('edit')} إدارة كلمات ${esc(g.name)}</button>
+      ${canDelete ? `<button class="btn ghost danger-text" data-act="t-del-grade" data-id="${g.id}">${ic('trash', 'sm')} حذف هذا الصف</button>` : ''}
       ${syncNote()}`;
 
     const searchIn = document.getElementById('t-search-in');
@@ -501,6 +505,33 @@ const Teacher = (() => {
       if (f === 'today') { row.style.display = row.dataset.today === 'true' ? '' : 'none'; return; }
       if (f === 'idle') { row.style.display = row.dataset.late === 'true' ? '' : 'none'; return; }
     });
+  };
+
+  // صف جديد: يُحفظ ضمن المنهج (ويصل للسحابة والأجهزة الأخرى مثل أي كلمات)
+  U.actions['t-add-grade'] = async () => {
+    const raw = await App.prompt('اسم الصف الجديد (مثل: الثالث الابتدائي):', '');
+    if (raw === null) return;
+    const name = raw.trim().slice(0, 40);
+    if (!name) { App.toast('اكتب اسم الصف'); return; }
+    if (Cur.grades.some(g => g.name === name)) { App.toast('هذا الصف موجود مسبقًا'); return; }
+    let id;
+    do { id = 'c' + U.rid(); } while (Cur.grade(id));
+    const data = Cur.snapshot();
+    data.grades.push({ id, name, short: name, units: [] });
+    Store.saveCurriculum(data);
+    App.toast(`تمت إضافة ${name}`);
+    App.go('#/teacher/g/' + id);
+  };
+  U.actions['t-del-grade'] = async el => {
+    const g = Cur.grade(el.dataset.id);
+    if (!g) return;
+    const students = (await Store.listStudents()).filter(s => s.grade === g.id);
+    if (students.length || g.units.length) { App.toast('لا يمكن حذف صف فيه طلاب أو وحدات'); return; }
+    if (!(await App.confirm(`حذف الصف «${g.name}»؟`, { okLabel: 'حذف', danger: true }))) return;
+    const data = Cur.snapshot();
+    data.grades = data.grades.filter(x => x.id !== g.id);
+    Store.saveCurriculum(data);
+    App.go('#/teacher');
   };
 
   U.actions['t-exit'] = async () => { await Store.teacherLogout(); App.go('#/login'); };

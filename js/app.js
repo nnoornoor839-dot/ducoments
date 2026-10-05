@@ -12,7 +12,7 @@ const App = (() => {
   }
 
   // نافذة داخل الصفحة بدل confirm/prompt
-  function modal({ title, message, input, textarea, editable = false, okLabel = 'موافق', cancelLabel = 'إلغاء', danger = false, cancel = true }) {
+  function modal({ title, message, input, numeric = true, textarea, editable = false, okLabel = 'موافق', cancelLabel = 'إلغاء', danger = false, cancel = true }) {
     return new Promise(resolve => {
       const wrap = document.createElement('div');
       wrap.className = 'modal-wrap';
@@ -20,7 +20,7 @@ const App = (() => {
         <div class="modal" role="dialog" aria-modal="true">
           ${title ? `<h3>${U.esc(title)}</h3>` : ''}
           ${message ? `<p>${U.esc(message)}</p>` : ''}
-          ${input !== undefined ? `<input id="modal-in" value="${U.esc(input)}" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="${U.esc(message || '')}">` : ''}
+          ${input !== undefined ? `<input id="modal-in" value="${U.esc(input)}" ${numeric ? 'inputmode="numeric" maxlength="4"' : 'maxlength="40"'} autocomplete="off" aria-label="${U.esc(message || '')}">` : ''}
           ${textarea !== undefined ? `<textarea id="modal-ta" ${editable ? '' : 'readonly'} rows="9" dir="ltr" aria-label="${U.esc(title || '')}">${U.esc(textarea)}</textarea>` : ''}
           <div class="row">
             <button class="btn ${danger ? 'danger' : ''}" data-m="ok">${U.esc(okLabel)}</button>
@@ -50,6 +50,7 @@ const App = (() => {
   }
   const confirmBox = (message, opts = {}) => modal({ message, okLabel: 'نعم', ...opts });
   const askBox = (message, value = '') => modal({ message, input: value });
+  const promptBox = (message, value = '') => modal({ message, input: value, numeric: false, okLabel: 'إضافة' });
   const showText = (title, text) => modal({ title, textarea: text, okLabel: 'تم', cancel: false });
   const pasteBox = (title, message) => modal({ title, message, textarea: '', editable: true, okLabel: 'استيراد' });
 
@@ -119,5 +120,5 @@ const App = (() => {
   route();
   // المنهج والإعدادات من السحابة: نعرض المحفوظ فورًا ثم نحدّث الشاشة إن تغيّرت الكلمات
   Store.init().then(changed => { if (changed && !location.hash.startsWith('#/play')) route(); });
-  return { toast, go, currentStudent, confirm: confirmBox, ask: askBox, showText, paste: pasteBox };
+  return { toast, go, currentStudent, confirm: confirmBox, ask: askBox, prompt: promptBox, showText, paste: pasteBox };
 })();

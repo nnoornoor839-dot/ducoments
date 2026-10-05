@@ -335,7 +335,10 @@ const Content = (() => {
     const data = JSON.parse(raw);
     if (!data || !Array.isArray(data.grades)) throw new Error('شكل غير صحيح');
     const str = v => (v === undefined || v === null ? '' : String(v));
-    const grades = Cur.grades.map(base => {
+    // الصفوف الحالية، وأي صف أنشأه المعلم على الجهاز الآخر
+    const extra = data.grades.filter(g => g && g.id && g.name && !Cur.grade(String(g.id)))
+      .map(g => ({ id: str(g.id), name: str(g.name).slice(0, 40), short: str(g.short || g.name).slice(0, 40) }));
+    const grades = Cur.grades.concat(extra).map(base => {
       const src = data.grades.find(g => g && g.id === base.id);
       const units = (src && Array.isArray(src.units) ? src.units : []).filter(u => u && u.id).map(u => ({
         id: str(u.id), title: str(u.title) || `Unit ${u.num || ''}`.trim(),
