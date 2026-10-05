@@ -1,6 +1,6 @@
 // ملف مُولَّد تلقائيًا بواسطة tools/csv_to_data.py — لا تعدّله يدويًا
 window.CURRICULUM = {
- "version": "202610052318",
+ "version": "202610052320",
  "grades": [
   {
    "id": "g5",
@@ -42,16 +42,15 @@ window.CURRICULUM = {
       {
        "en": "cushion",
        "ar": "مخدة (وسادة الكنب)",
-       "sentence": "We're going to put big cushions in the corner of the room.",
-       "sentenceAr": "سنضع وسائد كبيرة في زاوية الغرفة.",
-       "page": "30",
-       "form": "cushions"
+       "sentence": "Put that old chair cushion in the box.",
+       "sentenceAr": "ضع مخدة الكرسي القديمة في الصندوق.",
+       "page": "28"
       },
       {
        "en": "design",
        "ar": "تصميم",
-       "sentence": "He spoke to our architect to draw the design he wants.",
-       "sentenceAr": "تحدّث إلى مهندسنا المعماري ليرسم التصميم الذي يريده.",
+       "sentence": "He spoke to our architect to draw the design he wants, and he wrote us a letter with his thoughts.",
+       "sentenceAr": "تحدّث إلى مهندسنا المعماري ليرسم التصميم الذي يريده، وكتب لنا رسالة بأفكاره.",
        "page": "30"
       },
       {
@@ -127,8 +126,8 @@ window.CURRICULUM = {
       {
        "en": "materials",
        "ar": "مواد",
-       "sentence": "Builders are going to use strong, safe materials in the construction.",
-       "sentenceAr": "سيستخدم البنّاؤون مواد قوية وآمنة في البناء.",
+       "sentence": "The architect who designed the tower chose very strong, modern materials, like concrete, steel, and glass.",
+       "sentenceAr": "اختار المهندس الذي صمّم البرج مواد قوية وحديثة جدًا، مثل الخرسانة والفولاذ والزجاج.",
        "page": "32"
       },
       {
