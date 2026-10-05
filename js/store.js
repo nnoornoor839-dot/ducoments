@@ -1,6 +1,5 @@
 // المنهج + حفظ بيانات الطلاب.
-// ملاحظة: التخزين الآن محلي (localStorage) على نفس الجهاز. دوال الطلاب كلها async
-// لنستبدل التخزين لاحقًا بقاعدة بيانات سحابية دون تغيير بقية الشاشات.
+// التخزين المحلي (localStorage) هو الأساس. وإن فُعِّل الربط السحابي (js/config.js) يتزامن معه Supabase.
 
 // ---------- المنهج ----------
 const Cur = (() => {
@@ -167,17 +166,224 @@ const Progress = (() => {
 // ---------- التخزين ----------
 const Store = (() => {
   const KEY = 'kalimati.v1';
+  const TOKEN_KEY = 'kalimati.ttoken';
+  const PROGRESS_KEYS = ['xp', 'streak', 'lastActive', 'daily', 'words', 'units', 'log', 'reps'];
+  const cloud = Cloud.enabled;
   let state = null;
+  let online = true;      // هل نجح آخر اتصال بالسحابة؟
+  let backoffUntil = 0;   // بعد فشل الاتصال نتوقف لحظات كي لا يتباطأ التنقل
+  let lastPull = 0;
+  let flushing = null;
+  let flushTimer = null;
+  let memToken = '';
 
-  function fresh() { return { v: 1, teacher: null, students: {}, session: null }; }
+  function fresh() { return { v: 1, teacher: null, students: {}, session: null, outbox: [] }; }
   function load() {
     try { state = JSON.parse(U.lsGet(KEY) || 'null') || fresh(); } catch (e) { state = fresh(); }
     if (!state.students) state.students = {};
+    if (!state.outbox) state.outbox = [];
   }
   function save() { U.lsSet(KEY, JSON.stringify(state)); }
   load();
 
-  // تشفير بسيط جدًا لكلمة مرور المعلم (النسخة المحلية فقط؛ الأمان الحقيقي مع الخادم لاحقًا)
+  const blank = () => ({ xp: 0, streak: 0, lastActive: null, daily: { date: '', n: 0 }, words: {}, units: {}, log: [] });
+  const normalize = s => Object.assign(blank(), s);
+  const withTimeout = (p, ms) => new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('timeout')), ms);
+    p.then(v => { clearTimeout(t); resolve(v); }, e => { clearTimeout(t); reject(e); });
+  });
+
+  // ---- رمز جلسة المعلم (يبقى في التبويب الحالي فقط) ----
+  function teacherToken() {
+    if (memToken) return memToken;
+    try { return sessionStorage.getItem(TOKEN_KEY) || ''; } catch (e) { return ''; }
+  }
+  function setTeacherToken(t) {
+    memToken = t || '';
+    try { if (t) sessionStorage.setItem(TOKEN_KEY, t); else sessionStorage.removeItem(TOKEN_KEY); } catch (e) { /* تجاهل */ }
+  }
+  function setLocalTeacherAuthed(v) {
+    try { sessionStorage.setItem('kalimati.teacher', v ? '1' : '0'); } catch (e) { /* تجاهل */ }
+  }
+
+  // ---- المزامنة: صندوق صادر لعمليات تُعاد محاولتها حتى تنجح (عملية واحدة لكل key) ----
+  function queue(job) {
+    if (!cloud) return;
+    state.outbox = state.outbox.filter(j => j.key !== job.key);
+    state.outbox.push(job);
+    save();
+    clearTimeout(flushTimer);
+    flushTimer = setTimeout(flush, 1500);
+  }
+  const pending = key => state.outbox.some(j => j.key === key);
+
+  // تقدم الطالب يُرفع كاملًا في كل مرة؛ آخر نسخة تحلّ محل ما قبلها
+  function commitStudent(sid) {
+    const s = state.students[sid];
+    const sess = state.session;
+    if (!cloud || !s || !sess || sess.role !== 'student' || sess.id !== sid || !sess.token) { save(); return; }
+    const patch = {};
+    PROGRESS_KEYS.forEach(k => { if (s[k] !== undefined) patch[k] = s[k]; });
+    queue({ key: 'student:' + sid, op: 'student_save', token: sess.token, sid, epoch: s.epoch || 0, patch });
+  }
+
+  function runJob(job) {
+    if (job.op === 'student_save') {
+      return Cloud.rpc('kal_student_save', { p_token: job.token, p_patch: job.patch, p_epoch: job.epoch }, 10000);
+    }
+    const tok = teacherToken();
+    if (job.op === 'range') {
+      return Cloud.rpc('kal_teacher_patch', { p_token: tok, p_id: job.sid, p_patch: { ranges: { [job.rk]: job.range } } }, 10000);
+    }
+    if (job.op === 'retry') return Cloud.rpc('kal_teacher_set_retry', { p_token: tok, p_n: job.n }, 10000);
+    if (job.op === 'curriculum') return Cloud.rpc('kal_teacher_set_curriculum', { p_token: tok, p_data: job.data }, 15000);
+    return Promise.resolve({ error: 'bad' });
+  }
+
+  function dropStudentSession(sid, token) {
+    if (state.session && state.session.token === token) {
+      state.session = null;
+      delete state.students[sid];
+    }
+  }
+
+  // يُرجع false إن فشل الاتصال (تبقى العمليات للمحاولة لاحقًا). عمليات المعلم تُؤجَّل إن لم يكن مسجّلًا للدخول.
+  function flush() {
+    if (!cloud) return Promise.resolve(true);
+    if (flushing) return flushing;
+    flushing = (async () => {
+      for (const job of state.outbox.slice()) {
+        if (job.op !== 'student_save' && !teacherToken()) continue;
+        let res;
+        try {
+          res = await runJob(job);
+        } catch (e) {
+          online = false;
+          const rejected = e.status >= 400 && e.status < 500 && ![401, 403, 404, 408, 429].includes(e.status);
+          if (!rejected) return false;
+          res = { error: 'rejected' };
+        }
+        online = true;
+        if (res && res.error === 'auth' && job.op !== 'student_save') { setTeacherToken(''); return false; }
+        if (res && res.error === 'auth') dropStudentSession(job.sid, job.token);
+        else if (res && res.error === 'stale' && res.student) state.students[job.sid] = normalize(res.student);
+        else if (res && res.ok && job.op === 'curriculum') state.curriculumAt = res.curriculum_at || undefined;
+        else if (res && res.error) console.warn('kalimati: تم تجاهل عملية مزامنة', job.op, res.error);
+        state.outbox = state.outbox.filter(j => j !== job);
+        save();
+      }
+      return true;
+    })().finally(() => { flushing = null; });
+    return flushing;
+  }
+
+  async function pullStudent() {
+    const sess = state.session;
+    if (!(await flush())) throw new Error('offline');
+    const r = await Cloud.rpc('kal_student_get', { p_token: sess.token }, 5000);
+    if (r.error === 'auth') { dropStudentSession(sess.id, sess.token); save(); return; }
+    if (r.ok) { state.students[r.student.id] = normalize(r.student); save(); }
+  }
+
+  async function pullAll() {
+    if (!(await flush())) throw new Error('offline');
+    const r = await Cloud.rpc('kal_teacher_list', { p_token: teacherToken() }, 5000);
+    if (r.error === 'auth') { setTeacherToken(''); return; }
+    if (r.ok) {
+      state.students = {};
+      r.students.forEach(s => { state.students[s.id] = normalize(s); });
+      save();
+    }
+  }
+
+  // يجلب أحدث بيانات من السحابة (بمهلة قصيرة) ويكتفي بالنسخة المحلية إن تعذّر
+  async function refresh(force) {
+    if (!cloud) return;
+    if (!force && (Date.now() < backoffUntil || Date.now() - lastPull < 15000)) return;
+    const sess = state.session;
+    const asTeacher = !!teacherToken();
+    if (!asTeacher && !(sess && sess.role === 'student' && sess.token)) return;
+    try {
+      await withTimeout(asTeacher ? pullAll() : pullStudent(), 6000);
+      lastPull = Date.now();
+      online = true;
+    } catch (e) {
+      online = false;
+      backoffUntil = Date.now() + 30000;
+    }
+  }
+
+  // عملية للمعلم تُنفَّذ فورًا (إضافة/حذف/تصفير/تعديل رمز) ويُعرف نجاحها قبل تغيير النسخة المحلية
+  async function teacherCall(fn, args) {
+    const tok = teacherToken();
+    if (!tok) return { error: 'auth' };
+    let r;
+    try {
+      r = await Cloud.rpc(fn, { p_token: tok, ...args });
+      online = true;
+    } catch (e) {
+      online = false;
+      return { error: e.status ? 'server' : 'offline' };
+    }
+    if (r && r.error === 'auth') setTeacherToken('');
+    return r || { error: 'server' };
+  }
+
+  async function cloudAuth(fn, pass) {
+    let r;
+    try {
+      r = await Cloud.rpc(fn, { p_pass: pass });
+      online = true;
+    } catch (e) {
+      online = false;
+      return { error: e.status ? 'server' : 'offline' };
+    }
+    if (!r || !r.ok) return { error: (r && r.error) || 'server' };
+    setTeacherToken(r.token);
+    lastPull = 0; backoffUntil = 0;
+    await init();
+    flush();
+    return { ok: true };
+  }
+
+  // إعدادات عامة ومنهج المعلم من السحابة. يُرجع true إن تغيّر المنهج.
+  async function init() {
+    if (!cloud) return false;
+    let c;
+    try {
+      c = await Cloud.rpc('kal_config', { p_curriculum_at: state.curriculumAt || null }, 6000);
+      online = true;
+    } catch (e) {
+      online = false;
+      return false;
+    }
+    if (!pending('retry')) U.lsSet('kalimati.retryMax', String(c.retry_max));
+    let changed = false;
+    if (!pending('curriculum')) {
+      if (c.curriculum_set) {
+        if (c.curriculum) {
+          state.curriculum = c.curriculum;
+          state.curriculumBase = (window.CURRICULUM || {}).version || '';
+          state.curriculumAt = c.curriculum_at;
+          changed = true;
+        }
+      } else if (state.curriculumAt) {
+        delete state.curriculum; delete state.curriculumBase; delete state.curriculumAt;
+        changed = true;
+      } else if (state.curriculum && teacherToken()) {
+        queue({ key: 'curriculum', op: 'curriculum', data: state.curriculum });
+      }
+    }
+    if (changed) { save(); Cur.reload(state.curriculum || window.CURRICULUM); }
+    return changed;
+  }
+
+  if (cloud) {
+    window.addEventListener('online', () => { backoffUntil = 0; flush(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) flush(); });
+  }
+
+  // تشفير بسيط جدًا لكلمة مرور المعلم في الوضع المحلي فقط (مع السحابة تُحفظ مشفّرة على الخادم)
   function hash(str) {
     let h = 5381;
     for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0;
@@ -201,46 +407,131 @@ const Store = (() => {
 
   return {
     // الجلسة (الطالب يبقى مسجّلًا على جهازه؛ المعلم يحتاج دخولًا جديدًا في كل تبويب)
-    getSession() { return state.session; },
-    setSession(sess) { state.session = sess; save(); },
+    getSession() {
+      const sess = state.session;
+      // جلسة طالب قديمة بلا رمز من الخادم لا تصلح مع السحابة
+      if (cloud && sess && sess.role === 'student' && !sess.token) { state.session = null; save(); return null; }
+      return sess;
+    },
     clearSession() { state.session = null; save(); },
-    teacherAuthed() { try { return sessionStorage.getItem('kalimati.teacher') === '1'; } catch (e) { return false; } },
-    setTeacherAuthed(v) { try { sessionStorage.setItem('kalimati.teacher', v ? '1' : '0'); } catch (e) { /* تجاهل */ } },
-    hasTeacher() { return !!state.teacher; },
-    setTeacherPassword(p) { state.teacher = { pass: hash(p) }; save(); },
-    checkTeacherPassword(p) { return !!state.teacher && state.teacher.pass === hash(p); },
+    teacherAuthed() {
+      if (cloud) return !!teacherToken();
+      try { return sessionStorage.getItem('kalimati.teacher') === '1'; } catch (e) { return false; }
+    },
 
-    async listStudents() { return Object.values(state.students); },
-    async getStudent(id) { return state.students[id] || null; },
+    // حالة حساب المعلم: true (موجود) | false (لم يُنشأ بعد) | {error} إن تعذّر الاتصال
+    async teacherStatus() {
+      if (!cloud) return !!state.teacher;
+      try {
+        const c = await Cloud.rpc('kal_config', { p_curriculum_at: state.curriculumAt || null }, 8000);
+        online = true;
+        return !!c.has_teacher;
+      } catch (e) {
+        online = false;
+        return { error: e.status ? 'server' : 'offline' };
+      }
+    },
+    async teacherSetup(pass) {
+      if (cloud) return cloudAuth('kal_teacher_setup', pass);
+      if (String(pass).length < 4) return { error: 'short' };
+      state.teacher = { pass: hash(pass) }; save();
+      setLocalTeacherAuthed(true);
+      return { ok: true };
+    },
+    async teacherLogin(pass) {
+      if (cloud) return cloudAuth('kal_teacher_login', pass);
+      if (!state.teacher || state.teacher.pass !== hash(pass)) return { error: 'bad-password' };
+      setLocalTeacherAuthed(true);
+      return { ok: true };
+    },
+    async teacherLogout() {
+      if (!cloud) { setLocalTeacherAuthed(false); return; }
+      const tok = teacherToken();
+      if (tok) {
+        try { await withTimeout(flush(), 4000); } catch (e) { /* نكمل الخروج */ }
+        setTeacherToken('');
+        Cloud.rpc('kal_teacher_logout', { p_token: tok }, 4000).catch(() => {});
+      }
+      // لا نُبقي بيانات بقية الطلاب على هذا الجهاز بعد خروج المعلم
+      const keep = state.session && state.session.role === 'student' ? state.students[state.session.id] : null;
+      state.students = keep ? { [keep.id]: keep } : {};
+      save();
+    },
+
+    // حالة المزامنة لعرضها للمعلم
+    syncState() { return { cloud, online, pending: state.outbox.length }; },
+    init,
+    flush,
+
+    async listStudents() {
+      await refresh(true);
+      return Object.values(state.students);
+    },
+    async getStudent(id) {
+      await refresh();
+      return state.students[id] || null;
+    },
     async addStudent(info) {
       if (!this.isPinUnique(info.grade, info.pin)) return { error: 'pin-taken' };
       const s = newStudent(info);
+      if (cloud) {
+        const r = await teacherCall('kal_teacher_add', { p_student: s });
+        if (r.error) return { error: r.error };
+      }
       state.students[s.id] = s; save();
       return s;
     },
     async updateStudent(id, patch) {
+      if (cloud) {
+        const r = await teacherCall('kal_teacher_patch', { p_id: id, p_patch: patch });
+        if (r.error) return { error: r.error };
+      }
       if (state.students[id]) { Object.assign(state.students[id], patch); save(); }
       return state.students[id] || null;
     },
     async deleteStudent(id) {
+      if (cloud) {
+        const r = await teacherCall('kal_teacher_delete', { p_id: id });
+        if (r.error) return { error: r.error };
+      }
       delete state.students[id];
       if (state.session && state.session.id === id) state.session = null;
       save();
+      return { ok: true };
     },
     async resetProgress(id) {
       const s = state.students[id];
-      if (!s) return;
+      if (!s) return { error: 'not-found' };
+      if (cloud) {
+        const r = await teacherCall('kal_teacher_reset', { p_id: id });
+        if (r.error) return { error: r.error };
+        s.epoch = (s.epoch || 0) + 1;
+      }
       Object.assign(s, { xp: 0, streak: 0, lastActive: null, daily: { date: '', n: 0 }, words: {}, units: {}, log: [], reps: { total: 0, byWord: {}, daily: { date: '', n: 0 } } });
       save();
+      return { ok: true };
     },
-    async loginStudent(id, pin) {
-      const s = state.students[id];
-      if (!s || s.pin !== String(pin).trim()) return null;
-      state.session = { role: 'student', id }; save();
-      return s;
-    },
+    // يُرجع الطالب، أو null (رمز خاطئ)، أو {error: 'rate-limited' | 'offline' | 'server'}
     async loginByPin(gradeId, pin) {
       const p = String(pin).trim();
+      if (cloud) {
+        let r;
+        try {
+          r = await Cloud.rpc('kal_student_login', { p_grade: gradeId, p_pin: p });
+          online = true;
+        } catch (e) {
+          online = false;
+          return { error: e.status ? 'server' : 'offline' };
+        }
+        if (r.error === 'rate-limited') return { error: 'rate-limited' };
+        if (!r.ok) return null;
+        const s = normalize(r.student);
+        state.students[s.id] = s;
+        state.session = { role: 'student', id: s.id, token: r.token };
+        lastPull = Date.now();
+        save();
+        return s;
+      }
       const s = Object.values(state.students).find(s => s.grade === gradeId && s.pin === p);
       if (!s) return null;
       state.session = { role: 'student', id: s.id }; save();
@@ -256,8 +547,10 @@ const Store = (() => {
       const s = state.students[sid];
       if (!s) return;
       if (!s.ranges) s.ranges = {};
-      s.ranges[gid + '.' + uid] = [from, to];
+      const rk = gid + '.' + uid;
+      s.ranges[rk] = [from, to];
       save();
+      queue({ key: `range:${sid}:${rk}`, op: 'range', sid, rk, range: [from, to] });
     },
     getRange(sid, gid, uid) {
       const s = state.students[sid];
@@ -277,15 +570,26 @@ const Store = (() => {
 
     // عتبة إعادة الاختبار
     getRetryThreshold() { return Number(U.lsGet('kalimati.retryMax', '3')); },
-    setRetryThreshold(n) { U.lsSet('kalimati.retryMax', String(n)); },
+    setRetryThreshold(n) {
+      U.lsSet('kalimati.retryMax', String(n));
+      queue({ key: 'retry', op: 'retry', n });
+    },
 
-    // ---- المنهج الذي يدخله المعلم (محلي على هذا الجهاز حاليًا) ----
+    // ---- المنهج الذي يدخله المعلم (يُحفظ على الجهاز، ويُرفع للسحابة إن فُعِّلت) ----
     curriculumSource() { return state.curriculum || window.CURRICULUM; },
     isCustomCurriculum() { return !!state.curriculum; },
     // النسخة المحلية أقدم من الكلمات المضمّنة في التطبيق؟
     isCurriculumStale() { return !!state.curriculum && state.curriculumBase !== ((window.CURRICULUM || {}).version || ''); },
-    saveCurriculum(data) { state.curriculum = data; state.curriculumBase = (window.CURRICULUM || {}).version || ''; save(); Cur.reload(data); },
-    resetCurriculum() { delete state.curriculum; delete state.curriculumBase; save(); Cur.reload(window.CURRICULUM); },
+    saveCurriculum(data) {
+      state.curriculum = data; state.curriculumBase = (window.CURRICULUM || {}).version || '';
+      save(); Cur.reload(data);
+      queue({ key: 'curriculum', op: 'curriculum', data });
+    },
+    resetCurriculum() {
+      delete state.curriculum; delete state.curriculumBase;
+      save(); Cur.reload(window.CURRICULUM);
+      queue({ key: 'curriculum', op: 'curriculum', data: null });
+    },
 
     // تسجيل مرات تكرار كلمة (للمعلم: كم كرّر الطالب)
     async recordReps(sid, wid, n) {
@@ -302,7 +606,7 @@ const Store = (() => {
       const w = Cur.word(wid);
       s.log.unshift({ t: Date.now(), mode: 'reps', gradeId: w ? w.gradeId : null, unitId: w ? w.unitId : null, wid, correct: n, total: n });
       s.log = s.log.slice(0, 60);
-      save();
+      commitStudent(sid);
       return { xpGained, total: r.total, today: r.daily.n };
     },
 
@@ -314,7 +618,7 @@ const Store = (() => {
       r.seen++; r.last = Date.now();
       if (ok) { r.correct++; r.box = Math.min(4, r.box + 1); } else { r.wrong++; r.box = Math.max(0, r.box - 1); }
       r.due = Date.now() + Progress.INTERVAL_DAYS[r.box] * 864e5;
-      save();
+      commitStudent(sid);
     },
 
     // إنهاء جلسة لعب: يحدّث النقاط والسلسلة والنجوم والسجل
@@ -341,7 +645,7 @@ const Store = (() => {
       }
       s.log.unshift({ t: Date.now(), mode, gradeId, unitId: unitId || null, correct, total });
       s.log = s.log.slice(0, 60);
-      save();
+      commitStudent(sid);
       const after = Progress.levelInfo(s.xp);
       return { xpGained, streak: s.streak, levelUp: after.level > before ? after : null, goalReached };
     },
@@ -350,8 +654,9 @@ const Store = (() => {
     async seedDemo() {
       const grade = Cur.grades.find(g => g.units.length) || Cur.grades[0];
       const names = [['سارة', 0, 0.9], ['عمر', 2, 0.55], ['ليان', 6, 0.25]];
-      names.forEach(([name, daysAgo, level]) => {
-        const s = newStudent({ name: name + ' (تجريبي)', grade: grade.id, pin: '1234', demo: true });
+      const made = [];
+      names.forEach(([name, daysAgo, level], i) => {
+        const s = newStudent({ name: name + ' (تجريبي)', grade: grade.id, pin: String(9001 + i), demo: true });
         Cur.allWords(grade).forEach(w => {
           if (Math.random() < level + 0.15) {
             const box = Math.random() < level ? 3 + Math.round(Math.random()) : 1 + Math.round(Math.random());
@@ -371,9 +676,19 @@ const Store = (() => {
           s.log.push({ t: d.getTime() - i * 36e5, mode: i % 2 ? 'cloze' : 'test', gradeId: grade.id, unitId: u.id, correct: Math.round(level * 9), total: 10 });
         });
         s.log.sort((a, b) => b.t - a.t);
-        state.students[s.id] = s;
+        made.push(s);
       });
-      save();
+      if (cloud) {
+        for (const s of made) {
+          const r = await teacherCall('kal_teacher_add', { p_student: s });
+          if (r.error && r.error !== 'pin-taken') return { error: r.error };
+        }
+        await refresh(true);
+      } else {
+        made.forEach(s => { state.students[s.id] = s; });
+        save();
+      }
+      return { ok: true };
     }
   };
 })();

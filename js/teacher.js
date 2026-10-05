@@ -9,9 +9,41 @@ const Teacher = (() => {
 
   function gradeName(id) { return (Cur.grade(id) || {}).name || ''; }
 
+  const AUTH_ERRORS = {
+    'bad-password': 'كلمة المرور غير صحيحة',
+    'rate-limited': 'محاولات كثيرة. انتظر 10 دقائق ثم حاول مجددًا',
+    offline: 'لا يوجد اتصال بالإنترنت',
+    server: 'تعذر الوصول لقاعدة البيانات. تأكد من تشغيل ملف supabase/schema.sql',
+    exists: 'حساب المعلم موجود مسبقًا. أعد تحميل الصفحة وادخل بكلمة المرور',
+    'no-teacher': 'لم يُنشأ حساب المعلم بعد. أعد تحميل الصفحة',
+    short: 'كلمة المرور قصيرة'
+  };
+  const OP_ERRORS = {
+    offline: 'لا يوجد اتصال بالإنترنت — لم يتم الحفظ',
+    auth: 'انتهت جلسة المعلم. ادخل من جديد',
+    server: 'تعذر الحفظ. حاول مرة أخرى',
+    'pin-taken': 'هذا الرمز مستخدم لطالب آخر في نفس الصف. اختر رمزًا مختلفًا.',
+    'not-found': 'الطالب غير موجود'
+  };
+  function failed(r) {
+    App.toast(OP_ERRORS[r.error] || 'تعذر تنفيذ العملية');
+    if (r.error === 'auth') App.go('#/teacher');
+  }
+
   // ---------- الدخول ----------
-  function loginView() {
-    const first = !Store.hasTeacher();
+  async function loginView() {
+    const status = await Store.teacherStatus();
+    if (typeof status === 'object') {
+      app().innerHTML = `
+        <section class="card login">
+          <h1>👩‍🏫 دخول المعلم</h1>
+          <p class="err">${AUTH_ERRORS[status.error]}</p>
+          <button class="btn" data-go="#/teacher">إعادة المحاولة</button>
+          <button class="btn ghost" data-go="#/login">رجوع</button>
+        </section>`;
+      return;
+    }
+    const first = !status;
     app().innerHTML = `
       <section class="card login">
         <h1>👩‍🏫 ${first ? 'إنشاء حساب المعلم' : 'دخول المعلم'}</h1>
@@ -26,24 +58,30 @@ const Teacher = (() => {
       </section>`;
   }
 
-  U.forms['t-login'] = form => {
+  U.forms['t-login'] = async form => {
     const err = document.getElementById('t-err');
+    const btn = form.querySelector('button[type=submit]');
     const pass = form.elements.pass.value;
-    if (!Store.hasTeacher()) {
+    const first = !!form.elements.pass2;
+    if (first) {
       if (pass.length < 4) { err.textContent = 'كلمة المرور قصيرة'; return; }
       if (pass !== form.elements.pass2.value) { err.textContent = 'كلمتا المرور غير متطابقتين'; return; }
-      Store.setTeacherPassword(pass);
-    } else if (!Store.checkTeacherPassword(pass)) {
-      err.textContent = 'كلمة المرور غير صحيحة';
+    }
+    err.textContent = '';
+    btn.disabled = true;
+    const r = first ? await Store.teacherSetup(pass) : await Store.teacherLogin(pass);
+    if (r.error) {
+      btn.disabled = false;
+      err.textContent = AUTH_ERRORS[r.error] || 'حدث خطأ، حاول مرة أخرى';
       return;
     }
-    Store.setTeacherAuthed(true);
     App.go('#/teacher');
   };
 
   // ---------- اللوحة ----------
   async function dashboard() {
     const students = await Store.listStudents();
+    if (!Store.teacherAuthed()) return loginView();
     const today = U.ymd();
     const active = students.filter(s => s.lastActive === today).length;
     const idle = students.filter(needsFollowUp).length;
@@ -90,7 +128,7 @@ const Teacher = (() => {
           <input type="search" id="t-search-in" placeholder="🔍 ابحث عن طالب..." aria-label="بحث عن طالب" autocomplete="off">
         </div>` : ''}
       ${rows ? `<div class="t-list" id="t-list">${rows}</div>` : '<p class="card muted empty">لا يوجد طلاب بعد. أضف أول طالب، أو حمّل بيانات تجريبية لترى كيف تبدو اللوحة.</p>'}
-      <p class="muted small note">ملاحظة: في هذه النسخة التجريبية تُحفظ البيانات على هذا الجهاز فقط. الربط بقاعدة بيانات سحابية (لمتابعة الطلاب من أجهزتهم) هو الخطوة التالية.</p>`;
+      ${syncNote()}`;
 
     // تفعيل البحث
     const searchIn = document.getElementById('t-search-in');
@@ -103,6 +141,14 @@ const Teacher = (() => {
         });
       });
     }
+  }
+
+  function syncNote() {
+    const sync = Store.syncState();
+    if (!sync.cloud) return '<p class="muted small note">ملاحظة: البيانات تُحفظ على هذا الجهاز فقط (الربط السحابي غير مفعّل).</p>';
+    if (!sync.online) return '<p class="warn-text small note">⚠️ لا يوجد اتصال — تُعرض آخر بيانات محفوظة على هذا الجهاز وقد لا تكون محدّثة.</p>';
+    const waiting = sync.pending ? ` (${sync.pending} تغييرات بانتظار الرفع)` : '';
+    return `<p class="muted small note">☁️ متصل بالسحابة — بيانات الطلاب تتزامن بين الأجهزة.${waiting}</p>`;
   }
 
   // ---------- إضافة طالب ----------
@@ -126,9 +172,9 @@ const Teacher = (() => {
     const pin = form.elements.pin.value.trim();
     const grade = form.elements.grade.value;
     if (!name || !/^\d{4}$/.test(pin)) { App.toast('تأكد من الاسم والرمز (4 أرقام)'); return; }
-    if (!Store.isPinUnique(grade, pin)) { App.toast('هذا الرمز مستخدم لطالب آخر في نفس الصف. اختر رمزًا مختلفًا.'); return; }
+    if (!Store.isPinUnique(grade, pin)) { failed({ error: 'pin-taken' }); return; }
     const result = await Store.addStudent({ name, grade, pin });
-    if (result && result.error === 'pin-taken') { App.toast('هذا الرمز مستخدم لطالب آخر في نفس الصف.'); return; }
+    if (result && result.error) { failed(result); return; }
     App.toast(`تمت إضافة ${name} — الرمز السري: ${pin}`);
     App.go('#/teacher');
   };
@@ -296,15 +342,17 @@ const Teacher = (() => {
     const pin = await App.ask('الرمز السري الجديد (4 أرقام):', s.pin);
     if (pin === null) return;
     if (!/^\d{4}$/.test(pin.trim())) { App.toast('الرمز يجب أن يكون 4 أرقام'); return; }
-    if (!Store.isPinUnique(s.grade, pin.trim(), s.id)) { App.toast('هذا الرمز مستخدم لطالب آخر في نفس الصف.'); return; }
-    await Store.updateStudent(s.id, { pin: pin.trim() });
+    if (!Store.isPinUnique(s.grade, pin.trim(), s.id)) { failed({ error: 'pin-taken' }); return; }
+    const r = await Store.updateStudent(s.id, { pin: pin.trim() });
+    if (r && r.error) { failed(r); return; }
     App.toast('تم تغيير الرمز');
     studentView(s.id);
   };
   U.actions['t-reset'] = async el => {
     const s = await Store.getStudent(el.dataset.id);
     if (s && await App.confirm(`تصفير كل تقدم ${s.name}؟ لا يمكن التراجع.`, { okLabel: 'تصفير', danger: true })) {
-      await Store.resetProgress(s.id);
+      const r = await Store.resetProgress(s.id);
+      if (r.error) { failed(r); return; }
       App.toast('تم التصفير');
       studentView(s.id);
     }
@@ -312,13 +360,22 @@ const Teacher = (() => {
   U.actions['t-delete'] = async el => {
     const s = await Store.getStudent(el.dataset.id);
     if (s && await App.confirm(`حذف الطالب ${s.name} نهائيًا؟`, { okLabel: 'حذف', danger: true })) {
-      await Store.deleteStudent(s.id);
+      const r = await Store.deleteStudent(s.id);
+      if (r.error) { failed(r); return; }
       App.go('#/teacher');
     }
   };
-  U.actions['t-demo'] = async () => { await Store.seedDemo(); dashboard(); };
+  U.actions['t-demo'] = async () => {
+    const r = await Store.seedDemo();
+    if (r.error) { failed(r); return; }
+    dashboard();
+  };
   U.actions['t-demo-clear'] = async () => {
-    for (const s of await Store.listStudents()) if (s.demo) await Store.deleteStudent(s.id);
+    for (const s of await Store.listStudents()) {
+      if (!s.demo) continue;
+      const r = await Store.deleteStudent(s.id);
+      if (r.error) { failed(r); return; }
+    }
     dashboard();
   };
   U.actions['t-set-range'] = el => {
@@ -341,7 +398,7 @@ const Teacher = (() => {
     });
   };
 
-  U.actions['t-exit'] = () => { Store.setTeacherAuthed(false); App.go('#/login'); };
+  U.actions['t-exit'] = async () => { await Store.teacherLogout(); App.go('#/login'); };
 
   // ---------- المسار ----------
   async function route(parts) {

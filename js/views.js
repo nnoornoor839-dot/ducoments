@@ -74,18 +74,27 @@ const Views = (() => {
     input.focus();
   };
 
+  const PIN_ERRORS = {
+    'rate-limited': 'محاولات كثيرة، انتظر قليلًا ثم حاول مرة أخرى',
+    offline: 'لا يوجد اتصال بالإنترنت',
+    server: 'تعذر الاتصال، حاول لاحقًا'
+  };
+  let pinBusy = false;
+
   U.forms.pin = async () => {
-    if (!selectedGrade) return;
+    if (!selectedGrade || pinBusy) return;
     const input = document.getElementById('pin-in');
     const pin = input.value.trim();
     if (pin.length < 4) return;
-    const s = await Store.loginByPin(selectedGrade, pin);
-    if (s) {
+    pinBusy = true;
+    let s;
+    try { s = await Store.loginByPin(selectedGrade, pin); } finally { pinBusy = false; }
+    if (s && !s.error) {
       App.toast(`أهلًا بك يا ${s.name}! 👋`);
       App.go('#/');
       return;
     }
-    document.getElementById('pin-err').textContent = 'الرمز غير صحيح، حاول مرة أخرى';
+    document.getElementById('pin-err').textContent = (s && PIN_ERRORS[s.error]) || 'الرمز غير صحيح، حاول مرة أخرى';
     input.value = '';
     input.focus();
   };

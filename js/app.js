@@ -117,5 +117,7 @@ const App = (() => {
   window.addEventListener('hashchange', route);
 
   route();
+  // المنهج والإعدادات من السحابة: نعرض المحفوظ فورًا ثم نحدّث الشاشة إن تغيّرت الكلمات
+  Store.init().then(changed => { if (changed && !location.hash.startsWith('#/play')) route(); });
   return { toast, go, currentStudent, confirm: confirmBox, ask: askBox, showText, paste: pasteBox };
 })();
