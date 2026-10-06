@@ -118,22 +118,53 @@ input:focus, select:focus { outline: none; border-color: var(--brand); }
 .logo-title { margin: 0; line-height: 0; }
 .logo { display: block; margin: .2rem auto .4rem; width: min(210px, 58vw); height: auto; }
 
-/* تبويبا الدخول: الطالب والمعلم بعرضين متساويين في صف واحد */
-.role-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 1.2rem 0; }
+/* شاشة الدخول: محتواها في منتصف الشاشة بتوازن، بدل التصاقه بالأعلى */
+body.on-landing #topbar { display: none; }
+.landing { min-height: calc(100vh - 4rem); min-height: calc(100svh - 4rem); display: flex; flex-direction: column; justify-content: center; gap: 1.2rem; padding-bottom: 1.5rem; }
+.landing-card { margin-bottom: 0; padding: 1.6rem 1.2rem 1.4rem; }
+.landing-hello { margin: .1rem 0 1.2rem; }
+.landing-hello h2 { font-size: 1.55rem; font-weight: 800; margin: 0 0 .1rem; }
+.landing-hello p { margin: 0; }
+.landing-features { list-style: none; margin: 0; padding: 0 .4rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
+.landing-features li { display: grid; justify-items: center; gap: .4rem; text-align: center; font-size: .88rem; font-weight: 600; color: var(--muted); }
+.lf-ic { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; }
+.lf-ic .ic { width: 24px; height: 24px; }
+.lf-ic.blue { background: var(--brand-soft); color: var(--brand-dark); }
+.lf-ic.amber { background: var(--warn-soft); color: #B45309; }
+.lf-ic.green { background: var(--good-soft); color: #047857; }
+
+/* تبويبا الدخول: الطالب والمعلم بعرضين متساويين، كبيران بما يناسب اللمس */
+.role-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; margin: 0; }
 .role-tab {
-  display: flex; align-items: center; justify-content: center; gap: .6rem;
-  min-height: 62px; padding: .6rem .8rem; border: 0; border-radius: 12px;
-  color: #fff; font-size: 1.1rem; font-weight: 700; white-space: nowrap;
-  box-shadow: 0 10px 18px -8px var(--tab-glow);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem;
+  min-height: 128px; padding: 1rem .6rem; border: 0; border-radius: 18px;
+  color: #fff; text-align: center;
+  box-shadow: 0 12px 20px -10px var(--tab-glow);
   transition: transform .1s, box-shadow .15s, filter .15s;
 }
-.role-tab.student { background: linear-gradient(135deg, #243D99, #3656C7); --tab-glow: rgba(36, 61, 153, .6); }
-.role-tab.teacher { background: linear-gradient(135deg, #D97706, #EA580C); --tab-glow: rgba(234, 88, 12, .6); }
-.role-tab b { font-weight: 700; }
-.role-tab .ic { width: 1.55em; height: 1.55em; }
+.role-tab.student { background: linear-gradient(135deg, #243D99, #3656C7); --tab-glow: rgba(36, 61, 153, .7); }
+.role-tab.teacher { background: linear-gradient(135deg, #D97706, #EA580C); --tab-glow: rgba(234, 88, 12, .65); }
+.role-tab-ic { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: rgba(255, 255, 255, .2); margin-bottom: .1rem; }
+.role-tab-ic .ic { width: 28px; height: 28px; }
+.role-tab b { font-size: 1.2rem; font-weight: 800; line-height: 1.2; white-space: nowrap; }
+.role-tab small { font-size: .8rem; font-weight: 500; line-height: 1.3; opacity: .92; }
 .role-tab:hover { filter: brightness(1.06); }
-.role-tab:active { transform: translateY(2px) scale(.98); box-shadow: 0 4px 10px -6px var(--tab-glow); }
+.role-tab:active { transform: translateY(2px) scale(.98); box-shadow: 0 5px 12px -8px var(--tab-glow); }
 .role-tab:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+#grade-section .back { display: block; margin: 0 0 .4rem; }
+/* بعد اختيار «أنا طالب» يصغر الشعار ليتسع الصف والرمز السري دون تمرير كثير */
+.landing-card.is-step .logo { width: min(140px, 40vw); }
+/* الشاشات القصيرة: نضغط المسافات كي تظهر ميزات التطبيق دون تمرير */
+@media (max-height: 720px) {
+  .landing { gap: .8rem; padding-bottom: .5rem; }
+  .landing-card { padding-top: 1rem; }
+  .landing-card .logo { width: min(165px, 46vw); }
+  .landing-hello { margin-bottom: .8rem; }
+  .landing-hello h2 { font-size: 1.35rem; }
+  .role-tab { min-height: 112px; padding: .7rem .5rem; }
+  .role-tab-ic { width: 46px; height: 46px; }
+  .lf-ic { width: 40px; height: 40px; }
+}
 
 /* بطاقات الاختيار الكبيرة (تُستخدم لبطاقات الصفوف في لوحة المعلم) */
 .role-btn {

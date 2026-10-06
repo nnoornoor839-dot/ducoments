@@ -88,6 +88,8 @@ const App = (() => {
     try {
       const student = await currentStudent();
       renderTop(a === 'teacher', student);
+      // شاشة الدخول الأولى بلا شريط علوي: الشعار الكبير فيها يغني عنه
+      document.body.classList.toggle('on-landing', a !== 'teacher' && (a === 'login' || !student));
       if (a === 'teacher') await Teacher.route(parts.slice(1));
       else if (a === 'login' || !student) await Views.login();
       else if (a === 'words') Views.wordList(student, b, c);

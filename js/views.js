@@ -18,32 +18,48 @@ const Views = (() => {
     const gradesWithUnits = Cur.grades.filter(g => g.units.length);
 
     app().innerHTML = `
-      <section class="card login">
-        <h1 class="logo-title"><img class="logo" src="img/logo.png" width="210" height="210" alt="كلماتي — my words"></h1>
-        <p class="muted">مرحبًا بك! اختر للدخول:</p>
-        <div class="role-tabs" role="group" aria-label="اختر دورك">
-          <button class="role-tab student" data-act="role-student">${ic('cap')}<b>أنا طالب</b></button>
-          <button class="role-tab teacher" data-act="role-teacher">${ic('board')}<b>أنا معلم</b></button>
-        </div>
-
-        <div id="grade-section" class="hidden">
-          <p class="muted">اختر صفك:</p>
-          <div class="grade-list">
-            ${gradesWithUnits.map(g => `
-              <button class="grade-pick" data-act="pick-grade" data-id="${g.id}">
-                <span class="grade-icon">${ic('book')}</span>
-                <b>${esc(g.name)}</b>
-              </button>`).join('') || '<p class="muted">لا توجد صفوف بها وحدات بعد.</p>'}
+      <div class="landing">
+        <section class="card login landing-card">
+          <h1 class="logo-title"><img class="logo" src="img/logo.png" width="230" height="230" alt="كلماتي — my words"></h1>
+          <div class="landing-hello" id="landing-hello">
+            <h2>أهلًا بك</h2>
+            <p class="muted">اختر طريقة الدخول للبدء</p>
           </div>
-        </div>
+          <div class="role-tabs" role="group" aria-label="اختر دورك">
+            <button class="role-tab student" data-act="role-student">
+              <span class="role-tab-ic">${ic('cap')}</span><b>أنا طالب</b><small>ادخل برمزك السري</small>
+            </button>
+            <button class="role-tab teacher" data-act="role-teacher">
+              <span class="role-tab-ic">${ic('board')}</span><b>أنا معلم</b><small>متابعة الطلاب والكلمات</small>
+            </button>
+          </div>
 
-        <form id="pin-form" data-form="pin" class="pin-form hidden">
-          <p class="muted" id="pin-label">أدخل الرمز السري:</p>
-          <input id="pin-in" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="الرمز السري (4 أرقام)" aria-label="الرمز السري">
-          <button class="btn" type="submit">دخول</button>
-          <p class="err" id="pin-err"></p>
-        </form>
-      </section>`;
+          <div id="grade-section" class="hidden">
+            <button class="back" type="button" data-act="role-back">‹ رجوع</button>
+            <p class="muted">اختر صفك:</p>
+            <div class="grade-list">
+              ${gradesWithUnits.map(g => `
+                <button class="grade-pick" data-act="pick-grade" data-id="${g.id}">
+                  <span class="grade-icon">${ic('book')}</span>
+                  <b>${esc(g.name)}</b>
+                </button>`).join('') || '<p class="muted">لا توجد صفوف بها وحدات بعد.</p>'}
+            </div>
+          </div>
+
+          <form id="pin-form" data-form="pin" class="pin-form hidden">
+            <p class="muted" id="pin-label">أدخل الرمز السري:</p>
+            <input id="pin-in" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="الرمز السري (4 أرقام)" aria-label="الرمز السري">
+            <button class="btn" type="submit">دخول</button>
+            <p class="err" id="pin-err"></p>
+          </form>
+        </section>
+
+        <ul class="landing-features" id="landing-features">
+          <li><span class="lf-ic blue">${ic('volume')}</span>استمع للنطق</li>
+          <li><span class="lf-ic amber">${ic('repeat')}</span>كرّر الكلمة</li>
+          <li><span class="lf-ic green">${ic('target')}</span>اختبر نفسك</li>
+        </ul>
+      </div>`;
     const input = document.getElementById('pin-in');
     input.addEventListener('input', () => {
       input.value = input.value.replace(/\D/g, '');
@@ -51,10 +67,19 @@ const Views = (() => {
     });
   }
 
-  U.actions['role-student'] = () => {
-    document.querySelector('.role-tabs').classList.add('hidden');
-    document.getElementById('grade-section').classList.remove('hidden');
+  // مرحلة اختيار الصف تُخفي ما لا يلزم، ويعيد زر «رجوع» الشاشة الأولى
+  const landingStep = student => {
+    ['.role-tabs', '#landing-hello', '#landing-features'].forEach(q => document.querySelector(q).classList.toggle('hidden', student));
+    document.getElementById('grade-section').classList.toggle('hidden', !student);
+    document.querySelector('.landing-card').classList.toggle('is-step', student);
+    if (!student) {
+      document.getElementById('pin-form').classList.add('hidden');
+      document.querySelectorAll('.grade-pick').forEach(b => b.classList.remove('on'));
+      selectedGrade = null;
+    }
   };
+  U.actions['role-student'] = () => landingStep(true);
+  U.actions['role-back'] = () => landingStep(false);
   U.actions['role-teacher'] = () => { App.go('#/teacher'); };
 
   U.actions['pick-grade'] = el => {
