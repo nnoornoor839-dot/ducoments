@@ -205,6 +205,29 @@ body.on-landing #topbar { display: none; }
   .logo { width: 170px; }
   .landing-hello { margin: .1rem 0 1.4rem; }
 }
+/* الشاشات الواسعة: عمودان — الشعار والترحيب جهة، وزرّا الدخول جهة،
+   فيمتلئ عرض الشاشة بدل عمود ضيّق في المنتصف */
+@media (min-width: 900px) {
+  .landing-card {
+    max-width: 1000px; padding: 2rem;
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center; column-gap: 3.5rem;
+  }
+  .logo-title { grid-column: 1; grid-row: 1; align-self: end; }
+  .landing-hello { grid-column: 1; grid-row: 2; align-self: start; margin: .7rem 0 0; }
+  .role-tabs { grid-column: 2; grid-row: 1 / span 2; grid-template-columns: 1fr; gap: 1.3rem; }
+  #grade-section, .pin-form { grid-column: 1; }
+  .logo { width: 300px; }
+  .landing-hello h2 { font-size: 1.85rem; }
+  .role-tab { min-height: 152px; }
+  .role-tab-ic { width: 62px; height: 62px; }
+  .role-tab-ic .ic { width: 32px; height: 32px; }
+  .role-tab b { font-size: 1.45rem; }
+  .role-tab small { font-size: .9rem; }
+  /* بعد اختيار «أنا طالب» نعود إلى عمود واحد مركّز */
+  .landing-card.is-step { grid-template-columns: 1fr; max-width: 560px; }
+  .landing-card.is-step .logo { width: 180px; }
+}
 /* الشاشات القصيرة: نضغط المسافات كي تظهر ميزات التطبيق دون تمرير */
 @media (max-height: 720px) {
   .landing { gap: .8rem; padding-bottom: .5rem; }
