@@ -126,19 +126,24 @@ body.on-landing #topbar { display: none; }
 .landing-hello h2 { font-size: 1.55rem; font-weight: 800; margin: 0 0 .1rem; }
 .landing-hello p { margin: 0; }
 .landing-features { list-style: none; margin: 0; padding: 0 .4rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
-.landing-features li { display: grid; justify-items: center; gap: .4rem; text-align: center; font-size: .88rem; font-weight: 600; color: var(--muted); overflow: visible; }
-.lf-ic { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; animation: lf-float 4s ease-in-out infinite; }
+.landing-features li { display: grid; justify-items: center; gap: .4rem; text-align: center; font-size: .88rem; font-weight: 600; color: var(--muted); overflow: visible; padding-top: 36px; }
+.lf-ic { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; animation: lf-orbit 5s linear infinite; }
 .lf-ic .ic { width: 24px; height: 24px; }
-.lf-ic.blue { background: var(--brand-soft); color: var(--brand-dark); animation-delay: 0s; }
-.lf-ic.amber { background: var(--warn-soft); color: #B45309; animation-delay: -1.3s; }
-.lf-ic.green { background: var(--good-soft); color: #047857; animation-delay: -2.6s; }
+.lf-ic.blue  { background: var(--brand-soft); color: var(--brand-dark); animation-delay: 0s;      animation-duration: 5s; }
+.lf-ic.amber { background: var(--warn-soft);  color: #B45309;           animation-delay: -1.65s;  animation-duration: 5s; }
+.lf-ic.green { background: var(--good-soft);  color: #047857;           animation-delay: -3.3s;   animation-duration: 5s; }
 
-@keyframes lf-float {
-  0%   { transform: translate(0, 0) rotate(0deg); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
-  25%  { transform: translate(4px, -8px) rotate(6deg); box-shadow: 0 10px 20px rgba(0,0,0,.12); }
-  50%  { transform: translate(0, -14px) rotate(0deg); box-shadow: 0 14px 24px rgba(0,0,0,.10); }
-  75%  { transform: translate(-4px, -6px) rotate(-6deg); box-shadow: 0 8px 16px rgba(0,0,0,.09); }
-  100% { transform: translate(0, 0) rotate(0deg); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+/* مسار دائري حقيقي: 8 نقاط موزعة على دائرة نصف قطرها 18px */
+@keyframes lf-orbit {
+  0%   { transform: translate(  0px,   0px); box-shadow: 0 4px 10px rgba(0,0,0,.10); }
+  12%  { transform: translate( 13px,  -9px); box-shadow: 0 6px 14px rgba(0,0,0,.11); }
+  25%  { transform: translate( 18px, -18px); box-shadow: 0 9px 18px rgba(0,0,0,.13); }
+  37%  { transform: translate( 13px, -27px); box-shadow: 0 12px 22px rgba(0,0,0,.12); }
+  50%  { transform: translate(  0px, -36px); box-shadow: 0 14px 26px rgba(0,0,0,.10); }
+  62%  { transform: translate(-13px, -27px); box-shadow: 0 12px 22px rgba(0,0,0,.12); }
+  75%  { transform: translate(-18px, -18px); box-shadow: 0 9px 18px rgba(0,0,0,.13); }
+  87%  { transform: translate(-13px,  -9px); box-shadow: 0 6px 14px rgba(0,0,0,.11); }
+  100% { transform: translate(  0px,   0px); box-shadow: 0 4px 10px rgba(0,0,0,.10); }
 }
 
 /* تبويبا الدخول: الطالب والمعلم بعرضين متساويين، كبيران بما يناسب اللمس */
