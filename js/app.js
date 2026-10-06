@@ -74,7 +74,7 @@ const App = (() => {
       side = `<span class="who">${U.esc(student.name)}</span><button class="top-btn" data-act="logout">خروج</button>`;
     }
     document.getElementById('topbar').innerHTML = `
-      <a class="brand" href="#/">${ic('book')}<span>كلماتي</span></a>
+      <a class="brand" href="#/"><img class="brand-logo" src="img/logo.png" width="36" height="36" alt=""><span>كلماتي</span></a>
       <div class="top-actions">${side}
         <button class="top-btn icon" data-act="toggle-sound" aria-label="تشغيل أو إيقاف الصوت">${ic(Sfx.isOn() ? 'volume' : 'volume-off')}</button>
       </div>`;

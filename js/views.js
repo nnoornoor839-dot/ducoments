@@ -21,15 +21,9 @@ const Views = (() => {
       <section class="card login">
         <h1 class="logo-title"><img class="logo" src="img/logo.png" width="210" height="210" alt="كلماتي — my words"></h1>
         <p class="muted">مرحبًا بك! اختر للدخول:</p>
-        <div class="role-pick">
-          <button class="role-btn student" data-act="role-student">
-            <span class="role-icon">${ic('cap')}</span>
-            <b>أنا طالب</b>
-          </button>
-          <button class="role-btn teacher" data-act="role-teacher">
-            <span class="role-icon">${ic('board')}</span>
-            <b>أنا معلم</b>
-          </button>
+        <div class="role-tabs" role="group" aria-label="اختر دورك">
+          <button class="role-tab student" data-act="role-student">${ic('cap')}<b>أنا طالب</b></button>
+          <button class="role-tab teacher" data-act="role-teacher">${ic('board')}<b>أنا معلم</b></button>
         </div>
 
         <div id="grade-section" class="hidden">
@@ -58,7 +52,7 @@ const Views = (() => {
   }
 
   U.actions['role-student'] = () => {
-    document.querySelector('.role-pick').classList.add('hidden');
+    document.querySelector('.role-tabs').classList.add('hidden');
     document.getElementById('grade-section').classList.remove('hidden');
   };
   U.actions['role-teacher'] = () => { App.go('#/teacher'); };

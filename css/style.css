@@ -1,7 +1,21 @@
+/* الخطوط (ترخيص OFL) محمّلة من نفس الموقع فتعمل بدون إنترنت: Tajawal للعربية، وNunito المستدير الواضح للكلمات الإنجليزية */
+@font-face { font-family: 'Nunito'; font-style: normal; font-weight: 200 1000; font-display: swap; src: url(../fonts/nunito-latin-wght-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Tajawal'; font-style: normal; font-weight: 300; font-display: swap; src: url(../fonts/tajawal-arabic-300-normal.woff2) format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC; }
+@font-face { font-family: 'Tajawal'; font-style: normal; font-weight: 300; font-display: swap; src: url(../fonts/tajawal-latin-300-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Tajawal'; font-style: normal; font-weight: 400; font-display: swap; src: url(../fonts/tajawal-arabic-400-normal.woff2) format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC; }
+@font-face { font-family: 'Tajawal'; font-style: normal; font-weight: 400; font-display: swap; src: url(../fonts/tajawal-latin-400-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Tajawal'; font-style: normal; font-weight: 500; font-display: swap; src: url(../fonts/tajawal-arabic-500-normal.woff2) format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC; }
+@font-face { font-family: 'Tajawal'; font-style: normal; font-weight: 500; font-display: swap; src: url(../fonts/tajawal-latin-500-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Tajawal'; font-style: normal; font-weight: 700; font-display: swap; src: url(../fonts/tajawal-arabic-700-normal.woff2) format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC; }
+@font-face { font-family: 'Tajawal'; font-style: normal; font-weight: 700; font-display: swap; src: url(../fonts/tajawal-latin-700-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: 'Tajawal'; font-style: normal; font-weight: 800; font-display: swap; src: url(../fonts/tajawal-arabic-800-normal.woff2) format('woff2'); unicode-range: U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC; }
+@font-face { font-family: 'Tajawal'; font-style: normal; font-weight: 800; font-display: swap; src: url(../fonts/tajawal-latin-800-normal.woff2) format('woff2'); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+
 :root {
-  --brand: #3B82F6;
-  --brand-dark: #2563EB;
-  --brand-soft: #DBEAFE;
+  /* أزرق الشعار #243D99 هو الأزرق الأساسي في التطبيق */
+  --brand: #2F4BB5;
+  --brand-dark: #243D99;
+  --brand-soft: #E3E9FB;
   --orange: #F59E0B;
   --good: #10B981;
   --good-soft: #D1FAE5;
@@ -19,12 +33,12 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html { font-size: 17px; }
+html { font-size: 18px; }
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: "Segoe UI", "Noto Sans Arabic", Tahoma, system-ui, -apple-system, sans-serif;
+  font-family: "Tajawal", "Segoe UI", "Noto Sans Arabic", Tahoma, system-ui, -apple-system, sans-serif;
   line-height: 1.6;
   min-height: 100vh;
   padding-bottom: env(safe-area-inset-bottom);
@@ -41,7 +55,7 @@ p { margin: 0 0 .5rem; }
 .muted { color: var(--muted); }
 .small { font-size: .85rem; }
 .err { color: var(--bad); min-height: 1.4em; font-weight: 600; }
-.en { direction: ltr; unicode-bidi: isolate; font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif; }
+.en { direction: ltr; unicode-bidi: isolate; font-family: "Nunito", "Segoe UI", system-ui, -apple-system, Arial, sans-serif; }
 .empty { text-align: center; }
 
 /* الشريط العلوي */
@@ -52,7 +66,8 @@ p { margin: 0 0 .5rem; }
   background: linear-gradient(135deg, #F59E0B, #F97316); color: #fff;
   box-shadow: 0 2px 10px rgba(180, 100, 20, .25);
 }
-.brand { color: #fff; text-decoration: none; font-weight: 800; font-size: 1.15rem; display: inline-flex; align-items: center; gap: .45rem; }
+.brand { color: #fff; text-decoration: none; font-weight: 800; font-size: 1.15rem; display: inline-flex; align-items: center; gap: .5rem; }
+.brand-logo { width: 36px; height: 36px; display: block; }
 .top-actions { display: flex; align-items: center; gap: .4rem; }
 .who { font-size: .9rem; opacity: .95; max-width: 9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .top-btn {
@@ -75,7 +90,7 @@ main { max-width: 720px; margin: 0 auto; padding: 1rem 1rem 3rem; }
 }
 .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--brand-dark); }
 .btn:disabled { opacity: .45; box-shadow: none; cursor: default; }
-.btn.ghost { background: var(--brand-soft); color: var(--brand-dark); box-shadow: 0 4px 0 #93C5FD; }
+.btn.ghost { background: var(--brand-soft); color: var(--brand-dark); box-shadow: 0 4px 0 #AEBCEB; }
 .btn.danger { background: var(--bad); box-shadow: 0 4px 0 #B91C1C; }
 .btn.big { width: 100%; min-height: 58px; font-size: 1.1rem; margin-bottom: 1rem; }
 .btn.review { background: var(--orange); box-shadow: 0 4px 0 #D97706; }
@@ -103,8 +118,24 @@ input:focus, select:focus { outline: none; border-color: var(--brand); }
 .logo-title { margin: 0; line-height: 0; }
 .logo { display: block; margin: .2rem auto .4rem; width: min(210px, 58vw); height: auto; }
 
-/* اختيار الدور */
-.role-pick { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 1.2rem 0; }
+/* تبويبا الدخول: الطالب والمعلم بعرضين متساويين في صف واحد */
+.role-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 1.2rem 0; }
+.role-tab {
+  display: flex; align-items: center; justify-content: center; gap: .6rem;
+  min-height: 62px; padding: .6rem .8rem; border: 0; border-radius: 12px;
+  color: #fff; font-size: 1.1rem; font-weight: 700; white-space: nowrap;
+  box-shadow: 0 10px 18px -8px var(--tab-glow);
+  transition: transform .1s, box-shadow .15s, filter .15s;
+}
+.role-tab.student { background: linear-gradient(135deg, #243D99, #3656C7); --tab-glow: rgba(36, 61, 153, .6); }
+.role-tab.teacher { background: linear-gradient(135deg, #D97706, #EA580C); --tab-glow: rgba(234, 88, 12, .6); }
+.role-tab b { font-weight: 700; }
+.role-tab .ic { width: 1.55em; height: 1.55em; }
+.role-tab:hover { filter: brightness(1.06); }
+.role-tab:active { transform: translateY(2px) scale(.98); box-shadow: 0 4px 10px -6px var(--tab-glow); }
+.role-tab:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* بطاقات الاختيار الكبيرة (تُستخدم لبطاقات الصفوف في لوحة المعلم) */
 .role-btn {
   display: grid; justify-items: center; gap: .4rem; padding: 1.4rem 1rem;
   background: linear-gradient(135deg, #FEF3C7, #FDE68A); border: 3px solid transparent;
@@ -112,7 +143,7 @@ input:focus, select:focus { outline: none; border-color: var(--brand); }
   transition: transform .1s, border-color .15s;
 }
 .role-btn:active { transform: scale(.96); }
-.role-btn.teacher { background: linear-gradient(135deg, var(--brand-soft), #BFDBFE); }
+.role-btn.teacher { background: linear-gradient(135deg, var(--brand-soft), #C9D5F8); }
 .role-icon { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 20px; background: rgba(255, 255, 255, .75); color: #B45309; }
 .role-btn.teacher .role-icon { color: var(--brand-dark); }
 .role-icon .ic { width: 38px; height: 38px; }
@@ -129,7 +160,7 @@ input:focus, select:focus { outline: none; border-color: var(--brand); }
   text-align: start; transition: transform .1s, border-color .15s;
 }
 .grade-pick:active { transform: scale(.97); }
-.grade-pick.on { border-color: var(--brand); background: linear-gradient(135deg, var(--brand-soft), #BFDBFE); }
+.grade-pick.on { border-color: var(--brand); background: linear-gradient(135deg, #fff, #D3DCF8); }
 .grade-pick .grade-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 255, 255, .75); color: #B45309; flex: none; }
 .grade-pick.on .grade-icon { color: var(--brand-dark); }
 .grade-pick .grade-icon .ic { width: 24px; height: 24px; }
@@ -155,7 +186,7 @@ input:focus, select:focus { outline: none; border-color: var(--brand); }
 .av { font-size: 1.8rem; line-height: 1; }
 .av.big { font-size: 3.2rem; background: #FEF3C7; border-radius: 50%; width: 76px; height: 76px; display: grid; place-items: center; flex: none; }
 .meter { height: 12px; background: var(--line); border-radius: 999px; overflow: hidden; margin: .4rem 0; }
-.meter i { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), #60A5FA); border-radius: 999px; transition: width .4s; }
+.meter i { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), #6F8CE8); border-radius: 999px; transition: width .4s; }
 .meter.xp i { background: linear-gradient(90deg, var(--orange), #FBBF24); }
 .meter.done i { background: linear-gradient(90deg, var(--good), #34D399); }
 .chips { display: flex; gap: .4rem; flex-wrap: wrap; margin: .4rem 0; justify-content: inherit; }
@@ -194,7 +225,7 @@ input:focus, select:focus { outline: none; border-color: var(--brand); }
 
 /* قائمة الكلمات */
 .speedbar { display: flex; gap: .4rem; justify-content: center; }
-.sticky-speed { position: sticky; top: calc(52px + env(safe-area-inset-top, 0px)); z-index: 10; background: var(--bg); padding: .4rem 0; }
+.sticky-speed { position: sticky; top: calc(56px + env(safe-area-inset-top, 0px)); z-index: 10; background: var(--bg); padding: .4rem 0; }
 .sp { flex: 1; max-width: 160px; min-height: 42px; border: 2px solid var(--line); background: #fff; border-radius: 14px; font-size: .85rem; font-weight: 700; }
 .sp.on { background: var(--brand); border-color: var(--brand); color: #fff; }
 .words { display: grid; gap: .8rem; }
@@ -359,7 +390,8 @@ table.pv th, table.pv td { padding: .3rem .5rem; border-bottom: 1px solid var(--
 .modal h3, .modal p { margin: 0; }
 .modal p { white-space: pre-line; line-height: 1.7; }
 .modal { max-height: 90vh; overflow-y: auto; }
-.modal input { text-align: center; font-size: 1.3rem; letter-spacing: .4em; }
+.modal input { text-align: center; font-size: 1.3rem; }
+.modal input[inputmode=numeric] { letter-spacing: .4em; }
 .modal textarea { width: 100%; border: 2px solid var(--line); border-radius: 14px; padding: .6rem; font: inherit; font-size: .9rem; resize: none; background: #fff; color: var(--ink); }
 .modal .row { margin: 0; }
 
@@ -424,13 +456,12 @@ table.pv th, table.pv td { padding: .3rem .5rem; border-bottom: 1px solid var(--
 .retry-msg { background: var(--warn-soft); border-radius: 14px; padding: .6rem; font-weight: 700; color: #92400E; margin: .5rem 0; }
 
 @media (max-width: 420px) {
-  html { font-size: 16px; }
+  html { font-size: 17px; }
   .hero { flex-direction: column; text-align: center; }
   .hero .chips { justify-content: center; }
   .tiles .tile b { font-size: 1.15rem; }
   .unit-actions { grid-template-columns: 1fr; }
   .unit-actions.three { grid-template-columns: 1fr; }
-  .role-pick { grid-template-columns: 1fr; }
 }
 /* بطاقات الصفوف في لوحة المعلم */
 .grade-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .8rem; margin: .4rem 0 1rem; }
