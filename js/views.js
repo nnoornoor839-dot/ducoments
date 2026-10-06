@@ -58,13 +58,18 @@ const Views = (() => {
 
           <div id="grade-section" class="hidden">
             <button class="back" type="button" data-act="role-back">‹ رجوع</button>
-            <p class="muted">اختر صفك:</p>
+            <p class="muted" id="grade-label">اختر صفك:</p>
             <div class="grade-list">
               ${gradesWithUnits.map(g => `
                 <button class="grade-pick" data-act="pick-grade" data-id="${g.id}">
                   <span class="grade-icon">${ic('book')}</span>
                   <b>${esc(g.name)}</b>
                 </button>`).join('') || '<p class="muted">لا توجد صفوف بها وحدات بعد.</p>'}
+            </div>
+            <div class="grade-chosen hidden" id="grade-chosen">
+              <span class="grade-icon">${ic('book')}</span>
+              <b id="grade-chosen-name"></b>
+              <button class="back" type="button" data-act="change-grade">تغيير</button>
             </div>
           </div>
 
@@ -83,27 +88,40 @@ const Views = (() => {
     });
   }
 
+  // بعد اختيار الصف نُخفي بقية الصفوف ونُبقي الصف المختار وحده فوق حقل الرمز،
+  // فيبقى الحقل في أعلى الشاشة مهما كثرت الصفوف بدل أن ينزل تحت القائمة كلها.
+  const gradeChosen = name => {
+    const on = !!name;
+    if (on) document.getElementById('grade-chosen-name').textContent = name;
+    document.getElementById('grade-label').classList.toggle('hidden', on);
+    document.querySelector('.grade-list').classList.toggle('hidden', on);
+    document.getElementById('grade-chosen').classList.toggle('hidden', !on);
+    document.getElementById('pin-form').classList.toggle('hidden', !on);
+  };
+
   // مرحلة اختيار الصف تُخفي ما لا يلزم، ويعيد زر «رجوع» الشاشة الأولى
   const landingStep = student => {
     ['.role-tabs', '#landing-hello'].forEach(q => document.querySelector(q).classList.toggle('hidden', student));
     document.getElementById('grade-section').classList.toggle('hidden', !student);
     document.querySelector('.landing-card').classList.toggle('is-step', student);
-    if (!student) {
-      document.getElementById('pin-form').classList.add('hidden');
-      document.querySelectorAll('.grade-pick').forEach(b => b.classList.remove('on'));
-      selectedGrade = null;
-    }
+    if (!student) U.actions['change-grade']();
   };
   U.actions['role-student'] = () => landingStep(true);
   U.actions['role-back'] = () => landingStep(false);
   U.actions['role-teacher'] = () => { App.go('#/teacher'); };
 
+  U.actions['change-grade'] = () => {
+    selectedGrade = null;
+    document.querySelectorAll('.grade-pick').forEach(b => b.classList.remove('on'));
+    document.getElementById('pin-err').textContent = '';
+    gradeChosen(null);
+  };
+
   U.actions['pick-grade'] = el => {
     selectedGrade = el.dataset.id;
     document.querySelectorAll('.grade-pick').forEach(b => b.classList.toggle('on', b.dataset.id === selectedGrade));
     document.getElementById('pin-err').textContent = '';
-    const f = document.getElementById('pin-form');
-    f.classList.remove('hidden');
+    gradeChosen(el.querySelector('b').textContent);
     const input = document.getElementById('pin-in');
     input.value = '';
     input.focus();

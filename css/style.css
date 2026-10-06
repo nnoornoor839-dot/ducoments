@@ -269,6 +269,16 @@ body.on-landing #topbar { display: none; }
 .grade-pick.on .grade-icon { color: var(--brand-dark); }
 .grade-pick .grade-icon .ic { width: 24px; height: 24px; }
 .grade-pick b { font-size: 1.1rem; }
+/* شريط الصف المختار: يحلّ محل القائمة بعد الاختيار، وفيه زر «تغيير» للعودة إليها */
+.grade-chosen {
+  display: flex; align-items: center; gap: .8rem; padding: .9rem 1.2rem; margin: 1rem 0;
+  background: linear-gradient(135deg, #fff, #D3DCF8); border: 3px solid var(--brand);
+  border-radius: 18px; box-shadow: 0 4px 12px rgba(180, 120, 40, .12);
+}
+.grade-chosen .grade-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 255, 255, .75); color: var(--brand-dark); flex: none; }
+.grade-chosen .grade-icon .ic { width: 24px; height: 24px; }
+.grade-chosen b { font-size: 1.1rem; }
+.grade-chosen .back { margin: 0; margin-inline-start: auto; padding: .4rem .6rem; }
 
 /* اختيار الطالب */
 .student-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: .6rem; margin: .8rem 0; }
