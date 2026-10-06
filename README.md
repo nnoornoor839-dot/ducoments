@@ -126,6 +126,7 @@ python3 -m http.server 8000
 ```
 index.html            الصفحة الوحيدة
 css/style.css         التنسيق
+img/logo.png          شعار «كلماتي» في الصفحة الرئيسية
 js/data.js            المنهج (مُولَّد من CSV)
 js/store.js           المنهج + حفظ بيانات الطلاب + منطق الحفظ والنقاط والتكرار
 js/speech.js          النطق والسرعات

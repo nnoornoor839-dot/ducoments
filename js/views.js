@@ -19,7 +19,7 @@ const Views = (() => {
 
     app().innerHTML = `
       <section class="card login">
-        <h1>${ic('book', 'lg')} كلماتي</h1>
+        <h1 class="logo-title"><img class="logo" src="img/logo.png" width="210" height="210" alt="كلماتي — my words"></h1>
         <p class="muted">مرحبًا بك! اختر للدخول:</p>
         <div class="role-pick">
           <button class="role-btn student" data-act="role-student">

@@ -99,6 +99,10 @@ input, select {
 input:focus, select:focus { outline: none; border-color: var(--brand); }
 .login { text-align: center; }
 .login .btn { width: 100%; }
+/* شعار الصفحة الرئيسية */
+.logo-title { margin: 0; line-height: 0; }
+.logo { display: block; margin: .2rem auto .4rem; width: min(210px, 58vw); height: auto; }
+
 /* اختيار الدور */
 .role-pick { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 1.2rem 0; }
 .role-btn {
