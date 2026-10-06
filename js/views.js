@@ -12,6 +12,27 @@ const Views = (() => {
       `<button class="sp ${s.id === cur ? 'on' : ''}" data-act="speed" data-id="${s.id}">${s.label}</button>`).join('')}</div>`;
   }
 
+  // زينة شاشة الدخول: كلمات وحروف إنجليزية ملوّنة تتطاير في الواجهة كلها.
+  // تُرسم مرة واحدة بلا تفاعل ولا قراءة صوتية، فهي للجمال فقط.
+  const SKY_WORDS = [
+    'Apple', 'A', 'School', 'B', 'Water', 'C', 'Friend', 'D',
+    'Happy', 'E', 'Book', 'F', 'Sun', 'G', 'Family', 'H'
+  ];
+  const SKY_LEFT = [6, 23, 41, 59, 77, 92, 14, 33, 50, 68, 85, 4, 27, 45, 63, 80];
+  function sky() {
+    const items = SKY_WORDS.map((w, i) => {
+      const letter = w.length === 1;
+      const style = [
+        `left:${SKY_LEFT[i]}%`,
+        `animation-duration:${18 + (i % 5) * 4}s`,
+        `animation-delay:-${(i * 2.4).toFixed(1)}s`,
+        `font-size:${letter ? '2.2rem' : '1.05rem'}`
+      ].join(';');
+      return `<span class="sky-w en c${(i % 6) + 1} p${(i % 3) + 1}" style="${style}">${esc(w)}</span>`;
+    }).join('');
+    return `<div class="sky" aria-hidden="true">${items}</div>`;
+  }
+
   // ---------- الدخول: اختر دورك → صف → رمز سري ----------
   async function login() {
     selectedGrade = null;
@@ -19,6 +40,7 @@ const Views = (() => {
 
     app().innerHTML = `
       <div class="landing">
+        ${sky()}
         <section class="card login landing-card">
           <h1 class="logo-title"><img class="logo" src="img/logo.png" width="230" height="230" alt="كلماتي — my words"></h1>
           <div class="landing-hello" id="landing-hello">
