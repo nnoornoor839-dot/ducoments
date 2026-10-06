@@ -125,13 +125,16 @@ body.on-landing #topbar { display: none; }
 .landing-hello { margin: .1rem 0 1.2rem; }
 .landing-hello h2 { font-size: 1.55rem; font-weight: 800; margin: 0 0 .1rem; }
 .landing-hello p { margin: 0; }
-.landing-features { list-style: none; margin: 0; padding: 0 .4rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
-.landing-features li { position: relative; height: 150px; display: flex; align-items: flex-end; justify-content: center; text-align: center; font-size: .88rem; font-weight: 600; color: var(--muted); padding-bottom: .3rem; overflow: hidden; }
-.lf-ic { position: absolute; bottom: 34px; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; transform-origin: center bottom; animation: lf-bubble 5.5s ease-in-out infinite; }
+.landing-features { list-style: none; margin: 0; padding: 100px .4rem 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
+.landing-features li { display: flex; flex-direction: column; align-items: center; gap: .4rem; text-align: center; font-size: .88rem; font-weight: 600; color: var(--muted); transform-origin: center bottom; animation: lf-bubble 5.5s ease-in-out infinite; }
+.landing-features li:nth-child(1) { animation-delay: 0s; }
+.landing-features li:nth-child(2) { animation-delay: -1.8s; }
+.landing-features li:nth-child(3) { animation-delay: -3.6s; }
+.lf-ic { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; }
 .lf-ic .ic { width: 24px; height: 24px; }
-.lf-ic.blue  { background: var(--brand-soft); color: var(--brand-dark); animation-delay: 0s; }
-.lf-ic.amber { background: var(--warn-soft);  color: #B45309;           animation-delay: -1.8s; }
-.lf-ic.green { background: var(--good-soft);  color: #047857;           animation-delay: -3.6s; }
+.lf-ic.blue  { background: var(--brand-soft); color: var(--brand-dark); }
+.lf-ic.amber { background: var(--warn-soft);  color: #B45309; }
+.lf-ic.green { background: var(--good-soft);  color: #047857; }
 
 @keyframes lf-bubble {
   /* الارتفاع ببطء مع انحراف دائري */
