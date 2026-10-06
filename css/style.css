@@ -120,41 +120,86 @@ input:focus, select:focus { outline: none; border-color: var(--brand); }
 
 /* شاشة الدخول: محتواها في منتصف الشاشة بتوازن، بدل التصاقه بالأعلى */
 body.on-landing #topbar { display: none; }
-.landing { min-height: calc(100vh - 4rem); min-height: calc(100svh - 4rem); display: flex; flex-direction: column; justify-content: center; gap: 1.2rem; padding-bottom: 1.5rem; }
+.landing { position: relative; min-height: calc(100vh - 4rem); min-height: calc(100svh - 4rem); display: flex; flex-direction: column; justify-content: center; gap: 1.2rem; padding-bottom: 1.5rem; }
 .landing-card { margin-bottom: 0; padding: 1.6rem 1.2rem 1.4rem; }
 .landing-hello { margin: .1rem 0 1.2rem; }
 .landing-hello h2 { font-size: 1.55rem; font-weight: 800; margin: 0 0 .1rem; }
 .landing-hello p { margin: 0; }
-.landing-features { list-style: none; margin: 0; padding: 100px .4rem 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; }
-.landing-features li { display: flex; flex-direction: column; align-items: center; gap: .4rem; text-align: center; font-size: .88rem; font-weight: 600; color: var(--muted); transform-origin: center bottom; animation: lf-bubble 5.5s ease-in-out infinite; }
-.landing-features li:nth-child(1) { animation-delay: 0s; }
-.landing-features li:nth-child(2) { animation-delay: -1.8s; }
-.landing-features li:nth-child(3) { animation-delay: -3.6s; }
-.lf-ic { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; }
+/* الأيقونات الثلاث تطير بحرية فوق الواجهة كلها: شفافة، ولا تحجب اللمس */
+.landing-features {
+  list-style: none; margin: 0; padding: 0;
+  position: fixed; inset: 0; overflow: hidden;
+  pointer-events: none; z-index: 5;
+}
+.landing-features li {
+  position: absolute; bottom: 4%; width: 100px; margin-left: -50px;
+  display: flex; flex-direction: column; align-items: center; gap: .4rem;
+  text-align: center; font-size: .85rem; font-weight: 700; color: var(--muted);
+  opacity: .55; animation: 15s linear infinite;
+}
+.landing-features li:nth-child(1) { left: 14%; animation-name: lf-fly-1; animation-delay: 0s; }
+.landing-features li:nth-child(2) { left: 50%; animation-name: lf-fly-2; animation-delay: -5s; }
+.landing-features li:nth-child(3) { left: 84%; animation-name: lf-fly-3; animation-delay: -10s; }
+
+.lf-ic {
+  display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
+  transform-origin: center bottom; box-shadow: 0 6px 14px rgba(0,0,0,.10);
+  animation: lf-squish 15s linear infinite;
+}
+.landing-features li:nth-child(1) .lf-ic { animation-delay: 0s; }
+.landing-features li:nth-child(2) .lf-ic { animation-delay: -5s; }
+.landing-features li:nth-child(3) .lf-ic { animation-delay: -10s; }
 .lf-ic .ic { width: 24px; height: 24px; }
 .lf-ic.blue  { background: var(--brand-soft); color: var(--brand-dark); }
 .lf-ic.amber { background: var(--warn-soft);  color: #B45309; }
 .lf-ic.green { background: var(--good-soft);  color: #047857; }
 
-@keyframes lf-bubble {
-  /* الارتفاع ببطء مع انحراف دائري */
-  0%   { transform: translate(0,0)         scaleX(1)    scaleY(1);    box-shadow: 0 4px 10px rgba(0,0,0,.10); }
-  4%   { transform: translate(0,-5px)      scaleX(.93)  scaleY(1.07); }
-  15%  { transform: translate(12px,-30px)  scaleX(1)    scaleY(1);    box-shadow: 0 8px 16px rgba(0,0,0,.11); }
-  30%  { transform: translate(16px,-62px)  scaleX(1)    scaleY(1);    box-shadow: 0 12px 20px rgba(0,0,0,.10); }
-  45%  { transform: translate(4px,-88px)   scaleX(1)    scaleY(1);    box-shadow: 0 15px 24px rgba(0,0,0,.09); }
-  /* الانزلاق الى الجانب الآخر في القمة */
-  52%  { transform: translate(-12px,-96px) scaleX(1)    scaleY(1);    box-shadow: 0 16px 26px rgba(0,0,0,.09); }
-  /* السقوط السريع */
-  64%  { transform: translate(-16px,-68px) scaleX(1)    scaleY(1);    box-shadow: 0 10px 18px rgba(0,0,0,.11); }
-  75%  { transform: translate(-6px,-32px)  scaleX(1)    scaleY(1);    box-shadow: 0 6px 12px rgba(0,0,0,.12); }
-  82%  { transform: translate(0,-6px)      scaleX(1)    scaleY(1);    box-shadow: 0 4px 8px rgba(0,0,0,.11); }
-  /* الارتطام بالأرض — كرة مطاطية */
-  86%  { transform: translate(0,4px)       scaleX(1.25) scaleY(.75);  box-shadow: 0 2px 6px rgba(0,0,0,.15); }
-  /* الارتداد الصغير */
-  92%  { transform: translate(0,-20px)     scaleX(.96)  scaleY(1.04); box-shadow: 0 6px 12px rgba(0,0,0,.10); }
-  97%  { transform: translate(0,0)         scaleX(1)    scaleY(1); }
-  100% { transform: translate(0,0)         scaleX(1)    scaleY(1); }
+/* ثلاثة مسارات مختلفة: صعود بطيء بانحناء دائري، ثم هبوط وارتطام مطاطي بالأسفل */
+@keyframes lf-fly-1 {
+  0%   { transform: translate(0, 0); }
+  14%  { transform: translate(5vw, -16vh); }
+  28%  { transform: translate(8vw, -35vh); }
+  42%  { transform: translate(3vw, -52vh); }
+  54%  { transform: translate(-4vw, -60vh); }
+  68%  { transform: translate(-7vw, -39vh); }
+  80%  { transform: translate(-3vw, -15vh); }
+  89%  { transform: translate(0, 0); }
+  92%  { transform: translate(0, 1vh); }
+  96%  { transform: translate(0, -5vh); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes lf-fly-2 {
+  0%   { transform: translate(0, 0); }
+  13%  { transform: translate(-6vw, -20vh); }
+  27%  { transform: translate(-9vw, -43vh); }
+  40%  { transform: translate(-2vw, -62vh); }
+  52%  { transform: translate(5vw, -70vh); }
+  67%  { transform: translate(8vw, -45vh); }
+  80%  { transform: translate(3vw, -17vh); }
+  89%  { transform: translate(0, 0); }
+  92%  { transform: translate(0, 1vh); }
+  96%  { transform: translate(0, -6vh); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes lf-fly-3 {
+  0%   { transform: translate(0, 0); }
+  15%  { transform: translate(-4vw, -14vh); }
+  29%  { transform: translate(-7vw, -32vh); }
+  43%  { transform: translate(-2vw, -48vh); }
+  55%  { transform: translate(4vw, -55vh); }
+  69%  { transform: translate(7vw, -35vh); }
+  81%  { transform: translate(2vw, -13vh); }
+  89%  { transform: translate(0, 0); }
+  92%  { transform: translate(0, 1vh); }
+  96%  { transform: translate(0, -4vh); }
+  100% { transform: translate(0, 0); }
+}
+/* الانضغاط المطاطي على الدائرة وحدها حتى لا تتشوّه الحروف */
+@keyframes lf-squish {
+  0%, 88% { transform: scale(1, 1); }
+  92%     { transform: scale(1.22, .78); }
+  96%     { transform: scale(.95, 1.06); }
+  100%    { transform: scale(1, 1); }
 }
 
 /* تبويبا الدخول: الطالب والمعلم بعرضين متساويين، كبيران بما يناسب اللمس */
@@ -178,6 +223,12 @@ body.on-landing #topbar { display: none; }
 #grade-section .back { display: block; margin: 0 0 .4rem; }
 /* بعد اختيار «أنا طالب» يصغر الشعار ليتسع الصف والرمز السري دون تمرير كثير */
 .landing-card.is-step .logo { width: min(140px, 40vw); }
+/* الكمبيوتر: بطاقة أضيق ومركّزة بدل شريط ممدود، والفقاعات تملأ الفراغ حولها */
+@media (min-width: 760px) {
+  .landing-card { max-width: 520px; margin-inline: auto; padding: 1.8rem 1.6rem 1.6rem; }
+  .logo { width: 170px; }
+  .landing-hello { margin: .1rem 0 1.4rem; }
+}
 /* الشاشات القصيرة: نضغط المسافات كي تظهر ميزات التطبيق دون تمرير */
 @media (max-height: 720px) {
   .landing { gap: .8rem; padding-bottom: .5rem; }
