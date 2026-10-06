@@ -75,12 +75,6 @@ const Views = (() => {
             <p class="err" id="pin-err"></p>
           </form>
         </section>
-
-        <ul class="landing-features" id="landing-features">
-          <li><span class="lf-ic blue">${ic('volume')}</span>استمع للنطق</li>
-          <li><span class="lf-ic amber">${ic('repeat')}</span>كرّر الكلمة</li>
-          <li><span class="lf-ic green">${ic('target')}</span>اختبر نفسك</li>
-        </ul>
       </div>`;
     const input = document.getElementById('pin-in');
     input.addEventListener('input', () => {
@@ -91,7 +85,7 @@ const Views = (() => {
 
   // مرحلة اختيار الصف تُخفي ما لا يلزم، ويعيد زر «رجوع» الشاشة الأولى
   const landingStep = student => {
-    ['.role-tabs', '#landing-hello', '#landing-features'].forEach(q => document.querySelector(q).classList.toggle('hidden', student));
+    ['.role-tabs', '#landing-hello'].forEach(q => document.querySelector(q).classList.toggle('hidden', student));
     document.getElementById('grade-section').classList.toggle('hidden', !student);
     document.querySelector('.landing-card').classList.toggle('is-step', student);
     if (!student) {

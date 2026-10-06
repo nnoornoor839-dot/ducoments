@@ -121,46 +121,20 @@ input:focus, select:focus { outline: none; border-color: var(--brand); }
 /* شاشة الدخول: محتواها في منتصف الشاشة بتوازن، بدل التصاقه بالأعلى */
 body.on-landing #topbar { display: none; }
 .landing { position: relative; min-height: calc(100vh - 4rem); min-height: calc(100svh - 4rem); display: flex; flex-direction: column; justify-content: center; gap: 1.2rem; padding-bottom: 1.5rem; }
-.landing-card { position: relative; z-index: 2; margin-bottom: 0; padding: 1.6rem 1.2rem 1.4rem; }
+/* بطاقة الدخول بلا خلفية بيضاء: الشعار والأزرار على خلفية الصفحة مباشرة،
+   فتمرّ الكلمات الطائرة خلفها ويبدو التصميم مفتوحًا */
+.landing-card { position: relative; z-index: 2; background: none; box-shadow: none; margin-bottom: 0; padding: 1.6rem 1.2rem 1.4rem; }
 .landing-hello { margin: .1rem 0 1.2rem; }
 .landing-hello h2 { font-size: 1.55rem; font-weight: 800; margin: 0 0 .1rem; }
 .landing-hello p { margin: 0; }
-/* الميزات الثلاث: صف ثابت واضح تحت البطاقة، والأيقونة وحدها تتهادى بلطف */
-.landing-features {
-  list-style: none; margin: 0; padding: 0;
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem;
-  position: relative; z-index: 2;
-}
-.landing-features li {
-  display: flex; flex-direction: column; align-items: center; gap: .4rem;
-  text-align: center; font-size: .85rem; font-weight: 700; color: var(--muted);
-  /* هالة بلون الخلفية تُبقي الاسم مقروءًا حين تمرّ كلمة طائرة خلفه */
-  text-shadow: 0 0 5px var(--bg), 0 0 5px var(--bg), 0 0 9px var(--bg), 0 0 14px var(--bg);
-}
-.lf-ic {
-  display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%;
-  box-shadow: 0 6px 14px rgba(0,0,0,.10);
-  animation: lf-bob 3.4s ease-in-out infinite;
-}
-.landing-features li:nth-child(2) .lf-ic { animation-delay: -1.1s; }
-.landing-features li:nth-child(3) .lf-ic { animation-delay: -2.2s; }
-.lf-ic .ic { width: 24px; height: 24px; }
-.lf-ic.blue  { background: var(--brand-soft); color: var(--brand-dark); }
-.lf-ic.amber { background: var(--warn-soft);  color: #B45309; }
-.lf-ic.green { background: var(--good-soft);  color: #047857; }
-@keyframes lf-bob {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-6px); }
-}
 
 /* سماء الكلمات: كلمات وحروف إنجليزية ملوّنة تتطاير في الواجهة كلها لتملأ الفراغ.
    الطبقة ثابتة بعرض الشاشة، شفافة، ولا تحجب اللمس أبدًا.
-   على الجوال تمرّ خلف البطاقة كي يبقى النص واضحًا، وعلى الشاشات الواسعة تمرّ فوقها. */
+   تمرّ خلف الشعار والأزرار كي يبقيا واضحين تمامًا. */
 .sky {
   position: fixed; inset: 0; overflow: hidden;
   pointer-events: none; z-index: 1;
 }
-@media (min-width: 760px) { .sky { z-index: 5; } }
 .sky-w {
   position: absolute; bottom: -14%; white-space: nowrap;
   font-weight: 800; letter-spacing: .5px; opacity: 0;
@@ -240,7 +214,6 @@ body.on-landing #topbar { display: none; }
   .landing-hello h2 { font-size: 1.35rem; }
   .role-tab { min-height: 112px; padding: .7rem .5rem; }
   .role-tab-ic { width: 46px; height: 46px; }
-  .lf-ic { width: 40px; height: 40px; }
 }
 
 /* بطاقات الاختيار الكبيرة (تُستخدم لبطاقات الصفوف في لوحة المعلم) */
