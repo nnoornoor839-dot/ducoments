@@ -1,7 +1,476 @@
 // ملف مُولَّد تلقائيًا بواسطة tools/csv_to_data.py — لا تعدّله يدويًا
 window.CURRICULUM = {
- "version": "202610052324",
+ "version": "202610151400",
  "grades": [
+  {
+   "id": "t1",
+   "name": "تأسيس — المستوى الأول",
+   "short": "تأسيس 1",
+   "units": [
+    {
+     "id": "u1",
+     "title": "Unit 1: A–E",
+     "words": [
+      {
+       "en": "arm",
+       "ar": "ذراع",
+       "sentence": "My arm is long.",
+       "sentenceAr": "ذراعي طويلة."
+      },
+      {
+       "en": "ant",
+       "ar": "نملة",
+       "sentence": "The ant is small.",
+       "sentenceAr": "النملة صغيرة."
+      },
+      {
+       "en": "apple",
+       "ar": "تفاحة",
+       "sentence": "I eat an apple.",
+       "sentenceAr": "آكل تفاحة."
+      },
+      {
+       "en": "boy",
+       "ar": "ولد",
+       "sentence": "The boy is tall.",
+       "sentenceAr": "الولد طويل."
+      },
+      {
+       "en": "bird",
+       "ar": "طائر",
+       "sentence": "The bird is yellow.",
+       "sentenceAr": "الطائر أصفر."
+      },
+      {
+       "en": "bus",
+       "ar": "حافلة",
+       "sentence": "I ride the bus.",
+       "sentenceAr": "أركب الحافلة."
+      },
+      {
+       "en": "cake",
+       "ar": "كعكة",
+       "sentence": "I like the cake.",
+       "sentenceAr": "أحب الكعكة."
+      },
+      {
+       "en": "cat",
+       "ar": "قطة",
+       "sentence": "The cat is cute.",
+       "sentenceAr": "القطة لطيفة."
+      },
+      {
+       "en": "car",
+       "ar": "سيارة",
+       "sentence": "The car is red.",
+       "sentenceAr": "السيارة حمراء."
+      },
+      {
+       "en": "donkey",
+       "ar": "حمار",
+       "sentence": "The donkey is slow.",
+       "sentenceAr": "الحمار بطيء."
+      },
+      {
+       "en": "dog",
+       "ar": "كلب",
+       "sentence": "My dog is happy.",
+       "sentenceAr": "كلبي سعيد."
+      },
+      {
+       "en": "doll",
+       "ar": "دمية",
+       "sentence": "She has a doll.",
+       "sentenceAr": "لديها دمية."
+      },
+      {
+       "en": "eight",
+       "ar": "ثمانية",
+       "sentence": "I have eight pens.",
+       "sentenceAr": "لدي ثمانية أقلام."
+      },
+      {
+       "en": "elephant",
+       "ar": "فيل",
+       "sentence": "The elephant is big.",
+       "sentenceAr": "الفيل كبير."
+      },
+      {
+       "en": "egg",
+       "ar": "بيضة",
+       "sentence": "I eat an egg.",
+       "sentenceAr": "آكل بيضة."
+      }
+     ]
+    },
+    {
+     "id": "u2",
+     "title": "Unit 2: F–O",
+     "words": [
+      {
+       "en": "fan",
+       "ar": "مروحة",
+       "sentence": "The fan is on.",
+       "sentenceAr": "المروحة تعمل."
+      },
+      {
+       "en": "farmer",
+       "ar": "مزارع",
+       "sentence": "The farmer is strong.",
+       "sentenceAr": "المزارع قوي."
+      },
+      {
+       "en": "fish",
+       "ar": "سمكة",
+       "sentence": "I see a fish.",
+       "sentenceAr": "أرى سمكة."
+      },
+      {
+       "en": "garden",
+       "ar": "حديقة",
+       "sentence": "The garden is green.",
+       "sentenceAr": "الحديقة خضراء."
+      },
+      {
+       "en": "girl",
+       "ar": "بنت",
+       "sentence": "The girl is smart.",
+       "sentenceAr": "البنت ذكية."
+      },
+      {
+       "en": "goat",
+       "ar": "عنزة",
+       "sentence": "The goat eats grass.",
+       "sentenceAr": "العنزة تأكل العشب."
+      },
+      {
+       "en": "horse",
+       "ar": "حصان",
+       "sentence": "The horse runs fast.",
+       "sentenceAr": "الحصان يركض بسرعة."
+      },
+      {
+       "en": "hen",
+       "ar": "دجاجة",
+       "sentence": "The hen is here.",
+       "sentenceAr": "الدجاجة هنا."
+      },
+      {
+       "en": "house",
+       "ar": "بيت",
+       "sentence": "My house is new.",
+       "sentenceAr": "بيتي جديد."
+      },
+      {
+       "en": "insect",
+       "ar": "حشرة",
+       "sentence": "The insect is tiny.",
+       "sentenceAr": "الحشرة صغيرة جدًا."
+      },
+      {
+       "en": "in",
+       "ar": "في / داخل",
+       "sentence": "Come in, please.",
+       "sentenceAr": "تفضّل بالدخول."
+      },
+      {
+       "en": "ink",
+       "ar": "حبر",
+       "sentence": "The ink is black.",
+       "sentenceAr": "الحبر أسود."
+      },
+      {
+       "en": "jeans",
+       "ar": "بنطال جينز",
+       "sentence": "I wear blue jeans.",
+       "sentenceAr": "ألبس جينزًا أزرق."
+      },
+      {
+       "en": "jar",
+       "ar": "برطمان",
+       "sentence": "The jar is empty.",
+       "sentenceAr": "البرطمان فارغ."
+      },
+      {
+       "en": "jacket",
+       "ar": "جاكيت",
+       "sentence": "My jacket is warm.",
+       "sentenceAr": "جاكيتي دافئ."
+      },
+      {
+       "en": "kite",
+       "ar": "طائرة ورقية",
+       "sentence": "The kite flies high.",
+       "sentenceAr": "الطائرة الورقية تطير عاليًا."
+      },
+      {
+       "en": "king",
+       "ar": "ملك",
+       "sentence": "The king is kind.",
+       "sentenceAr": "الملك طيّب."
+      },
+      {
+       "en": "key",
+       "ar": "مفتاح",
+       "sentence": "I have a key.",
+       "sentenceAr": "لدي مفتاح."
+      },
+      {
+       "en": "lemon",
+       "ar": "ليمون",
+       "sentence": "The lemon is sour.",
+       "sentenceAr": "الليمون حامض."
+      },
+      {
+       "en": "lizard",
+       "ar": "سحلية",
+       "sentence": "The lizard is green.",
+       "sentenceAr": "السحلية خضراء."
+      },
+      {
+       "en": "leaf",
+       "ar": "ورقة شجر",
+       "sentence": "The leaf is small.",
+       "sentenceAr": "ورقة الشجر صغيرة."
+      },
+      {
+       "en": "mouse",
+       "ar": "فأر",
+       "sentence": "The mouse is fast.",
+       "sentenceAr": "الفأر سريع."
+      },
+      {
+       "en": "monkey",
+       "ar": "قرد",
+       "sentence": "The monkey eats bananas.",
+       "sentenceAr": "القرد يأكل الموز."
+      },
+      {
+       "en": "moon",
+       "ar": "قمر",
+       "sentence": "The moon is bright.",
+       "sentenceAr": "القمر مضيء."
+      },
+      {
+       "en": "number",
+       "ar": "رقم",
+       "sentence": "Write the number here.",
+       "sentenceAr": "اكتب الرقم هنا."
+      },
+      {
+       "en": "nest",
+       "ar": "عش",
+       "sentence": "The nest is up.",
+       "sentenceAr": "العش في الأعلى."
+      },
+      {
+       "en": "necklace",
+       "ar": "قلادة",
+       "sentence": "She has a necklace.",
+       "sentenceAr": "لديها قلادة."
+      },
+      {
+       "en": "ox",
+       "ar": "ثور",
+       "sentence": "The ox is strong.",
+       "sentenceAr": "الثور قوي."
+      },
+      {
+       "en": "office",
+       "ar": "مكتب",
+       "sentence": "The office is clean.",
+       "sentenceAr": "المكتب نظيف."
+      },
+      {
+       "en": "orange",
+       "ar": "برتقال",
+       "sentence": "I like orange juice.",
+       "sentenceAr": "أحب عصير البرتقال."
+      }
+     ]
+    },
+    {
+     "id": "u3",
+     "title": "Unit 3: P–Z",
+     "words": [
+      {
+       "en": "puppy",
+       "ar": "جرو",
+       "sentence": "My puppy is cute.",
+       "sentenceAr": "جَرْوي لطيف."
+      },
+      {
+       "en": "popcorn",
+       "ar": "فشار",
+       "sentence": "I love popcorn.",
+       "sentenceAr": "أحب الفشار."
+      },
+      {
+       "en": "pen",
+       "ar": "قلم",
+       "sentence": "The pen is blue.",
+       "sentenceAr": "القلم أزرق."
+      },
+      {
+       "en": "queen",
+       "ar": "ملكة",
+       "sentence": "The queen is kind.",
+       "sentenceAr": "الملكة طيّبة."
+      },
+      {
+       "en": "question mark",
+       "ar": "علامة استفهام",
+       "sentence": "Add a question mark.",
+       "sentenceAr": "أضف علامة استفهام."
+      },
+      {
+       "en": "ruler",
+       "ar": "مسطرة",
+       "sentence": "I have a ruler.",
+       "sentenceAr": "لدي مسطرة."
+      },
+      {
+       "en": "rabbit",
+       "ar": "أرنب",
+       "sentence": "The rabbit is fast.",
+       "sentenceAr": "الأرنب سريع."
+      },
+      {
+       "en": "rainbow",
+       "ar": "قوس قزح",
+       "sentence": "The rainbow is pretty.",
+       "sentenceAr": "قوس قزح جميل."
+      },
+      {
+       "en": "sailboat",
+       "ar": "مركب شراعي",
+       "sentence": "The sailboat is white.",
+       "sentenceAr": "المركب الشراعي أبيض."
+      },
+      {
+       "en": "sun",
+       "ar": "شمس",
+       "sentence": "The sun is hot.",
+       "sentenceAr": "الشمس حارّة."
+      },
+      {
+       "en": "sea",
+       "ar": "بحر",
+       "sentence": "The sea is blue.",
+       "sentenceAr": "البحر أزرق."
+      },
+      {
+       "en": "tree",
+       "ar": "شجرة",
+       "sentence": "The tree is tall.",
+       "sentenceAr": "الشجرة طويلة."
+      },
+      {
+       "en": "telephone",
+       "ar": "هاتف",
+       "sentence": "My telephone is new.",
+       "sentenceAr": "هاتفي جديد."
+      },
+      {
+       "en": "table",
+       "ar": "طاولة",
+       "sentence": "The table is big.",
+       "sentenceAr": "الطاولة كبيرة."
+      },
+      {
+       "en": "umbrella",
+       "ar": "مظلة",
+       "sentence": "I have an umbrella.",
+       "sentenceAr": "لدي مظلة."
+      },
+      {
+       "en": "under",
+       "ar": "تحت",
+       "sentence": "The ball is under.",
+       "sentenceAr": "الكرة تحت."
+      },
+      {
+       "en": "upside down",
+       "ar": "مقلوب",
+       "sentence": "The cup is upside down.",
+       "sentenceAr": "الكوب مقلوب."
+      },
+      {
+       "en": "violin",
+       "ar": "كمان",
+       "sentence": "I play the violin.",
+       "sentenceAr": "أعزف الكمان."
+      },
+      {
+       "en": "vest",
+       "ar": "صدرية",
+       "sentence": "My vest is warm.",
+       "sentenceAr": "صدريتي دافئة."
+      },
+      {
+       "en": "vase",
+       "ar": "مزهرية",
+       "sentence": "The vase is pretty.",
+       "sentenceAr": "المزهرية جميلة."
+      },
+      {
+       "en": "watch",
+       "ar": "ساعة يد",
+       "sentence": "My watch is new.",
+       "sentenceAr": "ساعتي جديدة."
+      },
+      {
+       "en": "window",
+       "ar": "نافذة",
+       "sentence": "The window is open.",
+       "sentenceAr": "النافذة مفتوحة."
+      },
+      {
+       "en": "box",
+       "ar": "صندوق",
+       "sentence": "The box is heavy.",
+       "sentenceAr": "الصندوق ثقيل."
+      },
+      {
+       "en": "fox",
+       "ar": "ثعلب",
+       "sentence": "The fox is clever.",
+       "sentenceAr": "الثعلب ذكي."
+      },
+      {
+       "en": "six",
+       "ar": "ستة",
+       "sentence": "I have six books.",
+       "sentenceAr": "لدي ستة كتب."
+      },
+      {
+       "en": "yo-yo",
+       "ar": "يو يو",
+       "sentence": "I have a yo-yo.",
+       "sentenceAr": "لدي يو يو."
+      },
+      {
+       "en": "yellow",
+       "ar": "أصفر",
+       "sentence": "The sun is yellow.",
+       "sentenceAr": "الشمس صفراء."
+      },
+      {
+       "en": "zoo",
+       "ar": "حديقة الحيوان",
+       "sentence": "I like the zoo.",
+       "sentenceAr": "أحب حديقة الحيوان."
+      },
+      {
+       "en": "zebra",
+       "ar": "حمار وحشي",
+       "sentence": "I see a zebra.",
+       "sentenceAr": "أرى حمارًا وحشيًا."
+      }
+     ]
+    }
+   ]
+  },
   {
    "id": "g5",
    "name": "الخامس الابتدائي",
