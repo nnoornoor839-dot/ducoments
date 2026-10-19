@@ -155,6 +155,9 @@ const Views = (() => {
   // ---------- الرئيسية ----------
   async function home(s) {
     const grade = Cur.grade(s.grade);
+    // أول دخول: تُسند أول دفعة من الكلمات تلقائيًا
+    const first = Store.ensureStarted(s.id);
+    if (first && first.count) App.toast(`أُسندت لك ${first.count} ${first.count === 1 ? 'كلمة' : 'كلمات'} للبدء`);
 
     const units = grade ? grade.units.map(u => {
       const st = Progress.unitStats(s, u);
@@ -164,7 +167,7 @@ const Views = (() => {
           ${st.total
             ? `<span class="meter"><i style="width:${st.pct}%"></i></span>
                <small>${st.mastered} من ${st.total} كلمة محفوظة</small>`
-            : '<small class="unit-wait">لم يحدد المعلم كلمات هذه الوحدة بعد</small>'}
+            : '<small class="unit-wait">تُفتح بعد إنهاء الوحدة السابقة</small>'}
         </button>`;
     }).join('') : '';
 
@@ -192,14 +195,15 @@ const Views = (() => {
         <section class="card notice">
           <span class="notice-ic">${ic('info')}</span>
           <div>
-            <b>لم يحدد المعلم كلمات هذه الوحدة بعد</b>
-            <p class="muted">تواصل مع معلمك ليحدد لك الكلمات المطلوبة، وبعدها يمكنك الاختبار.</p>
+            <b>هذه الوحدة لم تُفتح بعد</b>
+            <p class="muted">تُفتح تلقائيًا عندما تنهي كلمات الوحدة السابقة وتجتاز اختبارها.</p>
           </div>
         </section>`;
       return;
     }
 
     const wrongWords = Store.getWrongWords(s, gid, uid);
+    const batchN = Progress.batchOf(s, u).length;
     const newCount = range[1] - range[2];
     const newLine = newCount > 0
       ? `<span class="badge today">${newCount} ${newCount === 1 ? 'كلمة جديدة' : 'كلمات جديدة'}: ${range[2] + 1} إلى ${range[1]}</span>`
@@ -223,7 +227,7 @@ const Views = (() => {
         <button class="unit-action-btn" data-go="#/play/dictation/${gid}/${uid}">
           <span class="unit-action-icon">${ic('target')}</span>
           <b>تسميع الكلمات</b>
-          <small>اختبار تراكمي في ${st.total} ${st.total === 1 ? 'كلمة' : 'كلمات'}</small>
+          <small>اختبار دفعتك الحالية (${batchN} ${batchN === 1 ? 'كلمة' : 'كلمات'})</small>
         </button>
         <button class="unit-action-btn ${wrongWords.length ? 'has-badge' : ''}" data-go="#/bank/${gid}/${uid}">
           <span class="unit-action-icon">${ic('bookmark')}</span>

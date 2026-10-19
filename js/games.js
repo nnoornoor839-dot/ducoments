@@ -8,7 +8,8 @@ const Games = (() => {
     listen: { icon: 'volume', title: 'استمع واختر' },
     scramble: { icon: 'shuffle', title: 'رتّب الجملة' },
     speed: { icon: 'zap', title: 'تحدي السرعة' },
-    review: { icon: 'repeat', title: 'مراجعة' }
+    review: { icon: 'repeat', title: 'مراجعة' },
+    bank: { icon: 'bookmark', title: 'اختبار الحصالة' }
   };
   let active = null;
 
@@ -60,7 +61,7 @@ const Games = (() => {
   }
 
   // ---------- تشغيل جولة ----------
-  async function run({ gradeId, unitId, words, pool, student }) {
+  async function run({ mode, gradeId, unitId, words, pool, student }) {
     const appEl = document.getElementById('app');
     const queue = plan(words, pool);
     if (!queue.length) {
@@ -175,7 +176,7 @@ const Games = (() => {
       Speech.stop();
       const starsN = Progress.starsFor(firstCorrect, firstTotal);
       const res = await Store.finishSession(student.id, {
-        mode: 'dictation', gradeId, unitId,
+        mode: mode === 'bank' ? 'bank' : 'dictation', gradeId, unitId,
         correct: firstCorrect, total: firstTotal, stars: starsN,
         wrongIds: [...wrongWords.keys()],
         testedIds: words.map(w => w.id)
@@ -185,6 +186,13 @@ const Games = (() => {
 
     function renderResult(starsN, res) {
       const wrongList = [...wrongWords.values()];
+      const adv = res.advanced;
+      const advGo = adv && adv.unitId ? `#/unit/${gradeId}/${adv.unitId}` : backHash;
+      const advMsg = !adv ? ''
+        : adv.done ? '<p class="assign-msg">🎉 أنهيت كل وحدات صفك. ما شاء الله!</p>'
+        : `<p class="assign-msg">🎉 أُسندت لك ${adv.count} ${adv.count === 1 ? 'كلمة جديدة' : 'كلمات جديدة'}${adv.newUnit ? ' في وحدة جديدة' : ''}</p>`;
+      const bankHint = !adv && mode === 'bank'
+        ? '<p class="retry-msg">أعد اختبار الحصالة حتى تجيب على كل كلماتها صحيحة وتأخذ كلمات جديدة.</p>' : '';
       const threshold = Store.getRetryThreshold();
       const mustRetry = threshold > 0 && wrongList.length >= threshold;
       const titles = mustRetry
@@ -198,14 +206,18 @@ const Games = (() => {
           <h2>${titles[titleIdx]}</h2>
           <p class="score">${firstCorrect} من ${firstTotal} إجابة صحيحة</p>
           ${mustRetry ? `<p class="retry-msg">أخطأت في ${wrongList.length} كلمات — أعد الاختبار للتأكد من حفظها.</p>` : ''}
+          ${advMsg}${bankHint}
           <div class="chips">
             <span class="chip-stat">+${res.xpGained || 0} نقطة</span>
           </div>
           ${wrongList.length ? `<div class="wrong-list"><b>كلمات تحتاج مراجعة:</b><div class="en" dir="ltr">${wrongList.map(w => `<button class="tag" data-act="say" data-text="${esc(w.en)}">${esc(w.en)} = ${esc(w.ar || '')} ${ic('volume', 'sm')}</button>`).join('')}</div></div>` : ''}
           <div class="actions">
-            ${mustRetry
-              ? `<button class="btn" data-act="again">${ic('repeat', 'sm')} أعد الاختبار</button>`
-              : `<button class="btn" data-act="again">${ic('repeat', 'sm')} مرة أخرى</button>`}
+            ${adv && !adv.done
+              ? `<button class="btn" data-go="${advGo}">ابدأ الكلمات الجديدة</button>`
+              : mustRetry
+                ? `<button class="btn" data-act="again">${ic('repeat', 'sm')} أعد الاختبار</button>`
+                : `<button class="btn" data-act="again">${ic('repeat', 'sm')} مرة أخرى</button>`}
+            ${!adv && mode !== 'bank' && wrongList.length ? `<button class="btn ghost" data-go="#/bank/${gradeId}/${unitId}">${ic('bookmark', 'sm')} حصالة الكلمات</button>` : ''}
             <button class="btn ghost" data-go="${backHash}">العودة للوحدة</button>
           </div>
         </section>`;
@@ -232,7 +244,7 @@ const Games = (() => {
             App.go(backHash);
           }
         } else if (act === 'again') {
-          route('dictation', gradeId, unitId);
+          route(mode, gradeId, unitId);
         } else if (finished) {
           // شاشة النتيجة
         } else if (act === 'opt') {
@@ -264,12 +276,11 @@ const Games = (() => {
       words = Store.getWrongWords(student, gid, uid);
       if (!words.length) { App.toast('لا توجد كلمات خاطئة'); return App.go(`#/unit/${gid}/${uid}`); }
     } else {
-      const range = Store.getRange(student.id, gid, uid);
-      if (!range) { App.toast('لم يحدد المعلم كلمات هذه الوحدة بعد. تواصل معه.'); return App.go(`#/unit/${gid}/${uid}`); }
-      words = unit.words.slice(range[0] - 1, range[1]);
+      words = Progress.batchOf(student, unit);
+      if (!words.length) { App.toast('تُفتح كلمات هذه الوحدة بعد إنهاء الوحدة السابقة.'); return App.go(`#/unit/${gid}/${uid}`); }
     }
     const pool = unit.words.concat(Cur.allWords(grade).filter(w => w.unitId !== unit.id));
-    return run({ gradeId: gid, unitId: uid, words, pool, student });
+    return run({ mode: mode === 'bank' ? 'bank' : 'dictation', gradeId: gid, unitId: uid, words, pool, student });
   }
 
   ['exit', 'opt', 'q-play', 'next', 'again']

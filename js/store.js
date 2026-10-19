@@ -138,6 +138,22 @@ const Progress = (() => {
     if (!r) return [];
     return unit.words.slice(r[0] - 1, r[1]).map((w, i) => ({ w, n: r[0] + i, isNew: r[0] + i > r[2] }));
   }
+  // الدفعة الحالية: آخر كلمات أُسندت للطالب. النطاق القديم (بلا كلمات جديدة) يُعدّ دفعة واحدة كاملة.
+  function batchOf(s, unit) {
+    const r = rangeOf(s, unit);
+    if (!r) return [];
+    const start = r[2] < r[1] ? r[2] : r[0] - 1;
+    return unit.words.slice(start, r[1]);
+  }
+  // هل أنجز الطالب دفعته؟ كلها اختُبرت ولا كلمة خاطئة معلّقة في الحصالة
+  function batchCleared(s, unit) {
+    const b = batchOf(s, unit);
+    if (!b.length) return false;
+    const ut = s.units && s.units[unit.gradeId + '.' + unit.id];
+    const lt = ut && ut.lastTest;
+    if (!lt || !lt.tested) return false;
+    return b.every(w => lt.tested.indexOf(w.id) >= 0 && !(lt.wrong && lt.wrong.indexOf(w.id) >= 0));
+  }
   function unitStats(s, unit) {
     let mastered = 0, learning = 0, fresh = 0;
     const list = assigned(s, unit);
@@ -200,14 +216,25 @@ const Progress = (() => {
     return { days: days.size, tests, reps };
   }
 
-  return { LEVELS, DAILY_GOAL, wordStatus, rangeOf, assigned, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
+  return { LEVELS, DAILY_GOAL, wordStatus, rangeOf, assigned, batchOf, batchCleared, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
 })();
 
 // ---------- التخزين ----------
 const Store = (() => {
   const KEY = 'kalimati.v1';
   const TOKEN_KEY = 'kalimati.ttoken';
-  const PROGRESS_KEYS = ['xp', 'streak', 'lastActive', 'daily', 'words', 'units', 'log', 'reps'];
+  const PROGRESS_KEYS = ['xp', 'streak', 'lastActive', 'daily', 'words', 'units', 'log', 'reps', 'ranges'];
+  // عدد الكلمات المسندة في كل مرة حسب الصف (يغيّره المعلم من الإعدادات)
+  const ASSIGN_KEY = 'kalimati.assignByGrade';
+  const ASSIGN_DEFAULT = { t1: 5, g5: 5, g6: 10, m2: 10 };
+  const ASSIGN_MAX = 30;
+  function assignMap() {
+    try { const m = JSON.parse(U.lsGet(ASSIGN_KEY, '{}')); return m && typeof m === 'object' ? m : {}; } catch (e) { return {}; }
+  }
+  function assignN(gid) {
+    const v = Number(assignMap()[gid]);
+    return Number.isInteger(v) && v >= 1 && v <= ASSIGN_MAX ? v : (ASSIGN_DEFAULT[gid] || 10);
+  }
   const cloud = Cloud.enabled;
   let state = null;
   let online = true;      // هل نجح آخر اتصال بالسحابة؟
@@ -276,6 +303,7 @@ const Store = (() => {
       return Cloud.rpc('kal_teacher_patch', { p_token: tok, p_id: job.sid, p_patch: { ranges: { [job.rk]: job.range } } }, 10000);
     }
     if (job.op === 'retry') return Cloud.rpc('kal_teacher_set_retry', { p_token: tok, p_n: job.n }, 10000);
+    if (job.op === 'assign_n') return Cloud.rpc('kal_teacher_set_assign_n', { p_token: tok, p_data: job.map }, 10000);
     if (job.op === 'curriculum') return Cloud.rpc('kal_teacher_set_curriculum', { p_token: tok, p_data: job.data }, 15000);
     return Promise.resolve({ error: 'bad' });
   }
@@ -398,6 +426,7 @@ const Store = (() => {
       return false;
     }
     if (!pending('retry')) U.lsSet('kalimati.retryMax', String(c.retry_max));
+    if (!pending('assign_n') && c.assign_n && typeof c.assign_n === 'object') U.lsSet(ASSIGN_KEY, JSON.stringify(c.assign_n));
     let changed = false;
     if (!pending('curriculum')) {
       if (c.curriculum_set) {
@@ -443,6 +472,41 @@ const Store = (() => {
       xp: 0, streak: 0, lastActive: null, daily: { date: '', n: 0 },
       words: {}, units: {}, log: []
     };
+  }
+
+  // ---- الإسناد التلقائي ----
+  // يُسند الدفعة التالية متى أنجز الطالب دفعته الحالية (اجتاز اختبارها بلا أخطاء، أو أفرغ الحصالة باختبارها 100%).
+  // بعد آخر دفعة في الوحدة تبدأ أول دفعة من الوحدة التالية بترتيب المنهج.
+  // يُرجع {unitId, count, newUnit} إن أُسندت كلمات، أو {done:true} إن أنهى كل وحدات صفه، أو null إن بقي في دفعته.
+  function setAuto(s, gid, unit, from, to, prev) {
+    if (!s.ranges) s.ranges = {};
+    s.ranges[gid + '.' + unit.id] = [from, to, prev];
+  }
+  function advance(sid) {
+    const s = state.students[sid];
+    const grade = s && Cur.grade(s.grade);
+    if (!grade) return null;
+    const n = assignN(grade.id);
+    const units = grade.units.filter(u => u.words.length);
+    // الوحدة الجارية: أول وحدة مسندة لم تنتهِ دفعاتها
+    let cur = null;
+    for (const u of units) {
+      const r = Progress.rangeOf(s, u);
+      if (r && !(r[1] >= u.words.length && Progress.batchCleared(s, u))) { cur = { u, r }; break; }
+    }
+    if (cur) {
+      if (!Progress.batchCleared(s, cur.u)) return null;
+      const to = Math.min(cur.u.words.length, cur.r[1] + n);
+      setAuto(s, grade.id, cur.u, cur.r[0], to, cur.r[1]);
+      commitStudent(sid);
+      return { unitId: cur.u.id, count: to - cur.r[1], newUnit: false };
+    }
+    const next = units.find(u => !Progress.rangeOf(s, u));
+    if (!next) return { done: true };
+    const to = Math.min(next.words.length, n);
+    setAuto(s, grade.id, next, 1, to, 0);
+    commitStudent(sid);
+    return { unitId: next.id, count: to, newUnit: true };
   }
 
   return {
@@ -582,52 +646,30 @@ const Store = (() => {
       return !Object.values(state.students).some(s => s.grade === gradeId && s.pin === p && s.id !== excludeId);
     },
 
-    // الكلمات المسندة لكل طالب في كل وحدة: [من، إلى، نهاية الإسناد السابق]. إلى = 0 تعني لا شيء مسند.
-    setRange(sid, gid, uid, from, to, prev) {
-      const s = state.students[sid];
-      if (!s) return;
-      if (!s.ranges) s.ranges = {};
-      const rk = gid + '.' + uid;
-      const range = [from, to, prev === undefined ? to : prev];
-      s.ranges[rk] = range;
-      save();
-      queue({ key: `range:${sid}:${rk}`, op: 'range', sid, rk, range });
+    // الإسناد تلقائي: ensureStarted يُسند أول دفعة لطالب لم يبدأ، و advance يُسند التالية عند إنجاز الدفعة
+    ensureStarted(sid) {
+      const s = state.students[sid], grade = s && Cur.grade(s.grade);
+      if (!grade || grade.units.some(u => Progress.rangeOf(s, u))) return null;
+      return advance(sid);
     },
-    // النطاق الفعلي بعد ضبطه على حجم الوحدة، أو null إن لم يُسند شيء
-    getRange(sid, gid, uid) {
-      const s = state.students[sid], unit = Cur.unit(gid, uid);
-      return s && unit ? Progress.rangeOf(s, unit) : null;
-    },
-    // إسناد n كلمات جديدة بعد المسند حاليًا (الاختبار يبقى تراكميًا من أول المسند)
-    addWords(sid, gid, uid, n) {
-      const s = state.students[sid], unit = Cur.unit(gid, uid);
-      if (!s || !unit) return null;
-      const cur = Progress.rangeOf(s, unit);
-      const from = cur ? cur[0] : 1, old = cur ? cur[1] : 0;
-      const to = Math.min(unit.words.length, old + n);
-      if (to <= old) return cur;
-      this.setRange(sid, gid, uid, from, to, old);
-      return [from, to, old];
-    },
-    // التراجع عن آخر إضافة
-    undoWords(sid, gid, uid) {
-      const s = state.students[sid], unit = Cur.unit(gid, uid);
-      if (!s || !unit) return null;
-      const cur = Progress.rangeOf(s, unit);
-      if (!cur || cur[2] >= cur[1]) return cur;
-      if (cur[2] < cur[0]) this.setRange(sid, gid, uid, 1, 0, 0);
-      else this.setRange(sid, gid, uid, cur[0], cur[2], cur[2]);
-      return Progress.rangeOf(s, unit);
+    advance,
+    getAssignN(gid) { return assignN(gid); },
+    setAssignN(gid, n) {
+      const v = Math.min(ASSIGN_MAX, Math.max(1, Math.round(Number(n)) || 1));
+      const map = assignMap();
+      map[gid] = v;
+      U.lsSet(ASSIGN_KEY, JSON.stringify(map));
+      queue({ key: 'assign_n', op: 'assign_n', map });
+      return v;
     },
 
-    // حصالة الكلمات: الكلمات الخاطئة ضمن المسند في وحدة
+    // حصالة الكلمات: كلمات الطالب المسندة التي أخطأ فيها ولم يجتزها بعد في وحدة
     getWrongWords(s, gid, uid) {
       const unit = Cur.unit(gid, uid);
       if (!unit) return [];
-      return Progress.assigned(s, unit).map(a => a.w).filter(w => {
-        const r = s.words[w.id];
-        return r && r.wrong > 0 && r.box < 3;
-      });
+      const ut = s.units && s.units[gid + '.' + uid];
+      const wrong = (ut && ut.lastTest && ut.lastTest.wrong) || [];
+      return Progress.assigned(s, unit).map(a => a.w).filter(w => wrong.indexOf(w.id) >= 0);
     },
 
     // عتبة إعادة الاختبار
@@ -703,14 +745,23 @@ const Store = (() => {
         const key = gradeId + '.' + unitId;
         const u = s.units[key] || (s.units[key] = { stars: 0, speedBest: 0 });
         if (mode === 'speed') u.speedBest = Math.max(u.speedBest || 0, correct);
-        else u.stars = Math.max(u.stars || 0, stars);
-        if (testedIds) u.lastTest = { date: today, correct, total, wrong: wrongIds || [], tested: testedIds };
+        else if (mode !== 'bank') u.stars = Math.max(u.stars || 0, stars);
+        if (testedIds) {
+          // الاختبار على الدفعة الحالية فقط، فندمج نتيجته مع ما سبق بدل أن نستبدلها:
+          // المختبَر يتراكم، والخطأ المعلّق يبقى حتى تُجاب الكلمة صحيحة في اختبار لاحق (اختبار الحصالة مثلًا)
+          const old = u.lastTest || {};
+          const tested = Array.from(new Set((old.tested || []).concat(testedIds)));
+          const wrong = (old.wrong || []).filter(id => testedIds.indexOf(id) < 0).concat(wrongIds || []);
+          u.lastTest = { date: today, correct, total, wrong, tested, sessionWrong: wrongIds || [] };
+        }
       }
       s.log.unshift({ t: Date.now(), mode, gradeId, unitId: unitId || null, correct, total });
       s.log = s.log.slice(0, 60);
+      // اجتياز الدفعة (أو اختبار الحصالة بنجاح) يُسند الدفعة التالية فورًا
+      const advanced = (mode === 'dictation' || mode === 'bank') && s.grade === gradeId ? advance(sid) : null;
       commitStudent(sid);
       const after = Progress.levelInfo(s.xp);
-      return { xpGained, streak: s.streak, levelUp: after.level > before ? after : null, goalReached };
+      return { xpGained, streak: s.streak, levelUp: after.level > before ? after : null, goalReached, advanced };
     },
 
     // بيانات تجريبية لعرض لوحة المعلم

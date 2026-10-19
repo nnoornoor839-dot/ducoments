@@ -305,36 +305,27 @@ const Teacher = (() => {
         <span class="muted">${l.correct}/${l.total} • ${U.ago(U.ymd(new Date(l.t)))}</span></li>`;
     }).join('');
 
-    const assignN = (() => { const v = Number(U.lsGet('kalimati.assignN', '10')); return [5, 10, 15, 20].includes(v) ? v : 10; })();
-    const assignHtml = g ? g.units.map(u => {
+    // الإسناد تلقائي: المعلم يتابع فقط أين وصل الطالب في كل وحدة
+    const autoHtml = g ? g.units.map(u => {
       const r = Progress.rangeOf(s, u);
       const total = u.words.length;
-      const list = Progress.assigned(s, u);
-      const full = !!r && r[1] >= total;
-      const nNew = r ? r[1] - r[2] : 0;
+      if (!r) return `
+        <div class="assign">
+          <div class="assign-head"><b class="en" dir="ltr">${esc(u.title)}</b><span class="assign-off">لم تُفتح بعد</span></div>
+        </div>`;
+      const from = r[2] < r[1] ? r[2] + 1 : r[0];
+      const cleared = Progress.batchCleared(s, u);
+      const bank = Store.getWrongWords(s, g.id, u.id).length;
+      const finished = r[1] >= total && cleared;
       return `
-        <div class="assign" data-sid="${s.id}" data-gid="${g.id}" data-uid="${u.id}">
+        <div class="assign">
           <div class="assign-head">
             <b class="en" dir="ltr">${esc(u.title)}</b>
-            <span class="${r ? 'assign-on' : 'assign-off'}">${r ? `المسند: ${r[0]} إلى ${r[1]} من ${total}` : 'لم تُسند كلمات'}</span>
+            <span class="assign-on">أُسند ${r[1]} من ${total}</span>
           </div>
-          <div class="meter"><i style="width:${r ? Math.round(r[1] / total * 100) : 0}%"></i></div>
-          ${nNew ? `<p class="small muted">آخر إضافة: الكلمات من ${r[2] + 1} إلى ${r[1]} (${nNew})</p>` : ''}
-          <div class="assign-actions">
-            <label>عدد الكلمات<select class="assign-n" aria-label="عدد الكلمات المضافة">${[5, 10, 15, 20].map(n => `<option value="${n}" ${n === assignN ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
-            <button class="btn small-btn" data-act="t-add-words" ${full ? 'disabled' : ''}>${ic('plus', 'sm')} ${full ? 'أُسندت كل الكلمات' : r ? 'إضافة كلمات جديدة' : 'إسناد أول الكلمات'}</button>
-            ${nNew ? `<button class="btn ghost small-btn" data-act="t-undo-words">${ic('undo', 'sm')} تراجع</button>` : ''}
-          </div>
-          <details class="assign-more">
-            <summary>الكلمات المسندة وتعديل يدوي</summary>
-            ${list.length ? `<div class="wchips" dir="ltr">${list.map(x => `<span class="wchip ${x.isNew ? 'new' : ''}"><i>${x.n}</i>${esc(x.w.en)}</span>`).join('')}</div>` : '<p class="muted small">لا توجد كلمات مسندة.</p>'}
-            <div class="range-controls">
-              <label>من <input type="number" data-k="from" min="1" max="${total}" value="${r ? r[0] : 1}"></label>
-              <label>إلى <input type="number" data-k="to" min="1" max="${total}" value="${r ? r[1] : Math.min(10, total)}"></label>
-              <button class="btn ghost small-btn" data-act="t-set-range">حفظ النطاق</button>
-              ${r ? `<button class="btn ghost small-btn" data-act="t-clear-words">${ic('x', 'sm')} إلغاء الإسناد</button>` : ''}
-            </div>
-          </details>
+          <div class="meter"><i style="width:${Math.round(r[1] / total * 100)}%"></i></div>
+          <p class="small muted">${finished ? 'أنهى الوحدة كاملة'
+            : `الدفعة الحالية: الكلمات من ${from} إلى ${r[1]} — ${cleared ? 'أنجزها وتنتظر الدفعة التالية' : 'لم ينجزها بعد'}`}${bank ? ` • في الحصالة ${bank} ${bank === 1 ? 'كلمة' : 'كلمات'}` : ''}</p>
         </div>`;
     }).join('') : '<p class="muted">لا توجد وحدات.</p>';
 
@@ -355,12 +346,17 @@ const Teacher = (() => {
       <h3 class="section-title">الوحدات</h3>
       <div class="card">${unitRows || '<p class="muted">لا توجد وحدات لهذا الصف.</p>'}</div>
 
-      <h3 class="section-title">${ic('ruler')} الكلمات المسندة</h3>
-      <p class="muted small">يُختبر الطالب تراكميًا في كل الكلمات المسندة من أول القائمة. أضف كلمات جديدة كلما تقدّم.</p>
-      <div class="card">${assignHtml}</div>
+      <h3 class="section-title">${ic('ruler')} الإسناد التلقائي</h3>
+      <p class="muted small">تُسند الكلمات للطالب تلقائيًا دفعة بعد دفعة. ينتقل لدفعته التالية حين يجتاز اختبار الدفعة بلا أخطاء أو يجتاز اختبار الحصالة بنسبة ١٠٠٪، وبعد آخر دفعة تبدأ الوحدة التالية.</p>
+      <div class="card">${autoHtml}</div>
 
       <h3 class="section-title">${ic('settings')} إعدادات الاختبار</h3>
       <div class="card">
+        <label>عدد الكلمات في كل إسناد (${esc(gradeName(s.grade))}):
+          <select id="t-assign-n">
+            ${[...new Set([3, 5, 7, 10, 12, 15, 20, 25, 30, Store.getAssignN(s.grade)])].sort((a, b) => a - b).map(n => `<option value="${n}" ${Store.getAssignN(s.grade) === n ? 'selected' : ''}>${n}</option>`).join('')}
+          </select>
+        </label>
         <label>أعد الاختبار إذا أخطأ في أكثر من:
           <select id="t-threshold">
             <option value="0" ${Store.getRetryThreshold() === 0 ? 'selected' : ''}>بدون إعادة</option>
@@ -390,6 +386,13 @@ const Teacher = (() => {
         <button class="btn danger" data-act="t-delete" data-id="${s.id}">${ic('trash')} حذف الطالب</button>
       </div>`;
 
+    const assignSel = document.getElementById('t-assign-n');
+    if (assignSel) {
+      assignSel.addEventListener('change', () => {
+        Store.setAssignN(s.grade, Number(assignSel.value));
+        App.toast('تم حفظ عدد الكلمات لهذا الصف');
+      });
+    }
     const thresholdSel = document.getElementById('t-threshold');
     if (thresholdSel) {
       thresholdSel.addEventListener('change', () => {
@@ -451,52 +454,6 @@ const Teacher = (() => {
   // البيانات التجريبية متاحة برمجيًا فقط (للاختبارات)
   U.actions['t-demo'] = async () => { const r = await Store.seedDemo(); if (r.error) failed(r); else dashboard(); };
   U.actions['t-demo-clear'] = async () => { for (const s of await Store.listStudents()) { if (s.demo) await Store.deleteStudent(s.id); } dashboard(); };
-  const assignCtx = el => {
-    const box = el.closest('.assign');
-    return { box, sid: box.dataset.sid, gid: box.dataset.gid, uid: box.dataset.uid };
-  };
-  async function rerender(sid) {
-    const y = window.scrollY;
-    await studentView(sid);
-    window.scrollTo(0, y);
-  }
-  U.actions['t-add-words'] = el => {
-    const { box, sid, gid, uid } = assignCtx(el);
-    const n = Number(box.querySelector('.assign-n').value) || 10;
-    U.lsSet('kalimati.assignN', String(n));
-    const r = Store.addWords(sid, gid, uid, n);
-    if (!r) return;
-    App.toast(`تم إسناد الكلمات من ${r[2] + 1} إلى ${r[1]}`);
-    rerender(sid);
-  };
-  U.actions['t-undo-words'] = el => {
-    const { sid, gid, uid } = assignCtx(el);
-    Store.undoWords(sid, gid, uid);
-    App.toast('تم التراجع عن آخر إضافة');
-    rerender(sid);
-  };
-  U.actions['t-set-range'] = el => {
-    const { box, sid, gid, uid } = assignCtx(el);
-    const total = Cur.unit(gid, uid).words.length;
-    const from = Number(box.querySelector('[data-k="from"]').value);
-    const to = Number(box.querySelector('[data-k="to"]').value);
-    if (!Number.isInteger(from) || !Number.isInteger(to) || from < 1 || to < from || to > total) {
-      App.toast(`أدخل نطاقًا صحيحًا بين 1 و ${total}`);
-      return;
-    }
-    const old = Store.getRange(sid, gid, uid);
-    Store.setRange(sid, gid, uid, from, to, old && to > old[1] ? old[1] : to);
-    App.toast(`تم حفظ النطاق: من ${from} إلى ${to}`);
-    rerender(sid);
-  };
-  U.actions['t-clear-words'] = async el => {
-    const { sid, gid, uid } = assignCtx(el);
-    if (!(await App.confirm('إلغاء إسناد كلمات هذه الوحدة؟ لن يستطيع الطالب الاختبار فيها حتى تُسند من جديد.', { okLabel: 'إلغاء الإسناد', danger: true }))) return;
-    Store.setRange(sid, gid, uid, 1, 0, 0);
-    App.toast('تم إلغاء الإسناد');
-    rerender(sid);
-  };
-
   U.actions['t-filter'] = el => {
     const f = el.dataset.f;
     document.querySelectorAll('.tiles .tile').forEach(b => b.classList.toggle('on', b === el));

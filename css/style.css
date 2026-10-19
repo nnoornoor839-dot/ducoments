@@ -568,6 +568,8 @@ table.pv th, table.pv td { padding: .3rem .5rem; border-bottom: 1px solid var(--
 
 /* رسالة إعادة الاختبار */
 .retry-msg { background: var(--warn-soft); border-radius: 14px; padding: .6rem; font-weight: 700; color: #92400E; margin: .5rem 0; }
+/* إسناد الكلمات الجديدة تلقائيًا بعد إنجاز الدفعة */
+.assign-msg { background: var(--good-soft); border-radius: 14px; padding: .6rem; font-weight: 800; color: #065F46; margin: .5rem 0; }
 
 @media (max-width: 420px) {
   html { font-size: 17px; }

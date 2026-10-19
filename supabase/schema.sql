@@ -13,7 +13,7 @@ create schema if not exists kalimati;
 -- ---------- الجداول ----------
 
 create table if not exists kalimati.settings (
-  key text primary key,                       -- teacher_hash | retry_max | curriculum
+  key text primary key,                       -- teacher_hash | retry_max | assign_n | curriculum
   value jsonb not null,
   updated_at timestamptz not null default now()
 );
@@ -119,14 +119,16 @@ $$;
 
 create or replace function public.kal_config(p_curriculum_at text default null) returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare c record; retry int;
+declare c record; retry int; an jsonb;
 begin
   select s.value as value, (extract(epoch from s.updated_at) * 1000000)::bigint::text as at
     into c from kalimati.settings s where s.key = 'curriculum';
   select coalesce((select (s.value #>> '{}')::int from kalimati.settings s where s.key = 'retry_max'), 3) into retry;
+  select s.value into an from kalimati.settings s where s.key = 'assign_n';
   return jsonb_build_object(
     'has_teacher', exists (select 1 from kalimati.settings s where s.key = 'teacher_hash'),
     'retry_max', retry,
+    'assign_n', coalesce(an, '{}'::jsonb),
     'curriculum_set', c.at is not null,
     'curriculum_at', c.at,
     'curriculum', case when c.at is not null and c.at is distinct from p_curriculum_at then c.value else null end
@@ -267,6 +269,22 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
+-- عدد الكلمات المسندة تلقائيًا في كل مرة، لكل صف: {"g5": 5, "g6": 10, ...}
+create or replace function public.kal_teacher_set_assign_n(p_token text, p_data jsonb) returns jsonb
+language plpgsql security definer set search_path = '' as $$
+begin
+  if not kalimati.is_teacher(p_token) then return jsonb_build_object('error', 'auth'); end if;
+  if p_data is null or jsonb_typeof(p_data) <> 'object' or exists (
+       select 1 from jsonb_each(p_data) e
+        where jsonb_typeof(e.value) <> 'number' or (e.value #>> '{}')::numeric not between 1 and 30
+           or (e.value #>> '{}')::numeric <> trunc((e.value #>> '{}')::numeric)) then
+    return jsonb_build_object('error', 'bad');
+  end if;
+  insert into kalimati.settings (key, value) values ('assign_n', p_data)
+    on conflict (key) do update set value = excluded.value, updated_at = now();
+  return jsonb_build_object('ok', true);
+end $$;
+
 create or replace function public.kal_teacher_set_curriculum(p_token text, p_data jsonb) returns jsonb
 language plpgsql security definer set search_path = '' as $$
 declare at_txt text;
@@ -315,7 +333,7 @@ begin
   return jsonb_build_object('ok', true, 'student', kalimati.student_json(st));
 end $$;
 
--- الطالب يحفظ تقدمه فقط؛ لا يستطيع تغيير اسمه أو رمزه أو نطاقه
+-- الطالب يحفظ تقدمه ونطاقه المسند (يُسند تلقائيًا من جهازه)؛ لا يستطيع تغيير اسمه أو رمزه
 create or replace function public.kal_student_save(p_token text, p_patch jsonb, p_epoch int default 0) returns jsonb
 language plpgsql security definer set search_path = '' as $$
 declare sid text; st kalimati.students; clean jsonb;
@@ -331,7 +349,7 @@ begin
   end if;
   select coalesce(jsonb_object_agg(e.key, e.value), '{}'::jsonb) into clean
     from jsonb_each(p_patch) e
-   where e.key in ('xp', 'streak', 'lastActive', 'daily', 'words', 'units', 'log', 'reps');
+   where e.key in ('xp', 'streak', 'lastActive', 'daily', 'words', 'units', 'log', 'reps', 'ranges');
   update kalimati.students set data = data || clean, updated_at = now() where id = sid;
   return jsonb_build_object('ok', true);
 end $$;
