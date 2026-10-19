@@ -6,7 +6,8 @@
 //     node tools/csv_to_data.mjs ملف.csv [خرج.js]     # ملف آخر / مسار خرج آخر
 //     --all-grades   لتضمين كل الصفوف (للاختبار)
 //     --sample       لوسم البيانات بأنها أمثلة تجريبية (للاختبار)
-// الأعمدة: grade, unit, unit_title, word, meaning, sentence, sentence_ar, page, form
+// الأعمدة: grade, unit, unit_title, word, meaning, sentence, sentence_ar, page, form, order
+// order (اختياري): يرتّب التطبيق الوحدات برقمها (الرقم في المعرّف)؛ ضع هنا رقمًا آخر لتقديم وحدة أو تأخيرها
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -78,6 +79,8 @@ function main(csvPath, outPath, allGrades, sample) {
     const units = out[gid].units;
     let unit = units.find(u => u.id === uid);
     if (!unit) { unit = { id: uid, title: row.unit_title || `Unit ${unitKey}`, words: [] }; units.push(unit); }
+    // order (اختياري): رقم ترتيب الوحدة في التطبيق، لتأخير وحدة عن رقمها الطبيعي
+    if (row.order && unit.num === undefined) unit.num = Number(row.order);
     const word = { en: row.word, ar: row.meaning || '' };
     if (row.sentence) {
       word.sentence = row.sentence;

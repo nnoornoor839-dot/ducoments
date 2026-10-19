@@ -1,6 +1,6 @@
 // ملف مُولَّد تلقائيًا بواسطة tools/csv_to_data.py — لا تعدّله يدويًا
 window.CURRICULUM = {
- "version": "202610192304",
+ "version": "202610192323",
  "grades": [
   {
    "id": "t1",
@@ -649,6 +649,354 @@ window.CURRICULUM = {
        "page": "23"
       }
      ]
+    },
+    {
+     "id": "u3",
+     "title": "Unit 3: Job Paths",
+     "words": [
+      {
+       "en": "actor",
+       "ar": "ممثل",
+       "sentence": "You saw a famous actor here, didn't you?",
+       "sentenceAr": "لقد رأيتَ ممثلاً مشهوراً هنا، أليس كذلك؟",
+       "page": "41"
+      },
+      {
+       "en": "actress",
+       "ar": "ممثلة",
+       "sentence": "She is a famous actress.",
+       "sentenceAr": "إنها ممثلة مشهورة."
+      },
+      {
+       "en": "airport",
+       "ar": "مطار",
+       "sentence": "Who works at an airport?",
+       "sentenceAr": "من يعمل في المطار؟",
+       "page": "45"
+      },
+      {
+       "en": "artist",
+       "ar": "فنان",
+       "sentence": "I am going to be an artist.",
+       "sentenceAr": "سأكون فنانًا.",
+       "page": "36"
+      },
+      {
+       "en": "businessman",
+       "ar": "رجل أعمال",
+       "sentence": "I am a businessman.",
+       "sentenceAr": "أنا رجل أعمال.",
+       "page": "40"
+      },
+      {
+       "en": "businesswoman",
+       "ar": "سيدة أعمال",
+       "sentence": "I'm a businesswoman.",
+       "sentenceAr": "أنا سيدة أعمال.",
+       "page": "35"
+      },
+      {
+       "en": "driver",
+       "ar": "سائق",
+       "sentence": "Drive through the streets with a driver.",
+       "sentenceAr": "قُد عبر الشوارع مع سائق.",
+       "page": "34"
+      },
+      {
+       "en": "engineer",
+       "ar": "مهندس",
+       "sentence": "I think I may be an engineer.",
+       "sentenceAr": "أعتقد أنني قد أكون مهندسًا.",
+       "page": "36"
+      },
+      {
+       "en": "factory",
+       "ar": "مصنع",
+       "sentence": "My uncle works in a factory.",
+       "sentenceAr": "يعمل عمي في مصنع."
+      },
+      {
+       "en": "fashion designer",
+       "ar": "مصمم أزياء",
+       "sentence": "Hey! I'm a fashion designer.",
+       "sentenceAr": "مرحبًا! أنا مصمم أزياء.",
+       "page": "35"
+      },
+      {
+       "en": "flight attendant",
+       "ar": "مضيف طيران",
+       "sentence": "I'm a flight attendant.",
+       "sentenceAr": "أنا مضيف طيران.",
+       "page": "35"
+      },
+      {
+       "en": "gallery",
+       "ar": "معرض فني",
+       "sentence": "We visited an art gallery today.",
+       "sentenceAr": "زرنا معرضًا فنيًا اليوم."
+      },
+      {
+       "en": "job",
+       "ar": "وظيفة",
+       "sentence": "Draw a job or place.",
+       "sentenceAr": "ارسم وظيفة أو مكانًا.",
+       "page": "41"
+      },
+      {
+       "en": "journalist",
+       "ar": "صحفي",
+       "sentence": "Hello. I'm a journalist.",
+       "sentenceAr": "مرحبًا. أنا صحفي.",
+       "page": "35"
+      },
+      {
+       "en": "manager",
+       "ar": "مدير",
+       "sentence": "Practice teamwork with a manager.",
+       "sentenceAr": "تدرّب على العمل الجماعي مع مدير.",
+       "page": "34"
+      },
+      {
+       "en": "mechanic",
+       "ar": "ميكانيكي",
+       "sentence": "A mechanic fixes cars.",
+       "sentenceAr": "الميكانيكي يُصلح السيارات.",
+       "page": "35"
+      },
+      {
+       "en": "meeting",
+       "ar": "اجتماع",
+       "sentence": "I have a meeting; I can't be late!",
+       "sentenceAr": "لدي اجتماع؛ لا يمكنني أن أتأخر!",
+       "page": "35"
+      },
+      {
+       "en": "news",
+       "ar": "أخبار",
+       "sentence": "I talk about the news.",
+       "sentenceAr": "أنا أتحدث عن الأخبار.",
+       "page": "35"
+      },
+      {
+       "en": "office",
+       "ar": "مكتب",
+       "sentence": "I work in an office.",
+       "sentenceAr": "أعمل في مكتب.",
+       "page": "40"
+      },
+      {
+       "en": "photographer",
+       "ar": "مصوّر",
+       "sentence": "I'm going to be a photographer!",
+       "sentenceAr": "سأكون مصورًا!",
+       "page": "37"
+      },
+      {
+       "en": "pilot",
+       "ar": "طيّار",
+       "sentence": "I might be a pilot.",
+       "sentenceAr": "قد أكون طيارًا.",
+       "page": "37"
+      },
+      {
+       "en": "singer",
+       "ar": "مغنٍّ",
+       "sentence": "Sing your favorite songs with a famous singer.",
+       "sentenceAr": "غنِّ أغانيك المفضلة مع مغنٍّ مشهور.",
+       "page": "34"
+      },
+      {
+       "en": "stage",
+       "ar": "مسرح",
+       "sentence": "The actor is on the stage.",
+       "sentenceAr": "الممثل على المسرح."
+      },
+      {
+       "en": "waiter",
+       "ar": "نادل",
+       "sentence": "Hello. I'm a waiter and I bring you food.",
+       "sentenceAr": "مرحبًا. أنا نادل وأحضر لكم الطعام.",
+       "page": "35"
+      },
+      {
+       "en": "work",
+       "ar": "عمل",
+       "sentence": "I work in an office.",
+       "sentenceAr": "أعمل في مكتب.",
+       "page": "40"
+      }
+     ]
+    },
+    {
+     "id": "u1",
+     "title": "Unit 1: Personal Interests",
+     "words": [
+      {
+       "en": "amazing",
+       "ar": "مذهل",
+       "sentence": "The games were amazing!",
+       "sentenceAr": "كانت الألعاب مذهلة!",
+       "page": "10"
+      },
+      {
+       "en": "enjoy",
+       "ar": "يستمتع",
+       "sentence": "Do you enjoy traveling with toys?",
+       "sentenceAr": "هل تستمتع بالسفر مع الألعاب؟",
+       "page": "20"
+      },
+      {
+       "en": "enormous",
+       "ar": "ضخم",
+       "sentence": "The building is enormous and tidy, but it gets a little noisy during big events.",
+       "sentenceAr": "المبنى ضخم ومرتب لكنه يصبح صاخبًا قليلًا خلال الفعاليات الكبيرة.",
+       "page": "10"
+      },
+      {
+       "en": "excellent",
+       "ar": "ممتاز",
+       "sentence": "Yes, everyone is friendly and the place is excellent!",
+       "sentenceAr": "نعم، الجميع ودودون والمكان ممتاز!",
+       "page": "10"
+      },
+      {
+       "en": "excited",
+       "ar": "متحمس",
+       "sentence": "I am excited about the trip.",
+       "sentenceAr": "أنا متحمس للرحلة."
+      },
+      {
+       "en": "friendly",
+       "ar": "ودود",
+       "sentence": "Yes, everyone is friendly and the place is excellent!",
+       "sentenceAr": "نعم، الجميع ودودون والمكان ممتاز!",
+       "page": "10"
+      },
+      {
+       "en": "frightening",
+       "ar": "مخيف",
+       "sentence": "She found the situation frightening.",
+       "sentenceAr": "وجدت الموقف مخيفًا.",
+       "page": "14"
+      },
+      {
+       "en": "horrible",
+       "ar": "سيّئ",
+       "sentence": "After a horrible day, I found a book about origami on the sidewalk.",
+       "sentenceAr": "بعد يوم سيّئ، وجدت كتابًا عن الأوريغامي على الرصيف.",
+       "page": "18"
+      },
+      {
+       "en": "important",
+       "ar": "مهم",
+       "sentence": "It's important to make an effort!",
+       "sentenceAr": "من المهم أن تبذل جهدًا!",
+       "page": "14"
+      },
+      {
+       "en": "interesting",
+       "ar": "مثير للاهتمام",
+       "sentence": "Click here to find out about all our interesting events.",
+       "sentenceAr": "اضغط هنا لتتعرف على جميع فعالياتنا المثيرة للاهتمام.",
+       "page": "10"
+      },
+      {
+       "en": "lovely",
+       "ar": "جميل",
+       "sentence": "It's so important to have a lovely place to meet people.",
+       "sentenceAr": "من المهم جدًا وجود مكان جميل لمقابلة الناس.",
+       "page": "10"
+      },
+      {
+       "en": "lucky",
+       "ar": "محظوظ",
+       "sentence": "So in the end, I was very lucky that day!",
+       "sentenceAr": "لذا في النهاية كنت محظوظًا جدًا في ذلك اليوم!",
+       "page": "18"
+      },
+      {
+       "en": "messy",
+       "ar": "فوضوي",
+       "sentence": "You need to be very careful so it's not messy!",
+       "sentenceAr": "عليك أن تكون حذرًا جدًا حتى لا يكون فوضويًا!",
+       "page": "20"
+      },
+      {
+       "en": "noisy",
+       "ar": "مزعج",
+       "sentence": "The building is enormous and tidy, but it gets a little noisy during big events.",
+       "sentenceAr": "المبنى ضخم ومرتب لكنه يصبح صاخبًا قليلًا خلال الفعاليات الكبيرة.",
+       "page": "10"
+      },
+      {
+       "en": "popular",
+       "ar": "مشهور",
+       "sentence": "Join the Most Popular Youth Center Around!",
+       "sentenceAr": "انضم إلى مركز الشباب الأكثر شهرة في الجوار!",
+       "page": "10"
+      },
+      {
+       "en": "ride",
+       "ar": "رحلة (ركوب)",
+       "sentence": "The fair ride was very fun.",
+       "sentenceAr": "كانت ركوبة الملاهي ممتعة جدًا."
+      },
+      {
+       "en": "special",
+       "ar": "خاص",
+       "sentence": "They have a very special friendship.",
+       "sentenceAr": "لديهما صداقة خاصة جدًا.",
+       "page": "14"
+      },
+      {
+       "en": "tidy",
+       "ar": "مرتّب",
+       "sentence": "Everything is so tidy!",
+       "sentenceAr": "كل شيء مرتب جدًا!",
+       "page": "14"
+      },
+      {
+       "en": "unfriendly",
+       "ar": "غير ودود",
+       "sentence": "The new boy was unfriendly today.",
+       "sentenceAr": "كان الولد الجديد غير ودود اليوم."
+      },
+      {
+       "en": "unkind",
+       "ar": "غير لطيف",
+       "sentence": "Some kids were unkind to me at school and I didn't have many friends.",
+       "sentenceAr": "كان بعض الأطفال غير لطيفين معي في المدرسة ولم يكن لدي الكثير من الأصدقاء.",
+       "page": "18"
+      },
+      {
+       "en": "unlucky",
+       "ar": "غير محظوظ",
+       "sentence": "He was unlucky in the game.",
+       "sentenceAr": "كان غير محظوظ في اللعبة."
+      },
+      {
+       "en": "untidy",
+       "ar": "غير مرتّب",
+       "sentence": "Normally I have a very untidy room because I don't like cleaning it.",
+       "sentenceAr": "عادة ما تكون غرفتي غير مرتبة لأنني لا أحب تنظيفها.",
+       "page": "18"
+      },
+      {
+       "en": "unusual",
+       "ar": "غير مألوف",
+       "sentence": "Here is an unusual result of doing origami.",
+       "sentenceAr": "إليك نتيجة غير مألوفة لممارسة الأوريغامي.",
+       "page": "18"
+      },
+      {
+       "en": "wonderful",
+       "ar": "رائع",
+       "sentence": "We have a wonderful time!",
+       "sentenceAr": "نحن نقضي وقتًا رائعًا!",
+       "page": "13"
+      }
+     ],
+     "num": 5
     }
    ]
   },
@@ -1900,7 +2248,8 @@ window.CURRICULUM = {
        "page": "6",
        "form": "staying"
       }
-     ]
+     ],
+     "num": 5
     }
    ]
   }

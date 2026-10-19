@@ -1,4 +1,4 @@
-﻿grade,unit,unit_title,word,meaning,sentence,sentence_ar,page,form
+﻿grade,unit,unit_title,word,meaning,sentence,sentence_ar,page,form,order
 m2,2,Unit 2: What Are They Making?,actor,ممثل,"Choose a director, a cameraman, and two or three actors.",اختر مخرجًا ومصوّرًا واثنين أو ثلاثة ممثلين.,17,actors
 m2,2,Unit 2: What Are They Making?,balance,توازن,It's about physical strength and balance.,الأمر يتعلق بالقوة البدنية والتوازن.,14,
 m2,2,Unit 2: What Are They Making?,cameraman,مصوّر الكاميرا,The cameraman is filming the scene.,مصوّر الكاميرا يصوّر المشهد.,17,
@@ -242,30 +242,79 @@ m2,4,Unit 4: Favorite Pastimes,often,غالبًا,Ali often works out.,علي غ
 m2,4,Unit 4: Favorite Pastimes,seldom,نادرًا,Teens seldom buy things online.,نادرًا ما يشتري المراهقون أشياء عبر الإنترنت.,27,
 m2,4,Unit 4: Favorite Pastimes,sometimes,أحيانًا,I sometimes go out.,أنا أخرج أحيانًا.,28,
 m2,4,Unit 4: Favorite Pastimes,usually,عادةً,She usually goes shopping.,هي عادةً تذهب للتسوق.,28,
-m2,1,Unit 1: Are You Here on Vacation?,address,عنوان,What's your address in this country?,ما هو عنوانك في هذا البلد؟,6,
-m2,1,Unit 1: Are You Here on Vacation?,age,العمر,Please write your age on the form.,يرجى كتابة عمرك على النموذج.,,
-m2,1,Unit 1: Are You Here on Vacation?,credit card,بطاقة ائتمانية,"May I have your credit card, please?",هل يمكنني الحصول على بطاقتك الائتمانية، من فضلك؟,6,
-m2,1,Unit 1: Are You Here on Vacation?,date of birth,تاريخ الميلاد,Please write your date of birth here.,يرجى كتابة تاريخ ميلادك هنا.,,
-m2,1,Unit 1: Are You Here on Vacation?,elevator,مصعد,"Behind the elevators, on your right.",خلف المصاعد، على يمينك.,2,elevators
-m2,1,Unit 1: Are You Here on Vacation?,email address,عنوان البريد الإلكتروني,Please write your email address here.,يرجى كتابة عنوان بريدك الإلكتروني هنا.,,
-m2,1,Unit 1: Are You Here on Vacation?,festival,مهرجان,Are you here for the festival?,هل أنت هنا من أجل المهرجان؟,2,
-m2,1,Unit 1: Are You Here on Vacation?,first name,الاسم الأول,Please write your first name here.,يرجى كتابة اسمك الأول هنا.,,
-m2,1,Unit 1: Are You Here on Vacation?,form,نموذج,Please fill in this form.,من فضلك املأ هذا النموذج.,6,
-m2,1,Unit 1: Are You Here on Vacation?,hotel,فندق,He's checking into the hotel.,إنه يسجل دخوله إلى الفندق.,3,
-m2,1,Unit 1: Are You Here on Vacation?,key card,بطاقة المفتاح,Here's your key card.,إليك بطاقة المفتاح الخاصة بك.,6,
-m2,1,Unit 1: Are You Here on Vacation?,last name,الاسم الأخير,How do you spell your last name?,كيف تتهجى اسمك الأخير؟,2,
-m2,1,Unit 1: Are You Here on Vacation?,nationality,الجنسية,Please write your nationality on the form.,يرجى كتابة جنسيتك على النموذج.,,
-m2,1,Unit 1: Are You Here on Vacation?,nickname,اللقب,His nickname is Pancho.,لقبه هو بانشو.,3,
-m2,1,Unit 1: Are You Here on Vacation?,occupation,المهنة,What is your father's occupation?,ما هي مهنة والدك؟,,
-m2,1,Unit 1: Are You Here on Vacation?,participant,مشارك,Welcome all participants!,مرحباً بجميع المشاركين!,2,participants
-m2,1,Unit 1: Are You Here on Vacation?,reception desk,مكتب الاستقبال,He's there near the reception desk.,إنه هناك بالقرب من مكتب الاستقبال.,4,
-m2,1,Unit 1: Are You Here on Vacation?,reservation,الحجز,I have a reservation.,لدي حجز.,6,
-m2,1,Unit 1: Are You Here on Vacation?,spelling,التهجئة,Please check the spelling of your name.,يرجى التحقق من تهجئة اسمك.,,
-m2,1,Unit 1: Are You Here on Vacation?,telephone number,رقم الهاتف,What is your address and telephone number?,ما هو عنوانك ورقم هاتفك؟,8,
-m2,1,Unit 1: Are You Here on Vacation?,check into,يسجّل دخوله (إلى الفندق),He's checking into the hotel.,إنه يسجل دخوله إلى الفندق.,3,checking into
-m2,1,Unit 1: Are You Here on Vacation?,fill in,يملأ,Please fill in this form.,من فضلك املأ هذا النموذج.,6,
-m2,1,Unit 1: Are You Here on Vacation?,greet,يحيّي,Greet someone you know.,حيِّ شخصاً تعرفه.,3,
-m2,1,Unit 1: Are You Here on Vacation?,introduce,يقدّم (يعرّف بـ),"Lee, I'd like to introduce you to Joe.",لي، أود أن أقدمك إلى جو.,3,
-m2,1,Unit 1: Are You Here on Vacation?,pay,يدفع مقابل,How is he paying for the hotel?,كيف يدفع مقابل الفندق؟,6,paying
-m2,1,Unit 1: Are You Here on Vacation?,spell,يتهجّى,How do you spell your last name?,كيف تتهجى اسمك الأخير؟,2,
-m2,1,Unit 1: Are You Here on Vacation?,stay,يمكث / يقيم,How long are you staying with us?,كم مدة إقامتك معنا؟,6,staying
+m2,1,Unit 1: Are You Here on Vacation?,address,عنوان,What's your address in this country?,ما هو عنوانك في هذا البلد؟,6,,5
+m2,1,Unit 1: Are You Here on Vacation?,age,العمر,Please write your age on the form.,يرجى كتابة عمرك على النموذج.,,,5
+m2,1,Unit 1: Are You Here on Vacation?,credit card,بطاقة ائتمانية,"May I have your credit card, please?",هل يمكنني الحصول على بطاقتك الائتمانية، من فضلك؟,6,,5
+m2,1,Unit 1: Are You Here on Vacation?,date of birth,تاريخ الميلاد,Please write your date of birth here.,يرجى كتابة تاريخ ميلادك هنا.,,,5
+m2,1,Unit 1: Are You Here on Vacation?,elevator,مصعد,"Behind the elevators, on your right.",خلف المصاعد، على يمينك.,2,elevators,5
+m2,1,Unit 1: Are You Here on Vacation?,email address,عنوان البريد الإلكتروني,Please write your email address here.,يرجى كتابة عنوان بريدك الإلكتروني هنا.,,,5
+m2,1,Unit 1: Are You Here on Vacation?,festival,مهرجان,Are you here for the festival?,هل أنت هنا من أجل المهرجان؟,2,,5
+m2,1,Unit 1: Are You Here on Vacation?,first name,الاسم الأول,Please write your first name here.,يرجى كتابة اسمك الأول هنا.,,,5
+m2,1,Unit 1: Are You Here on Vacation?,form,نموذج,Please fill in this form.,من فضلك املأ هذا النموذج.,6,,5
+m2,1,Unit 1: Are You Here on Vacation?,hotel,فندق,He's checking into the hotel.,إنه يسجل دخوله إلى الفندق.,3,,5
+m2,1,Unit 1: Are You Here on Vacation?,key card,بطاقة المفتاح,Here's your key card.,إليك بطاقة المفتاح الخاصة بك.,6,,5
+m2,1,Unit 1: Are You Here on Vacation?,last name,الاسم الأخير,How do you spell your last name?,كيف تتهجى اسمك الأخير؟,2,,5
+m2,1,Unit 1: Are You Here on Vacation?,nationality,الجنسية,Please write your nationality on the form.,يرجى كتابة جنسيتك على النموذج.,,,5
+m2,1,Unit 1: Are You Here on Vacation?,nickname,اللقب,His nickname is Pancho.,لقبه هو بانشو.,3,,5
+m2,1,Unit 1: Are You Here on Vacation?,occupation,المهنة,What is your father's occupation?,ما هي مهنة والدك؟,,,5
+m2,1,Unit 1: Are You Here on Vacation?,participant,مشارك,Welcome all participants!,مرحباً بجميع المشاركين!,2,participants,5
+m2,1,Unit 1: Are You Here on Vacation?,reception desk,مكتب الاستقبال,He's there near the reception desk.,إنه هناك بالقرب من مكتب الاستقبال.,4,,5
+m2,1,Unit 1: Are You Here on Vacation?,reservation,الحجز,I have a reservation.,لدي حجز.,6,,5
+m2,1,Unit 1: Are You Here on Vacation?,spelling,التهجئة,Please check the spelling of your name.,يرجى التحقق من تهجئة اسمك.,,,5
+m2,1,Unit 1: Are You Here on Vacation?,telephone number,رقم الهاتف,What is your address and telephone number?,ما هو عنوانك ورقم هاتفك؟,8,,5
+m2,1,Unit 1: Are You Here on Vacation?,check into,يسجّل دخوله (إلى الفندق),He's checking into the hotel.,إنه يسجل دخوله إلى الفندق.,3,checking into,5
+m2,1,Unit 1: Are You Here on Vacation?,fill in,يملأ,Please fill in this form.,من فضلك املأ هذا النموذج.,6,,5
+m2,1,Unit 1: Are You Here on Vacation?,greet,يحيّي,Greet someone you know.,حيِّ شخصاً تعرفه.,3,,5
+m2,1,Unit 1: Are You Here on Vacation?,introduce,يقدّم (يعرّف بـ),"Lee, I'd like to introduce you to Joe.",لي، أود أن أقدمك إلى جو.,3,,5
+m2,1,Unit 1: Are You Here on Vacation?,pay,يدفع مقابل,How is he paying for the hotel?,كيف يدفع مقابل الفندق؟,6,paying,5
+m2,1,Unit 1: Are You Here on Vacation?,spell,يتهجّى,How do you spell your last name?,كيف تتهجى اسمك الأخير؟,2,,5
+m2,1,Unit 1: Are You Here on Vacation?,stay,يمكث / يقيم,How long are you staying with us?,كم مدة إقامتك معنا؟,6,staying,5
+g5,3,Unit 3: Job Paths,actor,ممثل,"You saw a famous actor here, didn't you?",لقد رأيتَ ممثلاً مشهوراً هنا، أليس كذلك؟,41,
+g5,3,Unit 3: Job Paths,actress,ممثلة,She is a famous actress.,إنها ممثلة مشهورة.,,
+g5,3,Unit 3: Job Paths,airport,مطار,Who works at an airport?,من يعمل في المطار؟,45,
+g5,3,Unit 3: Job Paths,artist,فنان,I am going to be an artist.,سأكون فنانًا.,36,
+g5,3,Unit 3: Job Paths,businessman,رجل أعمال,I am a businessman.,أنا رجل أعمال.,40,
+g5,3,Unit 3: Job Paths,businesswoman,سيدة أعمال,I'm a businesswoman.,أنا سيدة أعمال.,35,
+g5,3,Unit 3: Job Paths,driver,سائق,Drive through the streets with a driver.,قُد عبر الشوارع مع سائق.,34,
+g5,3,Unit 3: Job Paths,engineer,مهندس,I think I may be an engineer.,أعتقد أنني قد أكون مهندسًا.,36,
+g5,3,Unit 3: Job Paths,factory,مصنع,My uncle works in a factory.,يعمل عمي في مصنع.,,
+g5,3,Unit 3: Job Paths,fashion designer,مصمم أزياء,Hey! I'm a fashion designer.,مرحبًا! أنا مصمم أزياء.,35,
+g5,3,Unit 3: Job Paths,flight attendant,مضيف طيران,I'm a flight attendant.,أنا مضيف طيران.,35,
+g5,3,Unit 3: Job Paths,gallery,معرض فني,We visited an art gallery today.,زرنا معرضًا فنيًا اليوم.,,
+g5,3,Unit 3: Job Paths,job,وظيفة,Draw a job or place.,ارسم وظيفة أو مكانًا.,41,
+g5,3,Unit 3: Job Paths,journalist,صحفي,Hello. I'm a journalist.,مرحبًا. أنا صحفي.,35,
+g5,3,Unit 3: Job Paths,manager,مدير,Practice teamwork with a manager.,تدرّب على العمل الجماعي مع مدير.,34,
+g5,3,Unit 3: Job Paths,mechanic,ميكانيكي,A mechanic fixes cars.,الميكانيكي يُصلح السيارات.,35,
+g5,3,Unit 3: Job Paths,meeting,اجتماع,I have a meeting; I can't be late!,لدي اجتماع؛ لا يمكنني أن أتأخر!,35,
+g5,3,Unit 3: Job Paths,news,أخبار,I talk about the news.,أنا أتحدث عن الأخبار.,35,
+g5,3,Unit 3: Job Paths,office,مكتب,I work in an office.,أعمل في مكتب.,40,
+g5,3,Unit 3: Job Paths,photographer,مصوّر,I'm going to be a photographer!,سأكون مصورًا!,37,
+g5,3,Unit 3: Job Paths,pilot,طيّار,I might be a pilot.,قد أكون طيارًا.,37,
+g5,3,Unit 3: Job Paths,singer,مغنٍّ,Sing your favorite songs with a famous singer.,غنِّ أغانيك المفضلة مع مغنٍّ مشهور.,34,
+g5,3,Unit 3: Job Paths,stage,مسرح,The actor is on the stage.,الممثل على المسرح.,,
+g5,3,Unit 3: Job Paths,waiter,نادل,Hello. I'm a waiter and I bring you food.,مرحبًا. أنا نادل وأحضر لكم الطعام.,35,
+g5,3,Unit 3: Job Paths,work,عمل,I work in an office.,أعمل في مكتب.,40,
+g5,1,Unit 1: Personal Interests,amazing,مذهل,The games were amazing!,كانت الألعاب مذهلة!,10,,5
+g5,1,Unit 1: Personal Interests,enjoy,يستمتع,Do you enjoy traveling with toys?,هل تستمتع بالسفر مع الألعاب؟,20,,5
+g5,1,Unit 1: Personal Interests,enormous,ضخم,"The building is enormous and tidy, but it gets a little noisy during big events.",المبنى ضخم ومرتب لكنه يصبح صاخبًا قليلًا خلال الفعاليات الكبيرة.,10,,5
+g5,1,Unit 1: Personal Interests,excellent,ممتاز,"Yes, everyone is friendly and the place is excellent!",نعم، الجميع ودودون والمكان ممتاز!,10,,5
+g5,1,Unit 1: Personal Interests,excited,متحمس,I am excited about the trip.,أنا متحمس للرحلة.,,,5
+g5,1,Unit 1: Personal Interests,friendly,ودود,"Yes, everyone is friendly and the place is excellent!",نعم، الجميع ودودون والمكان ممتاز!,10,,5
+g5,1,Unit 1: Personal Interests,frightening,مخيف,She found the situation frightening.,وجدت الموقف مخيفًا.,14,,5
+g5,1,Unit 1: Personal Interests,horrible,سيّئ,"After a horrible day, I found a book about origami on the sidewalk.",بعد يوم سيّئ، وجدت كتابًا عن الأوريغامي على الرصيف.,18,,5
+g5,1,Unit 1: Personal Interests,important,مهم,It's important to make an effort!,من المهم أن تبذل جهدًا!,14,,5
+g5,1,Unit 1: Personal Interests,interesting,مثير للاهتمام,Click here to find out about all our interesting events.,اضغط هنا لتتعرف على جميع فعالياتنا المثيرة للاهتمام.,10,,5
+g5,1,Unit 1: Personal Interests,lovely,جميل,It's so important to have a lovely place to meet people.,من المهم جدًا وجود مكان جميل لمقابلة الناس.,10,,5
+g5,1,Unit 1: Personal Interests,lucky,محظوظ,"So in the end, I was very lucky that day!",لذا في النهاية كنت محظوظًا جدًا في ذلك اليوم!,18,,5
+g5,1,Unit 1: Personal Interests,messy,فوضوي,You need to be very careful so it's not messy!,عليك أن تكون حذرًا جدًا حتى لا يكون فوضويًا!,20,,5
+g5,1,Unit 1: Personal Interests,noisy,مزعج,"The building is enormous and tidy, but it gets a little noisy during big events.",المبنى ضخم ومرتب لكنه يصبح صاخبًا قليلًا خلال الفعاليات الكبيرة.,10,,5
+g5,1,Unit 1: Personal Interests,popular,مشهور,Join the Most Popular Youth Center Around!,انضم إلى مركز الشباب الأكثر شهرة في الجوار!,10,,5
+g5,1,Unit 1: Personal Interests,ride,رحلة (ركوب),The fair ride was very fun.,كانت ركوبة الملاهي ممتعة جدًا.,,,5
+g5,1,Unit 1: Personal Interests,special,خاص,They have a very special friendship.,لديهما صداقة خاصة جدًا.,14,,5
+g5,1,Unit 1: Personal Interests,tidy,مرتّب,Everything is so tidy!,كل شيء مرتب جدًا!,14,,5
+g5,1,Unit 1: Personal Interests,unfriendly,غير ودود,The new boy was unfriendly today.,كان الولد الجديد غير ودود اليوم.,,,5
+g5,1,Unit 1: Personal Interests,unkind,غير لطيف,Some kids were unkind to me at school and I didn't have many friends.,كان بعض الأطفال غير لطيفين معي في المدرسة ولم يكن لدي الكثير من الأصدقاء.,18,,5
+g5,1,Unit 1: Personal Interests,unlucky,غير محظوظ,He was unlucky in the game.,كان غير محظوظ في اللعبة.,,,5
+g5,1,Unit 1: Personal Interests,untidy,غير مرتّب,Normally I have a very untidy room because I don't like cleaning it.,عادة ما تكون غرفتي غير مرتبة لأنني لا أحب تنظيفها.,18,,5
+g5,1,Unit 1: Personal Interests,unusual,غير مألوف,Here is an unusual result of doing origami.,إليك نتيجة غير مألوفة لممارسة الأوريغامي.,18,,5
+g5,1,Unit 1: Personal Interests,wonderful,رائع,We have a wonderful time!,نحن نقضي وقتًا رائعًا!,13,,5

@@ -8,7 +8,8 @@
     --sample       لوسم البيانات بأنها أمثلة تجريبية (للاختبار)
 
 الأعمدة (الصف الأول عناوين):
-    grade, unit, unit_title, word, meaning, sentence, sentence_ar, page, form
+    grade, unit, unit_title, word, meaning, sentence, sentence_ar, page, form, order
+- order (اختياري): التطبيق يرتّب الوحدات برقمها؛ ضع هنا رقمًا آخر لتقديم وحدة أو تأخيرها
 - grade: g5 g6 m2 (الصفوف المفعّلة)، أو اسم الصف بالعربي، مثل: الخامس الابتدائي
 - form (اختياري): شكل الكلمة كما ترد في الجملة إن اختلف، مثل eat -> eats
 عند الحفظ من Excel اختر: CSV UTF-8.
@@ -61,6 +62,9 @@ def main(path, out_path=None, all_grades=False, sample=False):
             if not unit:
                 unit = {"id": uid, "title": row.get("unit_title") or f"Unit {unit_key}", "words": []}
                 units.append(unit)
+            # order (اختياري): رقم ترتيب الوحدة في التطبيق، لتأخير وحدة عن رقمها الطبيعي
+            if row.get("order") and "num" not in unit:
+                unit["num"] = int(row["order"])
             word = {"en": row["word"], "ar": row.get("meaning", "")}
             if row.get("sentence"):
                 word["sentence"] = row["sentence"]
