@@ -1,6 +1,6 @@
 // ملف مُولَّد تلقائيًا بواسطة tools/csv_to_data.py — لا تعدّله يدويًا
 window.CURRICULUM = {
- "version": "202610192341",
+ "version": "202610192353",
  "grades": [
   {
    "id": "t1",
@@ -997,6 +997,170 @@ window.CURRICULUM = {
       }
      ],
      "num": 5
+    },
+    {
+     "id": "u4",
+     "title": "Unit 4: Glorious Food",
+     "words": [
+      {
+       "en": "bake",
+       "ar": "يخبز",
+       "sentence": "Do you want to bake a cake?",
+       "sentenceAr": "هل تريد أن تخبز كعكة؟",
+       "page": "49"
+      },
+      {
+       "en": "butter",
+       "ar": "زبدة",
+       "sentence": "Melt the butter in a pan.",
+       "sentenceAr": "ذوّب الزبدة في المقلاة.",
+       "page": "47"
+      },
+      {
+       "en": "cookies",
+       "ar": "بسكويت",
+       "sentence": "If you don't like cookies, bake a cake.",
+       "sentenceAr": "إذا كنت لا تحب البسكويت، فاخبز كعكة.",
+       "page": "53"
+      },
+      {
+       "en": "countertop",
+       "ar": "سطح المطبخ",
+       "sentence": "She puts her ingredients on the countertop ready to bake.",
+       "sentenceAr": "تضع مكوّناتها على سطح المطبخ لتكون جاهزة للخبز.",
+       "page": "50"
+      },
+      {
+       "en": "cut",
+       "ar": "يقطع",
+       "sentence": "Cut the apple into small pieces.",
+       "sentenceAr": "اقطع التفاحة إلى قطع صغيرة."
+      },
+      {
+       "en": "dough",
+       "ar": "عجين",
+       "sentence": "It’s a dough with filling in it.",
+       "sentenceAr": "إنها عجينة بداخلها حشوة.",
+       "page": "47"
+      },
+      {
+       "en": "enough",
+       "ar": "كافٍ",
+       "sentence": "You should eat enough fruit and vegetables.",
+       "sentenceAr": "يجب أن تتناول ما يكفي من الفواكه والخضراوات.",
+       "page": "54"
+      },
+      {
+       "en": "fetch",
+       "ar": "يُحضر",
+       "sentence": "Fetch your ingredients now!",
+       "sentenceAr": "أحضر مكوّناتك الآن!",
+       "page": "46"
+      },
+      {
+       "en": "flour",
+       "ar": "دقيق",
+       "sentence": "I add more flour if the dough is wet.",
+       "sentenceAr": "أضيف المزيد من الدقيق إذا كانت العجينة رطبة.",
+       "page": "53"
+      },
+      {
+       "en": "honey",
+       "ar": "عسل",
+       "sentence": "If we don’t have sugar, we use honey.",
+       "sentenceAr": "إذا لم يكن لدينا سكر، فنحن نستخدم العسل.",
+       "page": "53"
+      },
+      {
+       "en": "ingredients",
+       "ar": "مكوّنات",
+       "sentence": "You should use fresh ingredients.",
+       "sentenceAr": "يجب أن تستخدم مكوّنات طازجة.",
+       "page": "54"
+      },
+      {
+       "en": "measure",
+       "ar": "يقيس",
+       "sentence": "If you measure food, you have enough.",
+       "sentenceAr": "إذا قست الطعام، فسيكون لديك ما يكفي.",
+       "page": "53"
+      },
+      {
+       "en": "mix",
+       "ar": "يخلط",
+       "sentence": "I think you mix flour and eggs.",
+       "sentenceAr": "أعتقد أنك تخلط الدقيق والبيض.",
+       "page": "47"
+      },
+      {
+       "en": "pour",
+       "ar": "يسكب",
+       "sentence": "Keep stirring while I pour the sauce.",
+       "sentenceAr": "استمر في التحريك بينما أسكب الصلصة.",
+       "page": "52"
+      },
+      {
+       "en": "recipe",
+       "ar": "وصفة طعام",
+       "sentence": "We had better check the recipe again.",
+       "sentenceAr": "من الأفضل أن نتحقق من الوصفة مرة أخرى.",
+       "page": "48"
+      },
+      {
+       "en": "roll",
+       "ar": "يفرد (العجين)",
+       "sentence": "Roll the dough on the table.",
+       "sentenceAr": "افرد العجينة على الطاولة."
+      },
+      {
+       "en": "smell",
+       "ar": "رائحة / يشمّ",
+       "sentence": "What's that smell?",
+       "sentenceAr": "ما هذه الرائحة؟",
+       "page": "50"
+      },
+      {
+       "en": "snack",
+       "ar": "وجبة خفيفة",
+       "sentence": "Make your favorite snack.",
+       "sentenceAr": "اصنع وجبتك الخفيفة المفضلة.",
+       "page": "46"
+      },
+      {
+       "en": "stir",
+       "ar": "يحرّك",
+       "sentence": "If it doesn’t taste great, I stir in more salt.",
+       "sentenceAr": "إذا لم يكن مذاقه رائعًا، أحرّك فيه المزيد من الملح.",
+       "page": "53"
+      },
+      {
+       "en": "sugar",
+       "ar": "سكر",
+       "sentence": "Should I use sugar in the mixture?",
+       "sentenceAr": "هل يجب أن أستخدم السكر في الخليط؟",
+       "page": "48"
+      },
+      {
+       "en": "taste",
+       "ar": "يتذوّق",
+       "sentence": "Vegetables taste great if you cook them properly.",
+       "sentenceAr": "يكون مذاق الخضراوات رائعًا إذا طهوتها جيدًا.",
+       "page": "56"
+      },
+      {
+       "en": "topping",
+       "ar": "إضافة للتزيين",
+       "sentence": "Add some fruit as a sweet topping.",
+       "sentenceAr": "أضف بعض الفاكهة كإضافة حلوة للتزيين."
+      },
+      {
+       "en": "yogurt",
+       "ar": "زبادي",
+       "sentence": "Dairy products include milk, yogurt, and cheese.",
+       "sentenceAr": "تشمل منتجات الألبان الحليب والزبادي والجبن.",
+       "page": "56"
+      }
+     ]
     }
    ]
   },
