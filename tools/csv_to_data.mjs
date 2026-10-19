@@ -92,10 +92,6 @@ function main(csvPath, outPath, allGrades, sample) {
     count++;
   });
 
-  // ترتيب الوحدات حسب رقمها (الوحدات غير الرقمية تبقى بترتيب ظهورها)
-  const num = u => { const m = /^u(\d+)$/.exec(u.id); return m ? Number(m[1]) : Infinity; };
-  for (const g of Object.values(out)) g.units = g.units.map((u, i) => [u, i]).sort((a, b) => (num(a[0]) - num(b[0])) || (a[1] - b[1])).map(x => x[0]);
-
   // version يتغير مع كل توليد، فيعرف التطبيق أن هناك كلمات أحدث من النسخة المحفوظة على الجهاز
   const d = new Date();
   const p = x => String(x).padStart(2, '0');

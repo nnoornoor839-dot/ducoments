@@ -1,6 +1,6 @@
 // ملف مُولَّد تلقائيًا بواسطة tools/csv_to_data.py — لا تعدّله يدويًا
 window.CURRICULUM = {
- "version": "202610192301",
+ "version": "202610192304",
  "grades": [
   {
    "id": "t1",
@@ -891,199 +891,6 @@ window.CURRICULUM = {
    "short": "2 متوسط",
    "units": [
     {
-     "id": "u1",
-     "title": "Unit 1: Are You Here on Vacation?",
-     "words": [
-      {
-       "en": "address",
-       "ar": "عنوان",
-       "sentence": "What's your address in this country?",
-       "sentenceAr": "ما هو عنوانك في هذا البلد؟",
-       "page": "6"
-      },
-      {
-       "en": "age",
-       "ar": "العمر",
-       "sentence": "Please write your age on the form.",
-       "sentenceAr": "يرجى كتابة عمرك على النموذج."
-      },
-      {
-       "en": "credit card",
-       "ar": "بطاقة ائتمانية",
-       "sentence": "May I have your credit card, please?",
-       "sentenceAr": "هل يمكنني الحصول على بطاقتك الائتمانية، من فضلك؟",
-       "page": "6"
-      },
-      {
-       "en": "date of birth",
-       "ar": "تاريخ الميلاد",
-       "sentence": "Please write your date of birth here.",
-       "sentenceAr": "يرجى كتابة تاريخ ميلادك هنا."
-      },
-      {
-       "en": "elevator",
-       "ar": "مصعد",
-       "sentence": "Behind the elevators, on your right.",
-       "sentenceAr": "خلف المصاعد، على يمينك.",
-       "page": "2",
-       "form": "elevators"
-      },
-      {
-       "en": "email address",
-       "ar": "عنوان البريد الإلكتروني",
-       "sentence": "Please write your email address here.",
-       "sentenceAr": "يرجى كتابة عنوان بريدك الإلكتروني هنا."
-      },
-      {
-       "en": "festival",
-       "ar": "مهرجان",
-       "sentence": "Are you here for the festival?",
-       "sentenceAr": "هل أنت هنا من أجل المهرجان؟",
-       "page": "2"
-      },
-      {
-       "en": "first name",
-       "ar": "الاسم الأول",
-       "sentence": "Please write your first name here.",
-       "sentenceAr": "يرجى كتابة اسمك الأول هنا."
-      },
-      {
-       "en": "form",
-       "ar": "نموذج",
-       "sentence": "Please fill in this form.",
-       "sentenceAr": "من فضلك املأ هذا النموذج.",
-       "page": "6"
-      },
-      {
-       "en": "hotel",
-       "ar": "فندق",
-       "sentence": "He's checking into the hotel.",
-       "sentenceAr": "إنه يسجل دخوله إلى الفندق.",
-       "page": "3"
-      },
-      {
-       "en": "key card",
-       "ar": "بطاقة المفتاح",
-       "sentence": "Here's your key card.",
-       "sentenceAr": "إليك بطاقة المفتاح الخاصة بك.",
-       "page": "6"
-      },
-      {
-       "en": "last name",
-       "ar": "الاسم الأخير",
-       "sentence": "How do you spell your last name?",
-       "sentenceAr": "كيف تتهجى اسمك الأخير؟",
-       "page": "2"
-      },
-      {
-       "en": "nationality",
-       "ar": "الجنسية",
-       "sentence": "Please write your nationality on the form.",
-       "sentenceAr": "يرجى كتابة جنسيتك على النموذج."
-      },
-      {
-       "en": "nickname",
-       "ar": "اللقب",
-       "sentence": "His nickname is Pancho.",
-       "sentenceAr": "لقبه هو بانشو.",
-       "page": "3"
-      },
-      {
-       "en": "occupation",
-       "ar": "المهنة",
-       "sentence": "What is your father's occupation?",
-       "sentenceAr": "ما هي مهنة والدك؟"
-      },
-      {
-       "en": "participant",
-       "ar": "مشارك",
-       "sentence": "Welcome all participants!",
-       "sentenceAr": "مرحباً بجميع المشاركين!",
-       "page": "2",
-       "form": "participants"
-      },
-      {
-       "en": "reception desk",
-       "ar": "مكتب الاستقبال",
-       "sentence": "He's there near the reception desk.",
-       "sentenceAr": "إنه هناك بالقرب من مكتب الاستقبال.",
-       "page": "4"
-      },
-      {
-       "en": "reservation",
-       "ar": "الحجز",
-       "sentence": "I have a reservation.",
-       "sentenceAr": "لدي حجز.",
-       "page": "6"
-      },
-      {
-       "en": "spelling",
-       "ar": "التهجئة",
-       "sentence": "Please check the spelling of your name.",
-       "sentenceAr": "يرجى التحقق من تهجئة اسمك."
-      },
-      {
-       "en": "telephone number",
-       "ar": "رقم الهاتف",
-       "sentence": "What is your address and telephone number?",
-       "sentenceAr": "ما هو عنوانك ورقم هاتفك؟",
-       "page": "8"
-      },
-      {
-       "en": "check into",
-       "ar": "يسجّل دخوله (إلى الفندق)",
-       "sentence": "He's checking into the hotel.",
-       "sentenceAr": "إنه يسجل دخوله إلى الفندق.",
-       "page": "3",
-       "form": "checking into"
-      },
-      {
-       "en": "fill in",
-       "ar": "يملأ",
-       "sentence": "Please fill in this form.",
-       "sentenceAr": "من فضلك املأ هذا النموذج.",
-       "page": "6"
-      },
-      {
-       "en": "greet",
-       "ar": "يحيّي",
-       "sentence": "Greet someone you know.",
-       "sentenceAr": "حيِّ شخصاً تعرفه.",
-       "page": "3"
-      },
-      {
-       "en": "introduce",
-       "ar": "يقدّم (يعرّف بـ)",
-       "sentence": "Lee, I'd like to introduce you to Joe.",
-       "sentenceAr": "لي، أود أن أقدمك إلى جو.",
-       "page": "3"
-      },
-      {
-       "en": "pay",
-       "ar": "يدفع مقابل",
-       "sentence": "How is he paying for the hotel?",
-       "sentenceAr": "كيف يدفع مقابل الفندق؟",
-       "page": "6",
-       "form": "paying"
-      },
-      {
-       "en": "spell",
-       "ar": "يتهجّى",
-       "sentence": "How do you spell your last name?",
-       "sentenceAr": "كيف تتهجى اسمك الأخير؟",
-       "page": "2"
-      },
-      {
-       "en": "stay",
-       "ar": "يمكث / يقيم",
-       "sentence": "How long are you staying with us?",
-       "sentenceAr": "كم مدة إقامتك معنا؟",
-       "page": "6",
-       "form": "staying"
-      }
-     ]
-    },
-    {
      "id": "u2",
      "title": "Unit 2: What Are They Making?",
      "words": [
@@ -1899,6 +1706,199 @@ window.CURRICULUM = {
        "sentence": "She usually goes shopping.",
        "sentenceAr": "هي عادةً تذهب للتسوق.",
        "page": "28"
+      }
+     ]
+    },
+    {
+     "id": "u1",
+     "title": "Unit 1: Are You Here on Vacation?",
+     "words": [
+      {
+       "en": "address",
+       "ar": "عنوان",
+       "sentence": "What's your address in this country?",
+       "sentenceAr": "ما هو عنوانك في هذا البلد؟",
+       "page": "6"
+      },
+      {
+       "en": "age",
+       "ar": "العمر",
+       "sentence": "Please write your age on the form.",
+       "sentenceAr": "يرجى كتابة عمرك على النموذج."
+      },
+      {
+       "en": "credit card",
+       "ar": "بطاقة ائتمانية",
+       "sentence": "May I have your credit card, please?",
+       "sentenceAr": "هل يمكنني الحصول على بطاقتك الائتمانية، من فضلك؟",
+       "page": "6"
+      },
+      {
+       "en": "date of birth",
+       "ar": "تاريخ الميلاد",
+       "sentence": "Please write your date of birth here.",
+       "sentenceAr": "يرجى كتابة تاريخ ميلادك هنا."
+      },
+      {
+       "en": "elevator",
+       "ar": "مصعد",
+       "sentence": "Behind the elevators, on your right.",
+       "sentenceAr": "خلف المصاعد، على يمينك.",
+       "page": "2",
+       "form": "elevators"
+      },
+      {
+       "en": "email address",
+       "ar": "عنوان البريد الإلكتروني",
+       "sentence": "Please write your email address here.",
+       "sentenceAr": "يرجى كتابة عنوان بريدك الإلكتروني هنا."
+      },
+      {
+       "en": "festival",
+       "ar": "مهرجان",
+       "sentence": "Are you here for the festival?",
+       "sentenceAr": "هل أنت هنا من أجل المهرجان؟",
+       "page": "2"
+      },
+      {
+       "en": "first name",
+       "ar": "الاسم الأول",
+       "sentence": "Please write your first name here.",
+       "sentenceAr": "يرجى كتابة اسمك الأول هنا."
+      },
+      {
+       "en": "form",
+       "ar": "نموذج",
+       "sentence": "Please fill in this form.",
+       "sentenceAr": "من فضلك املأ هذا النموذج.",
+       "page": "6"
+      },
+      {
+       "en": "hotel",
+       "ar": "فندق",
+       "sentence": "He's checking into the hotel.",
+       "sentenceAr": "إنه يسجل دخوله إلى الفندق.",
+       "page": "3"
+      },
+      {
+       "en": "key card",
+       "ar": "بطاقة المفتاح",
+       "sentence": "Here's your key card.",
+       "sentenceAr": "إليك بطاقة المفتاح الخاصة بك.",
+       "page": "6"
+      },
+      {
+       "en": "last name",
+       "ar": "الاسم الأخير",
+       "sentence": "How do you spell your last name?",
+       "sentenceAr": "كيف تتهجى اسمك الأخير؟",
+       "page": "2"
+      },
+      {
+       "en": "nationality",
+       "ar": "الجنسية",
+       "sentence": "Please write your nationality on the form.",
+       "sentenceAr": "يرجى كتابة جنسيتك على النموذج."
+      },
+      {
+       "en": "nickname",
+       "ar": "اللقب",
+       "sentence": "His nickname is Pancho.",
+       "sentenceAr": "لقبه هو بانشو.",
+       "page": "3"
+      },
+      {
+       "en": "occupation",
+       "ar": "المهنة",
+       "sentence": "What is your father's occupation?",
+       "sentenceAr": "ما هي مهنة والدك؟"
+      },
+      {
+       "en": "participant",
+       "ar": "مشارك",
+       "sentence": "Welcome all participants!",
+       "sentenceAr": "مرحباً بجميع المشاركين!",
+       "page": "2",
+       "form": "participants"
+      },
+      {
+       "en": "reception desk",
+       "ar": "مكتب الاستقبال",
+       "sentence": "He's there near the reception desk.",
+       "sentenceAr": "إنه هناك بالقرب من مكتب الاستقبال.",
+       "page": "4"
+      },
+      {
+       "en": "reservation",
+       "ar": "الحجز",
+       "sentence": "I have a reservation.",
+       "sentenceAr": "لدي حجز.",
+       "page": "6"
+      },
+      {
+       "en": "spelling",
+       "ar": "التهجئة",
+       "sentence": "Please check the spelling of your name.",
+       "sentenceAr": "يرجى التحقق من تهجئة اسمك."
+      },
+      {
+       "en": "telephone number",
+       "ar": "رقم الهاتف",
+       "sentence": "What is your address and telephone number?",
+       "sentenceAr": "ما هو عنوانك ورقم هاتفك؟",
+       "page": "8"
+      },
+      {
+       "en": "check into",
+       "ar": "يسجّل دخوله (إلى الفندق)",
+       "sentence": "He's checking into the hotel.",
+       "sentenceAr": "إنه يسجل دخوله إلى الفندق.",
+       "page": "3",
+       "form": "checking into"
+      },
+      {
+       "en": "fill in",
+       "ar": "يملأ",
+       "sentence": "Please fill in this form.",
+       "sentenceAr": "من فضلك املأ هذا النموذج.",
+       "page": "6"
+      },
+      {
+       "en": "greet",
+       "ar": "يحيّي",
+       "sentence": "Greet someone you know.",
+       "sentenceAr": "حيِّ شخصاً تعرفه.",
+       "page": "3"
+      },
+      {
+       "en": "introduce",
+       "ar": "يقدّم (يعرّف بـ)",
+       "sentence": "Lee, I'd like to introduce you to Joe.",
+       "sentenceAr": "لي، أود أن أقدمك إلى جو.",
+       "page": "3"
+      },
+      {
+       "en": "pay",
+       "ar": "يدفع مقابل",
+       "sentence": "How is he paying for the hotel?",
+       "sentenceAr": "كيف يدفع مقابل الفندق؟",
+       "page": "6",
+       "form": "paying"
+      },
+      {
+       "en": "spell",
+       "ar": "يتهجّى",
+       "sentence": "How do you spell your last name?",
+       "sentenceAr": "كيف تتهجى اسمك الأخير؟",
+       "page": "2"
+      },
+      {
+       "en": "stay",
+       "ar": "يمكث / يقيم",
+       "sentence": "How long are you staying with us?",
+       "sentenceAr": "كم مدة إقامتك معنا؟",
+       "page": "6",
+       "form": "staying"
       }
      ]
     }

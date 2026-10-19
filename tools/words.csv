@@ -158,33 +158,6 @@ t1,3,Unit 3: P–Z,yo-yo,يو يو,I have a yo-yo.,لدي يو يو.,,
 t1,3,Unit 3: P–Z,yellow,أصفر,The sun is yellow.,الشمس صفراء.,,
 t1,3,Unit 3: P–Z,zoo,حديقة الحيوان,I like the zoo.,أحب حديقة الحيوان.,,
 t1,3,Unit 3: P–Z,zebra,حمار وحشي,I see a zebra.,أرى حمارًا وحشيًا.,,
-m2,1,Unit 1: Are You Here on Vacation?,address,عنوان,What's your address in this country?,ما هو عنوانك في هذا البلد؟,6,
-m2,1,Unit 1: Are You Here on Vacation?,age,العمر,Please write your age on the form.,يرجى كتابة عمرك على النموذج.,,
-m2,1,Unit 1: Are You Here on Vacation?,credit card,بطاقة ائتمانية,"May I have your credit card, please?",هل يمكنني الحصول على بطاقتك الائتمانية، من فضلك؟,6,
-m2,1,Unit 1: Are You Here on Vacation?,date of birth,تاريخ الميلاد,Please write your date of birth here.,يرجى كتابة تاريخ ميلادك هنا.,,
-m2,1,Unit 1: Are You Here on Vacation?,elevator,مصعد,"Behind the elevators, on your right.",خلف المصاعد، على يمينك.,2,elevators
-m2,1,Unit 1: Are You Here on Vacation?,email address,عنوان البريد الإلكتروني,Please write your email address here.,يرجى كتابة عنوان بريدك الإلكتروني هنا.,,
-m2,1,Unit 1: Are You Here on Vacation?,festival,مهرجان,Are you here for the festival?,هل أنت هنا من أجل المهرجان؟,2,
-m2,1,Unit 1: Are You Here on Vacation?,first name,الاسم الأول,Please write your first name here.,يرجى كتابة اسمك الأول هنا.,,
-m2,1,Unit 1: Are You Here on Vacation?,form,نموذج,Please fill in this form.,من فضلك املأ هذا النموذج.,6,
-m2,1,Unit 1: Are You Here on Vacation?,hotel,فندق,He's checking into the hotel.,إنه يسجل دخوله إلى الفندق.,3,
-m2,1,Unit 1: Are You Here on Vacation?,key card,بطاقة المفتاح,Here's your key card.,إليك بطاقة المفتاح الخاصة بك.,6,
-m2,1,Unit 1: Are You Here on Vacation?,last name,الاسم الأخير,How do you spell your last name?,كيف تتهجى اسمك الأخير؟,2,
-m2,1,Unit 1: Are You Here on Vacation?,nationality,الجنسية,Please write your nationality on the form.,يرجى كتابة جنسيتك على النموذج.,,
-m2,1,Unit 1: Are You Here on Vacation?,nickname,اللقب,His nickname is Pancho.,لقبه هو بانشو.,3,
-m2,1,Unit 1: Are You Here on Vacation?,occupation,المهنة,What is your father's occupation?,ما هي مهنة والدك؟,,
-m2,1,Unit 1: Are You Here on Vacation?,participant,مشارك,Welcome all participants!,مرحباً بجميع المشاركين!,2,participants
-m2,1,Unit 1: Are You Here on Vacation?,reception desk,مكتب الاستقبال,He's there near the reception desk.,إنه هناك بالقرب من مكتب الاستقبال.,4,
-m2,1,Unit 1: Are You Here on Vacation?,reservation,الحجز,I have a reservation.,لدي حجز.,6,
-m2,1,Unit 1: Are You Here on Vacation?,spelling,التهجئة,Please check the spelling of your name.,يرجى التحقق من تهجئة اسمك.,,
-m2,1,Unit 1: Are You Here on Vacation?,telephone number,رقم الهاتف,What is your address and telephone number?,ما هو عنوانك ورقم هاتفك؟,8,
-m2,1,Unit 1: Are You Here on Vacation?,check into,يسجّل دخوله (إلى الفندق),He's checking into the hotel.,إنه يسجل دخوله إلى الفندق.,3,checking into
-m2,1,Unit 1: Are You Here on Vacation?,fill in,يملأ,Please fill in this form.,من فضلك املأ هذا النموذج.,6,
-m2,1,Unit 1: Are You Here on Vacation?,greet,يحيّي,Greet someone you know.,حيِّ شخصاً تعرفه.,3,
-m2,1,Unit 1: Are You Here on Vacation?,introduce,يقدّم (يعرّف بـ),"Lee, I'd like to introduce you to Joe.",لي، أود أن أقدمك إلى جو.,3,
-m2,1,Unit 1: Are You Here on Vacation?,pay,يدفع مقابل,How is he paying for the hotel?,كيف يدفع مقابل الفندق؟,6,paying
-m2,1,Unit 1: Are You Here on Vacation?,spell,يتهجّى,How do you spell your last name?,كيف تتهجى اسمك الأخير؟,2,
-m2,1,Unit 1: Are You Here on Vacation?,stay,يمكث / يقيم,How long are you staying with us?,كم مدة إقامتك معنا؟,6,staying
 m2,3,Unit 3: Who's Who,advertisement,إعلان,Lee produces advertisements and designs websites.,ينتج «لي» إعلانات ويصمم مواقع إلكترونية.,19,advertisements
 m2,3,Unit 3: Who's Who,bridge,جسر,The company builds roads and bridges.,تبني الشركة طرقاً وجسوراً.,19,bridges
 m2,3,Unit 3: Who's Who,business management,إدارة الأعمال,So Hussain is studying business management in college at night.,لذلك يدرس حسين إدارة الأعمال في الكلية ليلاً.,18,
@@ -269,3 +242,30 @@ m2,4,Unit 4: Favorite Pastimes,often,غالبًا,Ali often works out.,علي غ
 m2,4,Unit 4: Favorite Pastimes,seldom,نادرًا,Teens seldom buy things online.,نادرًا ما يشتري المراهقون أشياء عبر الإنترنت.,27,
 m2,4,Unit 4: Favorite Pastimes,sometimes,أحيانًا,I sometimes go out.,أنا أخرج أحيانًا.,28,
 m2,4,Unit 4: Favorite Pastimes,usually,عادةً,She usually goes shopping.,هي عادةً تذهب للتسوق.,28,
+m2,1,Unit 1: Are You Here on Vacation?,address,عنوان,What's your address in this country?,ما هو عنوانك في هذا البلد؟,6,
+m2,1,Unit 1: Are You Here on Vacation?,age,العمر,Please write your age on the form.,يرجى كتابة عمرك على النموذج.,,
+m2,1,Unit 1: Are You Here on Vacation?,credit card,بطاقة ائتمانية,"May I have your credit card, please?",هل يمكنني الحصول على بطاقتك الائتمانية، من فضلك؟,6,
+m2,1,Unit 1: Are You Here on Vacation?,date of birth,تاريخ الميلاد,Please write your date of birth here.,يرجى كتابة تاريخ ميلادك هنا.,,
+m2,1,Unit 1: Are You Here on Vacation?,elevator,مصعد,"Behind the elevators, on your right.",خلف المصاعد، على يمينك.,2,elevators
+m2,1,Unit 1: Are You Here on Vacation?,email address,عنوان البريد الإلكتروني,Please write your email address here.,يرجى كتابة عنوان بريدك الإلكتروني هنا.,,
+m2,1,Unit 1: Are You Here on Vacation?,festival,مهرجان,Are you here for the festival?,هل أنت هنا من أجل المهرجان؟,2,
+m2,1,Unit 1: Are You Here on Vacation?,first name,الاسم الأول,Please write your first name here.,يرجى كتابة اسمك الأول هنا.,,
+m2,1,Unit 1: Are You Here on Vacation?,form,نموذج,Please fill in this form.,من فضلك املأ هذا النموذج.,6,
+m2,1,Unit 1: Are You Here on Vacation?,hotel,فندق,He's checking into the hotel.,إنه يسجل دخوله إلى الفندق.,3,
+m2,1,Unit 1: Are You Here on Vacation?,key card,بطاقة المفتاح,Here's your key card.,إليك بطاقة المفتاح الخاصة بك.,6,
+m2,1,Unit 1: Are You Here on Vacation?,last name,الاسم الأخير,How do you spell your last name?,كيف تتهجى اسمك الأخير؟,2,
+m2,1,Unit 1: Are You Here on Vacation?,nationality,الجنسية,Please write your nationality on the form.,يرجى كتابة جنسيتك على النموذج.,,
+m2,1,Unit 1: Are You Here on Vacation?,nickname,اللقب,His nickname is Pancho.,لقبه هو بانشو.,3,
+m2,1,Unit 1: Are You Here on Vacation?,occupation,المهنة,What is your father's occupation?,ما هي مهنة والدك؟,,
+m2,1,Unit 1: Are You Here on Vacation?,participant,مشارك,Welcome all participants!,مرحباً بجميع المشاركين!,2,participants
+m2,1,Unit 1: Are You Here on Vacation?,reception desk,مكتب الاستقبال,He's there near the reception desk.,إنه هناك بالقرب من مكتب الاستقبال.,4,
+m2,1,Unit 1: Are You Here on Vacation?,reservation,الحجز,I have a reservation.,لدي حجز.,6,
+m2,1,Unit 1: Are You Here on Vacation?,spelling,التهجئة,Please check the spelling of your name.,يرجى التحقق من تهجئة اسمك.,,
+m2,1,Unit 1: Are You Here on Vacation?,telephone number,رقم الهاتف,What is your address and telephone number?,ما هو عنوانك ورقم هاتفك؟,8,
+m2,1,Unit 1: Are You Here on Vacation?,check into,يسجّل دخوله (إلى الفندق),He's checking into the hotel.,إنه يسجل دخوله إلى الفندق.,3,checking into
+m2,1,Unit 1: Are You Here on Vacation?,fill in,يملأ,Please fill in this form.,من فضلك املأ هذا النموذج.,6,
+m2,1,Unit 1: Are You Here on Vacation?,greet,يحيّي,Greet someone you know.,حيِّ شخصاً تعرفه.,3,
+m2,1,Unit 1: Are You Here on Vacation?,introduce,يقدّم (يعرّف بـ),"Lee, I'd like to introduce you to Joe.",لي، أود أن أقدمك إلى جو.,3,
+m2,1,Unit 1: Are You Here on Vacation?,pay,يدفع مقابل,How is he paying for the hotel?,كيف يدفع مقابل الفندق؟,6,paying
+m2,1,Unit 1: Are You Here on Vacation?,spell,يتهجّى,How do you spell your last name?,كيف تتهجى اسمك الأخير؟,2,
+m2,1,Unit 1: Are You Here on Vacation?,stay,يمكث / يقيم,How long are you staying with us?,كم مدة إقامتك معنا؟,6,staying
