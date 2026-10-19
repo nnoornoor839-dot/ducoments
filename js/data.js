@@ -1,6 +1,6 @@
 // ملف مُولَّد تلقائيًا بواسطة tools/csv_to_data.py — لا تعدّله يدويًا
 window.CURRICULUM = {
- "version": "202610192323",
+ "version": "202610192341",
  "grades": [
   {
    "id": "t1",
@@ -1230,6 +1230,528 @@ window.CURRICULUM = {
        "page": "24"
       }
      ]
+    },
+    {
+     "id": "u3",
+     "title": "Unit 3: Interests",
+     "words": [
+      {
+       "en": "bored",
+       "ar": "يشعر بالملل",
+       "sentence": "I feel bored when I have nothing to do.",
+       "sentenceAr": "أشعر بالملل عندما لا يكون عندي شيء أفعله."
+      },
+      {
+       "en": "chess",
+       "ar": "شطرنج",
+       "sentence": "I've also taken some chess classes.",
+       "sentenceAr": "لقد أخذت أيضاً بعض دروس الشطرنج.",
+       "page": "42"
+      },
+      {
+       "en": "classical",
+       "ar": "كلاسيكي",
+       "sentence": "His classmates don't listen to classical music.",
+       "sentenceAr": "زملاؤه في الفصل لا يستمعون إلى الموسيقى الكلاسيكية.",
+       "page": "38"
+      },
+      {
+       "en": "concert",
+       "ar": "حفلة موسيقية",
+       "sentence": "Play in a concert and invite your family!",
+       "sentenceAr": "اعزف في حفلة موسيقية وادعُ عائلتك!",
+       "page": "34"
+      },
+      {
+       "en": "drum",
+       "ar": "طبل",
+       "sentence": "What can you play a drum with?",
+       "sentenceAr": "بماذا يمكنك أن تعزف على الطبل؟",
+       "page": "44"
+      },
+      {
+       "en": "experiment",
+       "ar": "تجربة",
+       "sentence": "We did a science experiment at school.",
+       "sentenceAr": "أجرينا تجربة علمية في المدرسة."
+      },
+      {
+       "en": "festival",
+       "ar": "مهرجان",
+       "sentence": "Janadriyah is a festival to celebrate Saudi culture.",
+       "sentenceAr": "الجنادرية هي مهرجان للاحتفال بالثقافة السعودية.",
+       "page": "44"
+      },
+      {
+       "en": "instrument",
+       "ar": "آلة موسيقية",
+       "sentence": "Learn to play an instrument!",
+       "sentenceAr": "تعلم أن تعزف على آلة موسيقية!",
+       "page": "34"
+      },
+      {
+       "en": "invitation",
+       "ar": "دعوة",
+       "sentence": "This is your invitation.",
+       "sentenceAr": "هذه هي دعوتك.",
+       "page": "34"
+      },
+      {
+       "en": "jazz",
+       "ar": "موسيقى الجاز",
+       "sentence": "How long have you liked jazz music?",
+       "sentenceAr": "منذ متى وأنت تحب موسيقى الجاز؟",
+       "page": "37"
+      },
+      {
+       "en": "join",
+       "ar": "ينضم",
+       "sentence": "Join our summer music program!",
+       "sentenceAr": "انضم إلى برنامجنا الموسيقي الصيفي!",
+       "page": "34"
+      },
+      {
+       "en": "magazine",
+       "ar": "مجلة",
+       "sentence": "Have you ever read a sports magazine?",
+       "sentenceAr": "هل قرأت يوماً مجلة رياضية؟",
+       "page": "41"
+      },
+      {
+       "en": "member",
+       "ar": "عضو",
+       "sentence": "Become a member of the summer music program today!",
+       "sentenceAr": "كن عضواً في برنامج الموسيقى الصيفي اليوم!",
+       "page": "34"
+      },
+      {
+       "en": "midday",
+       "ar": "منتصف النهار",
+       "sentence": "The sun is hot at midday.",
+       "sentenceAr": "الشمس حارة في منتصف النهار."
+      },
+      {
+       "en": "midnight",
+       "ar": "منتصف الليل",
+       "sentence": "I always sleep before midnight.",
+       "sentenceAr": "أنا دائماً أنام قبل منتصف الليل."
+      },
+      {
+       "en": "online",
+       "ar": "عبر الإنترنت",
+       "sentence": "Some put videos online, and soon famous musicians want to make him a star!",
+       "sentenceAr": "نشر البعض مقاطع فيديو عبر الإنترنت، وسرعان ما أراد موسيقيون مشهورون أن يجعلوه نجماً!",
+       "page": "38"
+      },
+      {
+       "en": "oud",
+       "ar": "عود",
+       "sentence": "I also added a photo of my new oud!",
+       "sentenceAr": "أضفت أيضاً صورة لعودي الجديد!",
+       "page": "42"
+      },
+      {
+       "en": "poetry",
+       "ar": "شعر",
+       "sentence": "I love writing poetry about nature.",
+       "sentenceAr": "أحب كتابة الشعر عن الطبيعة.",
+       "page": "40"
+      },
+      {
+       "en": "prize",
+       "ar": "جائزة",
+       "sentence": "You may win a prize!",
+       "sentenceAr": "قد تفوز بجائزة!",
+       "page": "34"
+      },
+      {
+       "en": "program",
+       "ar": "برنامج",
+       "sentence": "Join our summer music program!",
+       "sentenceAr": "انضم إلى برنامجنا الموسيقي الصيفي!",
+       "page": "34"
+      },
+      {
+       "en": "puzzle",
+       "ar": "أحجية",
+       "sentence": "I like to solve this fun puzzle.",
+       "sentenceAr": "أحب أن أحل هذه الأحجية الممتعة."
+      },
+      {
+       "en": "pyramid",
+       "ar": "هرم",
+       "sentence": "There are around 2,500 pyramids in the world.",
+       "sentenceAr": "يوجد حوالي 2500 هرم في العالم.",
+       "page": "44",
+       "form": "pyramids"
+      },
+      {
+       "en": "stamp",
+       "ar": "طابع بريدي",
+       "sentence": "I'm not really interested in collecting stamps anymore.",
+       "sentenceAr": "لم أعد مهتماً بجمع الطوابع بعد الآن.",
+       "page": "42",
+       "form": "stamps"
+      },
+      {
+       "en": "traditional",
+       "ar": "تقليدي",
+       "sentence": "The band plays traditional music.",
+       "sentenceAr": "تعزف الفرقة موسيقى تقليدية.",
+       "page": "35"
+      },
+      {
+       "en": "tune",
+       "ar": "لحن",
+       "sentence": "Play your favorite tune!",
+       "sentenceAr": "اعزف لحنك المفضل!",
+       "page": "35"
+      },
+      {
+       "en": "violin",
+       "ar": "كمان",
+       "sentence": "Do you want to learn to play the violin?",
+       "sentenceAr": "هل تريد أن تتعلم العزف على الكمان؟",
+       "page": "35"
+      }
+     ]
+    },
+    {
+     "id": "u4",
+     "title": "Unit 4: Professions",
+     "words": [
+      {
+       "en": "AI specialist",
+       "ar": "أخصائي ذكاء اصطناعي",
+       "sentence": "An AI specialist works with smart computers.",
+       "sentenceAr": "يعمل أخصائي الذكاء الاصطناعي مع الحواسيب الذكية."
+      },
+      {
+       "en": "ambulance",
+       "ar": "سيارة إسعاف",
+       "sentence": "The ambulance arrived at the hospital quickly.",
+       "sentenceAr": "وصلت سيارة الإسعاف إلى المستشفى بسرعة."
+      },
+      {
+       "en": "artificial intelligence",
+       "ar": "الذكاء الاصطناعي",
+       "sentence": "The new city will use artificial intelligence, and robots will do a lot of the work.",
+       "sentenceAr": "ستستخدم المدينة الجديدة الذكاء الاصطناعي، وستقوم الروبوتات بالكثير من العمل.",
+       "page": "46"
+      },
+      {
+       "en": "astronaut",
+       "ar": "رائد فضاء",
+       "sentence": "I want to be an astronaut.",
+       "sentenceAr": "أريد أن أكون رائد فضاء.",
+       "page": "47"
+      },
+      {
+       "en": "business",
+       "ar": "أعمال",
+       "sentence": "My mom is a cybersecurity analyst who protects businesses from cyberattacks.",
+       "sentenceAr": "أمي محللة أمن سيبراني تحمي الأعمال من الهجمات السيبرانية.",
+       "page": "54",
+       "form": "businesses"
+      },
+      {
+       "en": "cybersecurity analyst",
+       "ar": "محلل أمن سيبراني",
+       "sentence": "My mom is a cybersecurity analyst who protects businesses from cyberattacks.",
+       "sentenceAr": "أمي محللة أمن سيبراني تحمي الأعمال من الهجمات السيبرانية.",
+       "page": "54"
+      },
+      {
+       "en": "design",
+       "ar": "يصمّم",
+       "sentence": "They need to design a new city.",
+       "sentenceAr": "إنهم بحاجة إلى تصميم مدينة جديدة.",
+       "page": "46"
+      },
+      {
+       "en": "earth",
+       "ar": "كوكب الأرض",
+       "sentence": "Astronauts help us understand planet Earth and space!",
+       "sentenceAr": "يساعدنا رواد الفضاء على فهم كوكب الأرض والفضاء!",
+       "page": "50"
+      },
+      {
+       "en": "fire",
+       "ar": "نار",
+       "sentence": "The fire in the camp was very hot.",
+       "sentenceAr": "كانت النار في المخيم حارة جداً."
+      },
+      {
+       "en": "fire station",
+       "ar": "محطة إطفاء",
+       "sentence": "The fire truck is at the fire station.",
+       "sentenceAr": "سيارة الإطفاء موجودة في محطة الإطفاء."
+      },
+      {
+       "en": "fire truck",
+       "ar": "سيارة إطفاء",
+       "sentence": "The fire truck which was parked outside didn’t move.",
+       "sentenceAr": "سيارة الإطفاء التي كانت متوقفة في الخارج لم تتحرك.",
+       "page": "53"
+      },
+      {
+       "en": "firefighter",
+       "ar": "رجل إطفاء",
+       "sentence": "The firefighter who was in the tree didn’t find the rabbit.",
+       "sentenceAr": "رجل الإطفاء الذي كان في الشجرة لم يجد الأرنب.",
+       "page": "53"
+      },
+      {
+       "en": "missing",
+       "ar": "مفقود",
+       "sentence": "The rabbit that was missing was under a car.",
+       "sentenceAr": "الأرنب الذي كان مفقوداً كان تحت سيارة.",
+       "page": "53"
+      },
+      {
+       "en": "planet",
+       "ar": "كوكب",
+       "sentence": "The journey to the new planet took a long time.",
+       "sentenceAr": "استغرقت الرحلة إلى الكوكب الجديد وقتاً طويلاً.",
+       "page": "49"
+      },
+      {
+       "en": "police officer",
+       "ar": "شرطي",
+       "sentence": "The police officer that found the rabbit was called Officer Marco.",
+       "sentenceAr": "ضابط الشرطة الذي وجد الأرنب كان يدعى الضابط ماركو.",
+       "page": "53"
+      },
+      {
+       "en": "police station",
+       "ar": "مركز شرطة",
+       "sentence": "The police officer works at the police station.",
+       "sentenceAr": "يعمل ضابط الشرطة في مركز الشرطة."
+      },
+      {
+       "en": "robotics engineer",
+       "ar": "مهندس روبوتات",
+       "sentence": "The robotics engineer tested the software while the robot was working.",
+       "sentenceAr": "اختبر مهندس الروبوتات البرنامج بينما كان الروبوت يعمل.",
+       "page": "49"
+      },
+      {
+       "en": "rocket",
+       "ar": "صاروخ",
+       "sentence": "What do you think being in a rocket is like?",
+       "sentenceAr": "كيف تعتقد أن يكون الشعور داخل الصاروخ؟",
+       "page": "47"
+      },
+      {
+       "en": "satellite",
+       "ar": "قمر صناعي",
+       "sentence": "The satellites sent the message, and the people were awake at the same time.",
+       "sentenceAr": "أرسلت الأقمار الصناعية الرسالة، وكان الناس مستيقظين في الوقت نفسه.",
+       "page": "48",
+       "form": "satellites"
+      },
+      {
+       "en": "space",
+       "ar": "فضاء",
+       "sentence": "She travels in space!",
+       "sentenceAr": "هي تسافر في الفضاء!",
+       "page": "50"
+      },
+      {
+       "en": "video message",
+       "ar": "رسالة فيديو",
+       "sentence": "We might get a video message from them!",
+       "sentenceAr": "قد نتلقى رسالة فيديو منهم!",
+       "page": "46"
+      }
+     ]
+    },
+    {
+     "id": "u1",
+     "title": "Unit 1: Living Things",
+     "words": [
+      {
+       "en": "beetle",
+       "ar": "خنفساء",
+       "sentence": "Amber looks at a small beetle standing on a leaf.",
+       "sentenceAr": "تنظر أمبر إلى خنفساء صغيرة تقف على ورقة شجر.",
+       "page": "14"
+      },
+      {
+       "en": "butterfly",
+       "ar": "فراشة",
+       "sentence": "Butterflies aren't seen in cold seasons.",
+       "sentenceAr": "لا تُرى الفراشات في الفصول الباردة.",
+       "page": "12",
+       "form": "Butterflies"
+      },
+      {
+       "en": "camel",
+       "ar": "جمل",
+       "sentence": "The desert is where camels live.",
+       "sentenceAr": "الصحراء هي المكان الذي تعيش فيه الجمال.",
+       "page": "17",
+       "form": "camels"
+      },
+      {
+       "en": "creature",
+       "ar": "مخلوق",
+       "sentence": "She is learning about creatures in school.",
+       "sentenceAr": "إنها تتعلم عن المخلوقات في المدرسة.",
+       "page": "14",
+       "form": "creatures"
+      },
+      {
+       "en": "desert",
+       "ar": "صحراء",
+       "sentence": "The desert is where camels live.",
+       "sentenceAr": "الصحراء هي المكان الذي تعيش فيه الجمال.",
+       "page": "17"
+      },
+      {
+       "en": "dinosaur",
+       "ar": "ديناصور",
+       "sentence": "That's not a dinosaur!",
+       "sentenceAr": "هذا ليس ديناصوراً!",
+       "page": "14"
+      },
+      {
+       "en": "eagle",
+       "ar": "نسر",
+       "sentence": "Up there is an eagle.",
+       "sentenceAr": "هناك في الأعلى يوجد نسر.",
+       "page": "16"
+      },
+      {
+       "en": "extinct",
+       "ar": "منقرض",
+       "sentence": "What animals are now extinct?",
+       "sentenceAr": "ما الحيوانات المنقرضة الآن؟",
+       "page": "21"
+      },
+      {
+       "en": "fur",
+       "ar": "فرو",
+       "sentence": "The fur on its back is very soft.",
+       "sentenceAr": "الفرو على ظهره ناعم جداً.",
+       "page": "16"
+      },
+      {
+       "en": "furry",
+       "ar": "ذو فرو",
+       "sentence": "I know cute furry foxes live outside, and in the wild they are found.",
+       "sentenceAr": "أعلم أن الثعالب اللطيفة ذات الفرو تعيش في الخارج، وتوجد في البرية.",
+       "page": "11"
+      },
+      {
+       "en": "heavy",
+       "ar": "ثقيل",
+       "sentence": "I know beetles are heavy and strong.",
+       "sentenceAr": "أعلم أن الخنافس ثقيلة وقوية.",
+       "page": "11"
+      },
+      {
+       "en": "insect",
+       "ar": "حشرة",
+       "sentence": "Beetles eat insects.",
+       "sentenceAr": "تأكل الخنافس الحشرات.",
+       "page": "12",
+       "form": "insects"
+      },
+      {
+       "en": "journey",
+       "ar": "رحلة",
+       "sentence": "That's where camels have long journeys.",
+       "sentenceAr": "هذا هو المكان الذي تخوض فيه الجمال رحلات طويلة.",
+       "page": "16",
+       "form": "journeys"
+      },
+      {
+       "en": "look after",
+       "ar": "يعتني بـ",
+       "sentence": "Zoologists study and look after animals.",
+       "sentenceAr": "يدرس علماء الحيوان الحيوانات ويعتنون بها.",
+       "page": "15"
+      },
+      {
+       "en": "look like",
+       "ar": "يشبه",
+       "sentence": "Cats look like small tigers.",
+       "sentenceAr": "القطط تشبه النمور الصغيرة."
+      },
+      {
+       "en": "nest",
+       "ar": "عش",
+       "sentence": "The tree is where it builds a nest to lay eggs.",
+       "sentenceAr": "الشجرة هي المكان الذي يبني فيه عُشاً ليضع البيض.",
+       "page": "16"
+      },
+      {
+       "en": "octopus",
+       "ar": "أخطبوط",
+       "sentence": "That's an octopus!",
+       "sentenceAr": "هذا أخطبوط!",
+       "page": "16"
+      },
+      {
+       "en": "pond",
+       "ar": "بركة",
+       "sentence": "The fish are in the pond.",
+       "sentenceAr": "الأسماك في البركة.",
+       "page": "16"
+      },
+      {
+       "en": "quiet",
+       "ar": "هادئ",
+       "sentence": "As they walk further, Oli holds Amber’s arm and tells her to be quiet.",
+       "sentenceAr": "بينما يواصلان السير، يمسك أولي بذراع أمبر ويخبرها أن تكون هادئة.",
+       "page": "14"
+      },
+      {
+       "en": "scratch",
+       "ar": "يخدش",
+       "sentence": "“You’re right! It must be a butterfly,” says Oli, scratching his head.",
+       "sentenceAr": "«أنتِ محقة! لا بد أنها فراشة»، قال أولي وهو يحك رأسه.",
+       "page": "14",
+       "form": "scratching"
+      },
+      {
+       "en": "swan",
+       "ar": "بجعة",
+       "sentence": "Look at the swan.",
+       "sentenceAr": "انظر إلى البجعة.",
+       "page": "16"
+      },
+      {
+       "en": "tortoise",
+       "ar": "سلحفاة",
+       "sentence": "A tortoise is found in the mountains.",
+       "sentenceAr": "توجد السلحفاة في الجبال.",
+       "page": "12"
+      },
+      {
+       "en": "touch",
+       "ar": "يلمس",
+       "sentence": "Can I touch it?",
+       "sentenceAr": "هل يمكنني لمسه؟",
+       "page": "16"
+      },
+      {
+       "en": "wild",
+       "ar": "بري",
+       "sentence": "People don’t see wild animals in houses.",
+       "sentenceAr": "لا يرى الناس الحيوانات البرية في المنازل.",
+       "page": "12"
+      },
+      {
+       "en": "wing",
+       "ar": "جناح",
+       "sentence": "It hurt its wing.",
+       "sentenceAr": "لقد جرح جناحه.",
+       "page": "16"
+      }
+     ],
+     "num": 5
     }
    ]
   },

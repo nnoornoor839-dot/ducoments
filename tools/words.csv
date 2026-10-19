@@ -318,3 +318,75 @@ g5,1,Unit 1: Personal Interests,unlucky,غير محظوظ,He was unlucky in the 
 g5,1,Unit 1: Personal Interests,untidy,غير مرتّب,Normally I have a very untidy room because I don't like cleaning it.,عادة ما تكون غرفتي غير مرتبة لأنني لا أحب تنظيفها.,18,,5
 g5,1,Unit 1: Personal Interests,unusual,غير مألوف,Here is an unusual result of doing origami.,إليك نتيجة غير مألوفة لممارسة الأوريغامي.,18,,5
 g5,1,Unit 1: Personal Interests,wonderful,رائع,We have a wonderful time!,نحن نقضي وقتًا رائعًا!,13,,5
+g6,3,Unit 3: Interests,bored,يشعر بالملل,I feel bored when I have nothing to do.,أشعر بالملل عندما لا يكون عندي شيء أفعله.,,
+g6,3,Unit 3: Interests,chess,شطرنج,I've also taken some chess classes.,لقد أخذت أيضاً بعض دروس الشطرنج.,42,
+g6,3,Unit 3: Interests,classical,كلاسيكي,His classmates don't listen to classical music.,زملاؤه في الفصل لا يستمعون إلى الموسيقى الكلاسيكية.,38,
+g6,3,Unit 3: Interests,concert,حفلة موسيقية,Play in a concert and invite your family!,اعزف في حفلة موسيقية وادعُ عائلتك!,34,
+g6,3,Unit 3: Interests,drum,طبل,What can you play a drum with?,بماذا يمكنك أن تعزف على الطبل؟,44,
+g6,3,Unit 3: Interests,experiment,تجربة,We did a science experiment at school.,أجرينا تجربة علمية في المدرسة.,,
+g6,3,Unit 3: Interests,festival,مهرجان,Janadriyah is a festival to celebrate Saudi culture.,الجنادرية هي مهرجان للاحتفال بالثقافة السعودية.,44,
+g6,3,Unit 3: Interests,instrument,آلة موسيقية,Learn to play an instrument!,تعلم أن تعزف على آلة موسيقية!,34,
+g6,3,Unit 3: Interests,invitation,دعوة,This is your invitation.,هذه هي دعوتك.,34,
+g6,3,Unit 3: Interests,jazz,موسيقى الجاز,How long have you liked jazz music?,منذ متى وأنت تحب موسيقى الجاز؟,37,
+g6,3,Unit 3: Interests,join,ينضم,Join our summer music program!,انضم إلى برنامجنا الموسيقي الصيفي!,34,
+g6,3,Unit 3: Interests,magazine,مجلة,Have you ever read a sports magazine?,هل قرأت يوماً مجلة رياضية؟,41,
+g6,3,Unit 3: Interests,member,عضو,Become a member of the summer music program today!,كن عضواً في برنامج الموسيقى الصيفي اليوم!,34,
+g6,3,Unit 3: Interests,midday,منتصف النهار,The sun is hot at midday.,الشمس حارة في منتصف النهار.,,
+g6,3,Unit 3: Interests,midnight,منتصف الليل,I always sleep before midnight.,أنا دائماً أنام قبل منتصف الليل.,,
+g6,3,Unit 3: Interests,online,عبر الإنترنت,"Some put videos online, and soon famous musicians want to make him a star!",نشر البعض مقاطع فيديو عبر الإنترنت، وسرعان ما أراد موسيقيون مشهورون أن يجعلوه نجماً!,38,
+g6,3,Unit 3: Interests,oud,عود,I also added a photo of my new oud!,أضفت أيضاً صورة لعودي الجديد!,42,
+g6,3,Unit 3: Interests,poetry,شعر,I love writing poetry about nature.,أحب كتابة الشعر عن الطبيعة.,40,
+g6,3,Unit 3: Interests,prize,جائزة,You may win a prize!,قد تفوز بجائزة!,34,
+g6,3,Unit 3: Interests,program,برنامج,Join our summer music program!,انضم إلى برنامجنا الموسيقي الصيفي!,34,
+g6,3,Unit 3: Interests,puzzle,أحجية,I like to solve this fun puzzle.,أحب أن أحل هذه الأحجية الممتعة.,,
+g6,3,Unit 3: Interests,pyramid,هرم,"There are around 2,500 pyramids in the world.",يوجد حوالي 2500 هرم في العالم.,44,pyramids
+g6,3,Unit 3: Interests,stamp,طابع بريدي,I'm not really interested in collecting stamps anymore.,لم أعد مهتماً بجمع الطوابع بعد الآن.,42,stamps
+g6,3,Unit 3: Interests,traditional,تقليدي,The band plays traditional music.,تعزف الفرقة موسيقى تقليدية.,35,
+g6,3,Unit 3: Interests,tune,لحن,Play your favorite tune!,اعزف لحنك المفضل!,35,
+g6,3,Unit 3: Interests,violin,كمان,Do you want to learn to play the violin?,هل تريد أن تتعلم العزف على الكمان؟,35,
+g6,4,Unit 4: Professions,AI specialist,أخصائي ذكاء اصطناعي,An AI specialist works with smart computers.,يعمل أخصائي الذكاء الاصطناعي مع الحواسيب الذكية.,,
+g6,4,Unit 4: Professions,ambulance,سيارة إسعاف,The ambulance arrived at the hospital quickly.,وصلت سيارة الإسعاف إلى المستشفى بسرعة.,,
+g6,4,Unit 4: Professions,artificial intelligence,الذكاء الاصطناعي,"The new city will use artificial intelligence, and robots will do a lot of the work.",ستستخدم المدينة الجديدة الذكاء الاصطناعي، وستقوم الروبوتات بالكثير من العمل.,46,
+g6,4,Unit 4: Professions,astronaut,رائد فضاء,I want to be an astronaut.,أريد أن أكون رائد فضاء.,47,
+g6,4,Unit 4: Professions,business,أعمال,My mom is a cybersecurity analyst who protects businesses from cyberattacks.,أمي محللة أمن سيبراني تحمي الأعمال من الهجمات السيبرانية.,54,businesses
+g6,4,Unit 4: Professions,cybersecurity analyst,محلل أمن سيبراني,My mom is a cybersecurity analyst who protects businesses from cyberattacks.,أمي محللة أمن سيبراني تحمي الأعمال من الهجمات السيبرانية.,54,
+g6,4,Unit 4: Professions,design,يصمّم,They need to design a new city.,إنهم بحاجة إلى تصميم مدينة جديدة.,46,
+g6,4,Unit 4: Professions,earth,كوكب الأرض,Astronauts help us understand planet Earth and space!,يساعدنا رواد الفضاء على فهم كوكب الأرض والفضاء!,50,
+g6,4,Unit 4: Professions,fire,نار,The fire in the camp was very hot.,كانت النار في المخيم حارة جداً.,,
+g6,4,Unit 4: Professions,fire station,محطة إطفاء,The fire truck is at the fire station.,سيارة الإطفاء موجودة في محطة الإطفاء.,,
+g6,4,Unit 4: Professions,fire truck,سيارة إطفاء,The fire truck which was parked outside didn’t move.,سيارة الإطفاء التي كانت متوقفة في الخارج لم تتحرك.,53,
+g6,4,Unit 4: Professions,firefighter,رجل إطفاء,The firefighter who was in the tree didn’t find the rabbit.,رجل الإطفاء الذي كان في الشجرة لم يجد الأرنب.,53,
+g6,4,Unit 4: Professions,missing,مفقود,The rabbit that was missing was under a car.,الأرنب الذي كان مفقوداً كان تحت سيارة.,53,
+g6,4,Unit 4: Professions,planet,كوكب,The journey to the new planet took a long time.,استغرقت الرحلة إلى الكوكب الجديد وقتاً طويلاً.,49,
+g6,4,Unit 4: Professions,police officer,شرطي,The police officer that found the rabbit was called Officer Marco.,ضابط الشرطة الذي وجد الأرنب كان يدعى الضابط ماركو.,53,
+g6,4,Unit 4: Professions,police station,مركز شرطة,The police officer works at the police station.,يعمل ضابط الشرطة في مركز الشرطة.,,
+g6,4,Unit 4: Professions,robotics engineer,مهندس روبوتات,The robotics engineer tested the software while the robot was working.,اختبر مهندس الروبوتات البرنامج بينما كان الروبوت يعمل.,49,
+g6,4,Unit 4: Professions,rocket,صاروخ,What do you think being in a rocket is like?,كيف تعتقد أن يكون الشعور داخل الصاروخ؟,47,
+g6,4,Unit 4: Professions,satellite,قمر صناعي,"The satellites sent the message, and the people were awake at the same time.",أرسلت الأقمار الصناعية الرسالة، وكان الناس مستيقظين في الوقت نفسه.,48,satellites
+g6,4,Unit 4: Professions,space,فضاء,She travels in space!,هي تسافر في الفضاء!,50,
+g6,4,Unit 4: Professions,video message,رسالة فيديو,We might get a video message from them!,قد نتلقى رسالة فيديو منهم!,46,
+g6,1,Unit 1: Living Things,beetle,خنفساء,Amber looks at a small beetle standing on a leaf.,تنظر أمبر إلى خنفساء صغيرة تقف على ورقة شجر.,14,,5
+g6,1,Unit 1: Living Things,butterfly,فراشة,Butterflies aren't seen in cold seasons.,لا تُرى الفراشات في الفصول الباردة.,12,Butterflies,5
+g6,1,Unit 1: Living Things,camel,جمل,The desert is where camels live.,الصحراء هي المكان الذي تعيش فيه الجمال.,17,camels,5
+g6,1,Unit 1: Living Things,creature,مخلوق,She is learning about creatures in school.,إنها تتعلم عن المخلوقات في المدرسة.,14,creatures,5
+g6,1,Unit 1: Living Things,desert,صحراء,The desert is where camels live.,الصحراء هي المكان الذي تعيش فيه الجمال.,17,,5
+g6,1,Unit 1: Living Things,dinosaur,ديناصور,That's not a dinosaur!,هذا ليس ديناصوراً!,14,,5
+g6,1,Unit 1: Living Things,eagle,نسر,Up there is an eagle.,هناك في الأعلى يوجد نسر.,16,,5
+g6,1,Unit 1: Living Things,extinct,منقرض,What animals are now extinct?,ما الحيوانات المنقرضة الآن؟,21,,5
+g6,1,Unit 1: Living Things,fur,فرو,The fur on its back is very soft.,الفرو على ظهره ناعم جداً.,16,,5
+g6,1,Unit 1: Living Things,furry,ذو فرو,"I know cute furry foxes live outside, and in the wild they are found.",أعلم أن الثعالب اللطيفة ذات الفرو تعيش في الخارج، وتوجد في البرية.,11,,5
+g6,1,Unit 1: Living Things,heavy,ثقيل,I know beetles are heavy and strong.,أعلم أن الخنافس ثقيلة وقوية.,11,,5
+g6,1,Unit 1: Living Things,insect,حشرة,Beetles eat insects.,تأكل الخنافس الحشرات.,12,insects,5
+g6,1,Unit 1: Living Things,journey,رحلة,That's where camels have long journeys.,هذا هو المكان الذي تخوض فيه الجمال رحلات طويلة.,16,journeys,5
+g6,1,Unit 1: Living Things,look after,يعتني بـ,Zoologists study and look after animals.,يدرس علماء الحيوان الحيوانات ويعتنون بها.,15,,5
+g6,1,Unit 1: Living Things,look like,يشبه,Cats look like small tigers.,القطط تشبه النمور الصغيرة.,,,5
+g6,1,Unit 1: Living Things,nest,عش,The tree is where it builds a nest to lay eggs.,الشجرة هي المكان الذي يبني فيه عُشاً ليضع البيض.,16,,5
+g6,1,Unit 1: Living Things,octopus,أخطبوط,That's an octopus!,هذا أخطبوط!,16,,5
+g6,1,Unit 1: Living Things,pond,بركة,The fish are in the pond.,الأسماك في البركة.,16,,5
+g6,1,Unit 1: Living Things,quiet,هادئ,"As they walk further, Oli holds Amber’s arm and tells her to be quiet.",بينما يواصلان السير، يمسك أولي بذراع أمبر ويخبرها أن تكون هادئة.,14,,5
+g6,1,Unit 1: Living Things,scratch,يخدش,"“You’re right! It must be a butterfly,” says Oli, scratching his head.",«أنتِ محقة! لا بد أنها فراشة»، قال أولي وهو يحك رأسه.,14,scratching,5
+g6,1,Unit 1: Living Things,swan,بجعة,Look at the swan.,انظر إلى البجعة.,16,,5
+g6,1,Unit 1: Living Things,tortoise,سلحفاة,A tortoise is found in the mountains.,توجد السلحفاة في الجبال.,12,,5
+g6,1,Unit 1: Living Things,touch,يلمس,Can I touch it?,هل يمكنني لمسه؟,16,,5
+g6,1,Unit 1: Living Things,wild,بري,People don’t see wild animals in houses.,لا يرى الناس الحيوانات البرية في المنازل.,12,,5
+g6,1,Unit 1: Living Things,wing,جناح,It hurt its wing.,لقد جرح جناحه.,16,,5
