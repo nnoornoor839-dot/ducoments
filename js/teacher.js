@@ -412,6 +412,12 @@ const Teacher = (() => {
 
       ${nickHtml}
 
+      <h3 class="section-title">${ic('volume')} تسجيلات قراءة الجمل</h3>
+      <div class="card" id="t-clips">
+        ${Store.syncState().cloud ? `<button class="btn" data-act="t-clips" data-id="${s.id}">${ic('play', 'sm')} عرض التسجيلات</button>
+        <p class="muted small">تُحفظ كل محاولة (حتى خمس لكل جملة) وتسمعها هنا. تُحذف حين تصفّر تقدم الطالب أو تحذفه.</p>` : '<p class="muted">تحتاج الربط السحابي.</p>'}
+      </div>
+
       <h3 class="section-title">${ic('ruler')} الإسناد التلقائي</h3>
       <p class="muted small">تُسند الكلمات للطالب تلقائيًا دفعة بعد دفعة. ينتقل لدفعته التالية حين يجتاز اختبار الدفعة بلا أخطاء أو يجتاز اختبار الحصالة بنسبة ١٠٠٪، وبعد آخر دفعة تبدأ الوحدة التالية.</p>
       <div class="card">${autoHtml}</div>
@@ -476,6 +482,33 @@ const Teacher = (() => {
       });
     }
   }
+
+  U.actions['t-clips'] = async el => {
+    const box = document.getElementById('t-clips');
+    if (!box) return;
+    box.innerHTML = '<p class="muted">جارٍ التحميل…</p>';
+    const r = await Store.studentClips(el.dataset.id);
+    if (!r || !r.ok) { box.innerHTML = `<p class="warn-text">تعذّر تحميل التسجيلات${r && r.error === 'auth' ? ' (ادخل من جديد)' : ''}. تأكد أن الدالة السحابية محدّثة.</p>`; return; }
+    if (!r.clips.length) { box.innerHTML = '<p class="muted">لا توجد تسجيلات بعد.</p>'; return; }
+    const by = {};
+    r.clips.forEach(c => { (by[c.wid] = by[c.wid] || []).push(c); });
+    box.innerHTML = Object.keys(by).map(wid => {
+      const w = Cur.word(wid);
+      const sentence = w ? w.sentence : '';
+      return `<div class="clip-group">
+        <div class="en sh-sent" dir="ltr">${esc(sentence || wid)}</div>
+        ${by[wid].sort((a, b) => a.n - b.n).map(c => {
+          const g = sentence ? Shadow.grade(sentence, c.heard).score : null;
+          return `<div class="clip-row">
+            <span class="clip-n">محاولة ${c.n}</span>
+            ${c.url ? `<audio controls preload="none" src="${esc(c.url)}"></audio>` : '<span class="muted small">الملف غير متاح</span>'}
+            ${g === null ? '' : `<b class="${g >= 5 ? 'ok' : 'miss'}">${g}/10</b>`}
+            <small class="en muted" dir="ltr">${esc(c.heard || '')}</small>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }).join('');
+  };
 
   // ---------- الإجراءات ----------
   async function copyText(text) {

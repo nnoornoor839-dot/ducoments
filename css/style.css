@@ -671,3 +671,11 @@ table.pv th, table.pv td { padding: .3rem .5rem; border-bottom: 1px solid var(--
 .sh-marks span { padding: 0 .15rem; border-radius: 6px; }
 .sh-marks .ok { color: #065F46; }
 .sh-marks .miss { color: #991B1B; background: var(--bad-soft); text-decoration: line-through; }
+
+/* تسجيلات الطلاب عند المعلم */
+.clip-group { display: grid; gap: .4rem; padding: .6rem 0; border-bottom: 1px dashed var(--line); }
+.clip-group:last-child { border-bottom: 0; }
+.clip-row { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.clip-row audio { max-width: 100%; height: 36px; }
+.clip-row b.ok { color: #065F46; }
+.clip-row b.miss { color: #991B1B; }

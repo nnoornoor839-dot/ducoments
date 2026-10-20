@@ -663,8 +663,24 @@ const Store = (() => {
       if (state.students[id]) { Object.assign(state.students[id], patch); save(); }
       return state.students[id] || null;
     },
+    // تسجيلات الطالب الصوتية (للمعلم): روابط مؤقتة للاستماع، أو حذف الملفات قبل تصفير الطالب/حذفه
+    async studentClips(id) {
+      const tok = teacherToken();
+      if (!cloud || !tok) return { error: 'auth' };
+      const fd = new FormData();
+      fd.append('token', tok); fd.append('action', 'sign'); fd.append('sid', id);
+      try { return await Cloud.fn('smart-responder', fd, 15000); } catch (e) { return { error: 'offline' }; }
+    },
+    async purgeClips(id) {
+      const tok = teacherToken();
+      if (!cloud || !tok) return;
+      const fd = new FormData();
+      fd.append('token', tok); fd.append('action', 'purge'); fd.append('sid', id);
+      try { await Cloud.fn('smart-responder', fd, 15000); } catch (e) { /* نكمل العملية */ }
+    },
     async deleteStudent(id) {
       if (cloud) {
+        await this.purgeClips(id);
         const r = await teacherCall('kal_teacher_delete', { p_id: id });
         if (r.error) return { error: r.error };
       }
@@ -677,6 +693,7 @@ const Store = (() => {
       const s = state.students[id];
       if (!s) return { error: 'not-found' };
       if (cloud) {
+        await this.purgeClips(id);
         const r = await teacherCall('kal_teacher_reset', { p_id: id });
         if (r.error) return { error: r.error };
         s.epoch = (s.epoch || 0) + 1;

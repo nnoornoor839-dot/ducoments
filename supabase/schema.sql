@@ -251,6 +251,7 @@ begin
   get diagnostics n = row_count;
   if n = 0 then return jsonb_build_object('error', 'not-found'); end if;
   delete from kalimati.shadow_tries where student_id = p_id;
+  delete from kalimati.shadow_clips where student_id = p_id;
   return jsonb_build_object('ok', true);
 end $$;
 
@@ -437,9 +438,9 @@ begin
 end $$;
 
 -- 3) بعد نجاح التعرف على الصوت: تُحسب المحاولة اليومية، وتُحسب محاولة الجملة إن سُمع كلام
-create or replace function public.kal_shadow_count(p_token text, p_wid text, p_try boolean) returns jsonb
+create or replace function public.kal_shadow_count(p_token text, p_wid text, p_try boolean, p_text text default '', p_ext text default 'webm') returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare sid text; today date; tries int := 0;
+declare sid text; today date; tries int := 0; fpath text := null; ext text;
 begin
   sid := kalimati.student_of(p_token);
   if sid is null then return jsonb_build_object('error', 'auth'); end if;
@@ -452,11 +453,43 @@ begin
     insert into kalimati.shadow_tries (student_id, wid, n) values (sid, p_wid, 1)
       on conflict (student_id, wid) do update set n = kalimati.shadow_tries.n + 1
     returning n into tries;
+    ext := case when coalesce(p_ext, '') ~ '^[a-z0-9]{2,4}$' then p_ext else 'webm' end;
+    fpath := sid || '/' || regexp_replace(p_wid, '[^A-Za-z0-9._-]', '_', 'g') || '/' || tries || '.' || ext;
+    insert into kalimati.shadow_clips (student_id, wid, n, path, heard)
+      values (sid, p_wid, tries, fpath, left(coalesce(p_text, ''), 400))
+      on conflict (student_id, wid, n) do update set path = excluded.path, heard = excluded.heard, at = now();
   else
     select t.n into tries from kalimati.shadow_tries t where t.student_id = sid and t.wid = p_wid;
   end if;
-  return jsonb_build_object('ok', true, 'tries', coalesce(tries, 0));
+  return jsonb_build_object('ok', true, 'tries', coalesce(tries, 0), 'path', fpath);
 end $$;
+
+-- 2) فهرس التسجيلات: ملف لكل محاولة (لكل جملة حتى خمس محاولات)
+create table if not exists kalimati.shadow_clips (
+  student_id text not null references kalimati.students(id) on delete cascade,
+  wid text not null,
+  n int not null,
+  path text not null,
+  heard text not null default '',
+  at timestamptz not null default now(),
+  primary key (student_id, wid, n)
+);
+alter table kalimati.shadow_clips enable row level security;
+revoke all on kalimati.shadow_clips from anon, authenticated;
+
+-- 4) للمعلم: قائمة تسجيلات طالب (تستدعيها دالة Edge لإنشاء روابط الاستماع)
+create or replace function public.kal_teacher_clips(p_token text, p_id text) returns jsonb
+language plpgsql security definer set search_path = '' as $$
+begin
+  if not kalimati.is_teacher(p_token) then return jsonb_build_object('error', 'auth'); end if;
+  return jsonb_build_object('ok', true, 'clips', coalesce((
+    select jsonb_agg(jsonb_build_object('wid', c.wid, 'n', c.n, 'path', c.path, 'heard', c.heard, 'at', c.at) order by c.wid, c.n)
+      from kalimati.shadow_clips c where c.student_id = p_id), '[]'::jsonb));
+end $$;
+
+-- مساحة تخزين خاصة لتسجيلات الطلاب (لا يصل إليها إلا الخادم)
+insert into storage.buckets (id, name, public) values ('shadow', 'shadow', false)
+  on conflict (id) do update set public = false;
 
 -- ---------- الصلاحيات: دوال kal_* فقط للـAPI ----------
 
