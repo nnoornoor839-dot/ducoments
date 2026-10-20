@@ -7,6 +7,33 @@ const Teacher = (() => {
   function idleDays(s) { return s.lastActive ? U.dayDiff(s.lastActive, U.ymd()) : Infinity; }
   const needsFollowUp = s => idleDays(s) >= IDLE_DAYS;
 
+  // حالة الطالب في دفعته الحالية: هل دخل الكلمات؟ هل اختبر؟ درجته وأخطاؤه
+  function monitorOf(s, g) {
+    const units = g ? g.units : [];
+    let cur = null;
+    for (const u of units) {
+      const r = Progress.rangeOf(s, u);
+      if (!r) continue;
+      cur = { u, r };
+      if (!(r[1] >= u.words.length && Progress.batchCleared(s, u))) break;
+    }
+    if (!cur) return { started: false, state: 'none', wrong: [] };
+    const { u } = cur;
+    const batch = Progress.batchOf(s, u);
+    const lt = Progress.unitStats(s, u).lastTest;
+    const seen = batch.filter(w => s.words[w.id] && s.words[w.id].seen > 0).length;
+    const testedN = lt && lt.tested ? batch.filter(w => lt.tested.indexOf(w.id) >= 0).length : 0;
+    const cleared = Progress.batchCleared(s, u);
+    const wrong = Store.getWrongWords(s, g.id, u.id);
+    const finished = cur.r[1] >= u.words.length && cleared;
+    const entered = seen > 0 || testedN > 0;
+    const state = finished ? 'done' : cleared ? 'cleared' : testedN ? 'retry' : entered ? 'practice' : 'none';
+    return { started: true, unit: u, batchN: batch.length, seen, testedN, entered, tested: testedN > 0, cleared, finished, wrong, state, score: lt && testedN ? lt : null };
+  }
+  const STATE_LABEL = { none: 'لم يدخل الكلمات', practice: 'تدرّب ولم يختبر', retry: 'اختبر وعنده أخطاء', cleared: 'أنجز دفعته', done: 'أنهى الوحدة' };
+  const STATE_CLASS = { none: 'bad', practice: 'warn', retry: 'warn', cleared: 'good', done: 'good' };
+  const wrongLis = list => list.map(w => `<li><b class="en" dir="ltr">${esc(w.en)}</b> <span class="muted">${esc(w.ar || '')}</span></li>`).join('');
+
   function gradeName(id) { return (Cur.grade(id) || {}).name || ''; }
 
   const AUTH_ERRORS = {
@@ -136,37 +163,50 @@ const Teacher = (() => {
     const builtIn = ((window.CURRICULUM || {}).grades || []).some(x => x.id === g.id);
     const canDelete = !builtIn && !students.length && !g.units.length;
 
+    const mons = new Map(students.map(s => [s.id, monitorOf(s, g)]));
     const rows = students.map(s => {
       const gs = Progress.gradeStats(s, g);
       const late = needsFollowUp(s);
+      const m = mons.get(s.id);
+      const errN = m.wrong.length;
+      const dash = '<span class="muted">—</span>';
+      const yn = (ok, n) => ok ? `<span class="st good">نعم</span><small class="muted">${n}/${m.batchN}</small>` : '<span class="st bad">لا</span>';
+      const score = m.score ? `<b>${m.score.correct}/${m.score.total}</b><small class="muted">${U.ago(m.score.date)}</small>` : dash;
       return `
-        <button class="t-student ${late ? 'late' : ''}" data-go="#/teacher/s/${s.id}" data-name="${esc(s.name)}" data-today="${s.lastActive === today}" data-late="${late}">
-          <span class="t-main">
+        <div class="t-student t-mon ${late ? 'late' : ''}" data-name="${esc(s.name)}" data-today="${s.lastActive === today}" data-late="${late}" data-untested="${m.started && !m.tested && !m.finished}" data-errors="${errN > 0}">
+          <div class="tm-name" data-go="#/teacher/s/${s.id}" role="button" tabindex="0">
             <b>${esc(s.name)}</b>
-            <small>${gs.total ? `${gs.total} كلمة مسندة` : '<span class="warn-text">لم تُسند كلمات</span>'} • ${ic('key', 'sm')} ${esc(s.pin)}</small>
-            <span class="meter"><i style="width:${gs.pct}%"></i></span>
-          </span>
-          <span class="t-side">
-            <b>${gs.total ? gs.pct + '٪' : '—'}</b>
-            <small class="${late ? 'warn-text' : ''}">${late ? ic('alert', 'sm') + ' ' : ''}${U.ago(s.lastActive)}</small>
-          </span>
-        </button>`;
+            <small>${gs.total ? `${gs.pct}٪ محفوظ` : '<span class="warn-text">لم تبدأ</span>'} • ${ic('key', 'sm')} ${esc(s.pin)}</small>
+            <small class="${late ? 'warn-text' : 'muted'}">${late ? ic('alert', 'sm') + ' ' : ''}آخر دخول: ${U.ago(s.lastActive)}</small>
+          </div>
+          <div class="tm-cell" data-l="الدفعة الحالية">${m.started ? `<span class="en" dir="ltr">${esc(m.unit.title.replace(/^Unit\s*/, 'U'))}</span><small class="muted">${m.batchN} كلمات</small>` : dash}</div>
+          <div class="tm-cell" data-l="دخل الكلمات؟">${m.started ? yn(m.entered, m.seen) : dash}</div>
+          <div class="tm-cell" data-l="اختبر؟">${m.started ? yn(m.tested, m.testedN) : dash}</div>
+          <div class="tm-cell" data-l="الدرجة">${score}</div>
+          <div class="tm-cell" data-l="الأخطاء">${errN ? `<details><summary><span class="st bad">${errN}</span></summary><ul class="plain tm-wrong">${wrongLis(m.wrong)}</ul></details>` : (m.started ? '<span class="st good">0</span>' : dash)}</div>
+          <div class="tm-state ${STATE_CLASS[m.state]}">${STATE_LABEL[m.state]}</div>
+        </div>`;
     }).join('');
+    const untested = students.filter(s => { const m = mons.get(s.id); return m.started && !m.tested && !m.finished; }).length;
+    const withErr = students.filter(s => mons.get(s.id).wrong.length).length;
 
     app().innerHTML = `
       <button class="back" data-go="#/teacher">‹ لوحة المعلم</button>
       <h2 class="section-title">${ic('cap')} ${esc(g.name)}</h2>
       <button class="btn big" data-go="#/teacher/add/${g.id}">${ic('plus')} إضافة طالب</button>
-      <div class="tiles">
-        <button class="tile on" data-act="t-filter" data-f="all"><b>${students.length}</b><small>الكل</small></button>
-        <button class="tile" data-act="t-filter" data-f="today"><b>${active}</b><small>دخلوا اليوم</small></button>
-        <button class="tile ${idle ? 'alert' : ''}" data-act="t-filter" data-f="idle"><b>${idle}</b><small>يحتاجون متابعة</small></button>
+      <div class="t-filters">
+        <button class="pill on" data-act="t-filter" data-f="all">الكل <b>${students.length}</b></button>
+        <button class="pill" data-act="t-filter" data-f="today">دخلوا اليوم <b>${active}</b></button>
+        <button class="pill ${untested ? 'alert' : ''}" data-act="t-filter" data-f="untested">لم يختبروا <b>${untested}</b></button>
+        <button class="pill ${withErr ? 'alert' : ''}" data-act="t-filter" data-f="errors">عندهم أخطاء <b>${withErr}</b></button>
+        <button class="pill ${idle ? 'alert' : ''}" data-act="t-filter" data-f="idle">غائبون <b>${idle}</b></button>
       </div>
       ${students.length > 3 ? `
         <div class="t-search">
           <input type="search" id="t-search-in" placeholder="ابحث عن طالب..." aria-label="بحث عن طالب" autocomplete="off">
         </div>` : ''}
-      ${rows ? `<div class="t-list" id="t-list">${rows}</div>` : `<p class="card muted empty">لا يوجد طلاب في ${esc(g.name)} بعد. اضغط «إضافة طالب».</p>`}
+      ${rows ? `<div class="t-list" id="t-list">
+        <div class="t-mon t-head"><span>الطالب</span><span>الدفعة الحالية</span><span>دخل الكلمات؟</span><span>اختبر؟</span><span>الدرجة</span><span>الأخطاء</span><span>الحالة</span></div>${rows}</div>` : `<p class="card muted empty">لا يوجد طلاب في ${esc(g.name)} بعد. اضغط «إضافة طالب».</p>`}
       <button class="btn big words-btn" data-go="#/teacher/content/${g.id}">${ic('edit')} إدارة كلمات ${esc(g.name)}</button>
       ${canDelete ? `<button class="btn ghost danger-text" data-act="t-del-grade" data-id="${g.id}">${ic('trash', 'sm')} حذف هذا الصف</button>` : ''}
       ${syncNote()}`;
@@ -265,6 +305,15 @@ const Teacher = (() => {
     const hard = Progress.hardWords(s, 8);
     const act = Progress.activitySummary(s);
 
+    const mon = monitorOf(s, g);
+    const monSummary = mon.started ? `
+      <div class="card mon-sum">
+        <div class="tm-state ${STATE_CLASS[mon.state]}">${STATE_LABEL[mon.state]}</div>
+        <p><b class="en" dir="ltr">${esc(mon.unit.title)}</b> — دفعة من ${mon.batchN} كلمات</p>
+        <p class="small">دخل الكلمات: <b>${mon.entered ? 'نعم (' + mon.seen + '/' + mon.batchN + ')' : 'لا'}</b> • اختبر: <b>${mon.tested ? 'نعم' : 'لا'}</b>${mon.score ? ` • الدرجة: <b>${mon.score.correct}/${mon.score.total}</b> (${U.ago(mon.score.date)})` : ''} • الأخطاء: <b>${mon.wrong.length}</b></p>
+        ${mon.wrong.length ? `<ul class="plain tm-wrong">${wrongLis(mon.wrong)}</ul>` : ''}
+      </div>` : '<p class="card muted">لم تبدأ الكلمات بعد.</p>';
+
     const unitRows = g ? g.units.map(u => {
       const st = Progress.unitStats(s, u);
       if (!st.total) return `<div class="u-row"><div class="u-top"><b class="en" dir="ltr">${esc(u.title)}</b><span class="muted small">لم تُسند كلمات</span></div></div>`;
@@ -341,6 +390,7 @@ const Teacher = (() => {
         <div class="tile"><b>${gs.total ? gs.pct + '٪' : '—'}</b><small>${gs.total ? `الحفظ (${gs.mastered}/${gs.total})` : 'لم تُسند كلمات'}</small></div>
         <div class="tile ${late ? 'alert' : ''}"><b>${U.ago(s.lastActive)}</b><small>آخر دخول</small></div>
       </div>
+      ${monSummary}
       <p class="muted small activity-line">${ic('clock', 'sm')} أيام النشاط: ${act.days} • الاختبارات: ${act.tests} • كرّر ${act.reps} مرة</p>
 
       <h3 class="section-title">الوحدات</h3>
@@ -456,11 +506,13 @@ const Teacher = (() => {
   U.actions['t-demo-clear'] = async () => { for (const s of await Store.listStudents()) { if (s.demo) await Store.deleteStudent(s.id); } dashboard(); };
   U.actions['t-filter'] = el => {
     const f = el.dataset.f;
-    document.querySelectorAll('.tiles .tile').forEach(b => b.classList.toggle('on', b === el));
+    document.querySelectorAll('.t-filters .pill').forEach(b => b.classList.toggle('on', b === el));
     document.querySelectorAll('.t-list .t-student').forEach(row => {
       if (f === 'all') { row.style.display = ''; return; }
       if (f === 'today') { row.style.display = row.dataset.today === 'true' ? '' : 'none'; return; }
       if (f === 'idle') { row.style.display = row.dataset.late === 'true' ? '' : 'none'; return; }
+      if (f === 'untested') { row.style.display = row.dataset.untested === 'true' ? '' : 'none'; return; }
+      if (f === 'errors') { row.style.display = row.dataset.errors === 'true' ? '' : 'none'; return; }
     });
   };
 
