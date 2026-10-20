@@ -635,3 +635,23 @@ table.pv th, table.pv td { padding: .3rem .5rem; border-bottom: 1px solid var(--
   .tm-name, .tm-state { grid-column: 1 / -1; }
   .tm-cell::before { content: attr(data-l); color: var(--muted); font-size: .75rem; }
 }
+
+/* المنافسة */
+.compete-btn { display: flex; align-items: center; gap: .8rem; width: 100%; margin: .8rem 0 0; padding: .8rem 1rem; border: 0; border-radius: 18px; background: linear-gradient(135deg, #FEF3C7, #FDE68A); box-shadow: var(--shadow); font: inherit; text-align: start; cursor: pointer; }
+.compete-btn b { display: block; font-size: 1.1rem; }
+.compete-btn small { color: var(--muted); }
+.nick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; margin: .8rem 0; }
+.nick-btn { display: grid; gap: .1rem; padding: .7rem .4rem; border: 3px solid transparent; border-radius: 16px; background: var(--card); box-shadow: var(--shadow); font: inherit; cursor: pointer; text-align: center; }
+.nick-btn b { font-size: 1.15rem; }
+.nick-btn small { color: var(--muted); }
+.nick-btn:hover { border-color: var(--brand); }
+.nick-btn[disabled] { opacity: .4; cursor: not-allowed; border-color: transparent; }
+.board { display: grid; gap: .5rem; margin: .8rem 0; }
+.b-row { display: grid; grid-template-columns: 2.4rem 1fr auto; gap: .6rem; align-items: center; background: var(--card); border-radius: 16px; padding: .6rem .8rem; box-shadow: var(--shadow); border: 3px solid transparent; }
+.b-row.me { border-color: var(--brand); background: var(--brand-soft); }
+.b-rank { font-size: 1.5rem; text-align: center; font-weight: 700; }
+.b-name { display: grid; }
+.b-name small { color: var(--muted); }
+.b-pct { text-align: center; display: grid; }
+.b-pct b { font-size: 1.2rem; color: var(--brand-dark); }
+.b-pct small { color: var(--muted); }

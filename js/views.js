@@ -177,6 +177,11 @@ const Views = (() => {
         <p class="muted">${esc(grade ? grade.name : '')}</p>
       </section>
 
+      <button class="compete-btn" data-go="#/compete">
+        <span class="unit-action-icon">${ic('trophy')}</span>
+        <span><b>المنافسة</b><small>${s.nick && Compete.nickOf(s.nick) ? 'لقبك: ' + esc(Compete.nickOf(s.nick).ar) : 'اختر لقبك وتنافس مع زملائك'}</small></span>
+      </button>
+
       <h3 class="section-title">الوحدات</h3>
       ${units ? `<div class="units">${units}</div>` : '<p class="card muted empty">لم تُضف وحدات هذا الصف بعد. سيضيفها المعلم قريبًا.</p>'}`;
   }

@@ -586,6 +586,42 @@ const Store = (() => {
       await refresh(true);
       return Object.values(state.students);
     },
+    // لقب المنافسة: يُختار مرة واحدة ولا يتكرر بين الطلاب
+    async setNick(sid, nick) {
+      const s = state.students[sid];
+      if (!s) return { error: 'auth' };
+      if (cloud) {
+        const sess = state.session;
+        if (!sess || !sess.token) return { error: 'auth' };
+        let r;
+        try { r = await Cloud.rpc('kal_student_set_nick', { p_token: sess.token, p_nick: nick }, 8000); online = true; }
+        catch (e) { online = false; return { error: e.status ? 'server' : 'offline' }; }
+        if (!r || !r.ok) return { error: (r && r.error) || 'server' };
+        s.nick = r.nick; save();
+        return { ok: true };
+      }
+      if (Object.values(state.students).some(x => x.nick === nick)) return { error: 'taken' };
+      s.nick = nick; save();
+      return { ok: true };
+    },
+    // الترتيب: صفوف {nick, grade, words, sents, me} لكل من اختار لقبًا
+    async getLeaderboard(sid) {
+      if (cloud) {
+        const sess = state.session;
+        const tok = sess && sess.role === 'student' && sess.token ? sess.token : teacherToken();
+        if (!tok) return { error: 'auth' };
+        let r;
+        try { r = await Cloud.rpc('kal_leaderboard', { p_token: tok }, 8000); online = true; }
+        catch (e) { online = false; return { error: e.status ? 'server' : 'offline' }; }
+        return r && r.ok ? { rows: r.rows } : { error: (r && r.error) || 'server' };
+      }
+      const mastered = s => Object.values(s.units || {}).reduce((n, u) => {
+        const lt = u && u.lastTest;
+        return n + (lt ? Math.max(0, (lt.tested || []).length - (lt.wrong || []).length) : 0);
+      }, 0);
+      return { rows: Object.values(state.students).filter(s => s.nick)
+        .map(s => ({ nick: s.nick, grade: s.grade, words: mastered(s), sents: s.sentencePts || 0, me: s.id === sid })) };
+    },
     async getStudent(id) {
       await refresh();
       return state.students[id] || null;

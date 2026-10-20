@@ -96,6 +96,8 @@ const App = (() => {
       else if (a === 'unit') Views.unit(student, b, c);
       else if (a === 'bank') Views.wordBank(student, b, c);
       else if (a === 'play') await Games.route(b, c, d);
+      else if (a === 'compete') await Compete.route(student);
+      else if (!student.nick && !Compete.skipped()) await Compete.pick(student);
       else await Views.home(student);
     } catch (e) {
       console.error(e);
