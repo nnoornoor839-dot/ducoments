@@ -213,12 +213,12 @@ const Games = (() => {
           ${wrongList.length ? `<div class="wrong-list"><b>كلمات تحتاج مراجعة:</b><div class="en" dir="ltr">${wrongList.map(w => `<button class="tag" data-act="say" data-text="${esc(w.en)}">${esc(w.en)} = ${esc(w.ar || '')} ${ic('volume', 'sm')}</button>`).join('')}</div></div>` : ''}
           <div class="actions">
             ${adv && !adv.done
-              ? `<button class="btn" data-go="${advGo}">ابدأ الكلمات الجديدة</button>`
+              ? `<button class="btn" data-go="${advGo}">العودة للوحدة</button>`
               : mustRetry
                 ? `<button class="btn" data-act="again">${ic('repeat', 'sm')} أعد الاختبار</button>`
                 : `<button class="btn" data-act="again">${ic('repeat', 'sm')} مرة أخرى</button>`}
             ${!adv && mode !== 'bank' && wrongList.length ? `<button class="btn ghost" data-go="#/bank/${gradeId}/${unitId}">${ic('bookmark', 'sm')} حصالة الكلمات</button>` : ''}
-            <button class="btn ghost" data-go="${backHash}">العودة للوحدة</button>
+            ${adv && !adv.done ? '' : `<button class="btn ghost" data-go="${backHash}">العودة للوحدة</button>`}
           </div>
         </section>`;
     }
