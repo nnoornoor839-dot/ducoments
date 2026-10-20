@@ -3,6 +3,7 @@ const Shadow = (() => {
   const esc = U.esc;
   const app = () => document.getElementById('app');
   const FN = 'smart-responder';  // اسم دالة Edge في Supabase
+  const MAX_TRIES = 5;       // محاولات كل جملة (تُحتسب أعلى درجة)
   const SLOTS = 3;           // عدد الجمل لكل وحدة
   const MAX_SEC = 15;        // أقصى مدة تسجيل
   const MIN_SEC = 1.5;       // أقل مدة مقبولة
@@ -49,9 +50,12 @@ const Shadow = (() => {
     return { score: real.length ? Math.round(hit / real.length * 10) : 0, marks };
   }
 
+  function triesOf(s, wid) { const v = s.sentenceTries && s.sentenceTries[wid]; return Number.isInteger(v) ? Math.min(v, MAX_TRIES) : 0; }
+  function triesLine(n) { return n >= MAX_TRIES ? 'انتهت محاولاتك الخمس لهذه الجملة' : `المحاولات المتبقية: <b>${MAX_TRIES - n}</b> من ${MAX_TRIES}`; }
   function best(s, wid) { const v = s.sentences && s.sentences[wid]; return Number.isInteger(v) ? v : 0; }
   const ERR = {
     limit: 'وصلت لحد المحاولات لهذا اليوم، عُد غدًا',
+    tries: 'انتهت محاولاتك الخمس لهذه الجملة. أعلى درجة حصلت عليها هي التي تُحتسب',
     busy: 'الخدمة مشغولة الآن، حاول بعد قليل',
     auth: 'انتهت الجلسة، ادخل من جديد',
     empty: 'لم أسمع صوتًا، اقترب من الميكروفون وحاول مرة أخرى',
@@ -68,15 +72,16 @@ const Shadow = (() => {
     const cards = slots.map(w => {
       const unlocked = open.has(w.id);
       const b = best(student, w.id);
+      const used = triesOf(student, w.id);
       return `
         <article class="shadow-card ${unlocked ? '' : 'locked'}" data-wid="${w.id}">
           <div class="en sh-sent" dir="ltr">${esc(w.sentence)}</div>
           ${w.sentenceAr ? `<div class="sh-ar">${esc(w.sentenceAr)}</div>` : ''}
           ${unlocked ? `
-            <div class="sh-best">${b >= PASS ? `أفضل درجة: <b>${b}/10</b>` : 'لم تقرأها بعد'}</div>
+            <div class="sh-best">${b >= PASS ? `أفضل درجة: <b>${b}/10</b>` : 'لم تقرأها بعد'} <span class="muted small sh-tries">• ${triesLine(used)}</span></div>
             <div class="sh-actions">
               <button class="btn ghost" data-act="sh-listen" data-wid="${w.id}">${ic('volume', 'sm')} استمع</button>
-              <button class="btn" data-act="sh-rec" data-wid="${w.id}">${ic('play', 'sm')} اقرأ</button>
+              <button class="btn" data-act="sh-rec" data-wid="${w.id}" ${used >= MAX_TRIES ? 'disabled' : ''}>${ic('play', 'sm')} اقرأ</button>
             </div>
             <div class="sh-out" id="out-${esc(w.id)}"></div>` : '<div class="sh-best muted">تُفتح حين تصلك كلمتها</div>'}
         </article>`;
@@ -84,7 +89,7 @@ const Shadow = (() => {
     app().innerHTML = `
       <button class="back" data-go="#/unit/${gid}/${uid}">‹ رجوع للوحدة</button>
       <h2 class="section-title">${ic('volume')} قراءة الجمل: <span class="en" dir="ltr">${esc(u.title)}</span></h2>
-      <p class="muted small">استمع للجملة ثم اضغط «اقرأ» وانطقها بصوت واضح. تأخذ نقاطًا بقدر درجتك من 10 (من 5 فأكثر)، ولكل جملة تُحتسب أفضل درجة لك.</p>
+      <p class="muted small">استمع للجملة ثم اضغط «اقرأ» وانطقها بصوت واضح. تأخذ نقاطًا بقدر درجتك من 10 (من 5 فأكثر)، ولكل جملة <b>خمس محاولات فقط</b> وتُحتسب أعلى درجة لك.</p>
       ${Cloud.enabled ? '' : '<p class="card warn">قراءة الجمل تحتاج اتصالًا بالإنترنت.</p>'}
       <p class="small">درّب نفسك أولًا على <b>السرعة البطيئة</b>: استمع للجملة ببطء، كررها بصوتك، ثم اقرأها للتقييم.</p>
       <div class="sticky-speed">${Views.speedBar()}</div>
@@ -105,6 +110,8 @@ const Shadow = (() => {
   async function start(btn) {
     const wid = btn.dataset.wid;
     if (rec) { stopRecording(); return; }
+    const me = await App.currentStudent();
+    if (me && triesOf(me, wid) >= MAX_TRIES) { App.toast(ERR.tries); return; }
     if (!window.MediaRecorder || !navigator.mediaDevices) { App.toast('متصفحك لا يدعم التسجيل'); return; }
     Speech.stop();
     let stream;
@@ -137,15 +144,22 @@ const Shadow = (() => {
     const ext = /mp4/.test(r.mime) ? 'm4a' : /ogg/.test(r.mime) ? 'ogg' : 'webm';
     const fd = new FormData();
     fd.append('token', Store.studentToken());
+    fd.append('wid', w.id);
     fd.append('audio', new Blob(r.chunks, { type: r.mime || 'audio/webm' }), 'speech.' + ext);
     let res;
     try { res = await Cloud.fn(FN, fd, 25000); }
     catch (e) { out.innerHTML = `<p class="warn-text small">${ERR[e.code] || (e.status ? ERR.server : ERR.offline)}</p>`; return; }
+    if (res && res.error === 'tries') {
+      Store.markSentenceExhausted(student.id, w.id, MAX_TRIES);
+      out.innerHTML = `<p class="warn-text small">${ERR.tries}</p>`;
+      refreshCard(w.id, await App.currentStudent());
+      return;
+    }
     if (!res || !res.ok) { out.innerHTML = `<p class="warn-text small">${ERR[res && res.error] || ERR.server}</p>`; return; }
     if (!String(res.text).trim()) { out.innerHTML = `<p class="warn-text small">${ERR.empty}</p>`; return; }
     const g = grade(w.sentence, res.text);
     const prev = best(student, w.id);
-    const saved = Store.recordSentence(student.id, w.id, g.score);
+    const saved = Store.recordSentence(student.id, w.id, g.score, Number.isInteger(res.tries) ? res.tries : undefined);
     const gained = Math.max(0, (g.score >= PASS ? g.score : 0) - (prev >= PASS ? prev : 0));
     out.innerHTML = `
       <div class="sh-result ${g.score >= PASS ? 'ok' : 'bad'}">
@@ -154,9 +168,19 @@ const Shadow = (() => {
         <p class="small">${g.score >= PASS ? (gained ? `أحسنت! حصلت على ${gained} ${gained === 1 ? 'نقطة جديدة' : 'نقاط جديدة'}` : 'أحسنت! أفضل درجتك السابقة أعلى أو تساويها') : 'حاول مرة أخرى، استمع للجملة ثم اقرأها ببطء ووضوح'}</p>
         <p class="muted small">سمعتُ: <span class="en" dir="ltr">${esc(res.text)}</span></p>
       </div>`;
-    const bestEl = document.querySelector(`.shadow-card[data-wid="${CSS.escape(w.id)}"] .sh-best`);
-    if (bestEl) { const nb = saved && saved.best; bestEl.innerHTML = nb >= PASS ? `أفضل درجة: <b>${nb}/10</b>` : 'لم تقرأها بعد'; }
+    refreshCard(w.id, student);
     if (g.score >= 8) { Sfx.win(); }
+  }
+
+  // يحدّث سطر أفضل درجة والمحاولات وزر القراءة لجملة
+  function refreshCard(wid, student) {
+    const card = document.querySelector(`.shadow-card[data-wid="${CSS.escape(wid)}"]`);
+    if (!card || !student) return;
+    const b = best(student, wid), used = triesOf(student, wid);
+    const el = card.querySelector('.sh-best');
+    if (el) el.innerHTML = `${b >= PASS ? `أفضل درجة: <b>${b}/10</b>` : 'لم تقرأها بعد'} <span class="muted small sh-tries">• ${triesLine(used)}</span>`;
+    const btn = card.querySelector('[data-act="sh-rec"]');
+    if (btn && used >= MAX_TRIES) btn.disabled = true;
   }
 
   U.actions['sh-listen'] = el => { const w = Cur.word(el.dataset.wid); if (w) Speech.sentence(w.sentence); };
@@ -168,5 +192,5 @@ const Shadow = (() => {
     view(student, gid, uid);
   }
 
-  return { route, abort, slotsOf, grade, SLOTS, PASS };
+  return { route, abort, slotsOf, grade, SLOTS, PASS, MAX_TRIES };
 })();

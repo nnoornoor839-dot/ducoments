@@ -240,7 +240,7 @@ begin
   if not kalimati.is_teacher(p_token) then return jsonb_build_object('error', 'auth'); end if;
   update kalimati.students set
     epoch = epoch + 1,
-    data = (data - 'xp' - 'streak' - 'lastActive' - 'daily' - 'words' - 'units' - 'log' - 'reps')
+    data = (data - 'xp' - 'streak' - 'lastActive' - 'daily' - 'words' - 'units' - 'log' - 'reps' - 'sentences' - 'sentenceTries')
            || jsonb_build_object(
                 'xp', 0, 'streak', 0, 'lastActive', 'null'::jsonb,
                 'daily', jsonb_build_object('date', '', 'n', 0),
@@ -250,6 +250,7 @@ begin
   where id = p_id;
   get diagnostics n = row_count;
   if n = 0 then return jsonb_build_object('error', 'not-found'); end if;
+  delete from kalimati.shadow_tries where student_id = p_id;
   return jsonb_build_object('ok', true);
 end $$;
 
@@ -351,7 +352,7 @@ begin
   end if;
   select coalesce(jsonb_object_agg(e.key, e.value), '{}'::jsonb) into clean
     from jsonb_each(p_patch) e
-   where e.key in ('xp', 'streak', 'lastActive', 'daily', 'words', 'units', 'log', 'reps', 'ranges', 'sentences');
+   where e.key in ('xp', 'streak', 'lastActive', 'daily', 'words', 'units', 'log', 'reps', 'ranges', 'sentences', 'sentenceTries');
   update kalimati.students set data = data || clean, updated_at = now() where id = sid;
   return jsonb_build_object('ok', true);
 end $$;
@@ -408,21 +409,53 @@ create table if not exists kalimati.shadow_uses (
 alter table kalimati.shadow_uses enable row level security;
 revoke all on kalimati.shadow_uses from anon, authenticated;
 
--- تستدعيها دالة التعرف على الصوت قبل كل تسجيل: تتحقق من رمز الطالب وتحسب المحاولة
-create or replace function public.kal_shadow_gate(p_token text) returns jsonb
+-- 1) عدّاد محاولات كل جملة لكل طالب
+create table if not exists kalimati.shadow_tries (
+  student_id text not null references kalimati.students(id) on delete cascade,
+  wid text not null,
+  n int not null default 0,
+  primary key (student_id, wid)
+);
+alter table kalimati.shadow_tries enable row level security;
+revoke all on kalimati.shadow_tries from anon, authenticated;
+
+-- 2) الفحص قبل التسجيل: رمز الطالب + الحد اليومي + محاولات الجملة (لا يحسب شيئًا)
+drop function if exists public.kal_shadow_gate(text);
+create or replace function public.kal_shadow_gate(p_token text, p_wid text default null) returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare sid text; today date; cnt int; daily_max constant int := 40;
+declare sid text; today date; used int := 0; tries int := 0; daily_max constant int := 40; tries_max constant int := 5;
 begin
   sid := kalimati.student_of(p_token);
   if sid is null then return jsonb_build_object('error', 'auth'); end if;
+  if p_wid is null or length(p_wid) not between 1 and 120 then return jsonb_build_object('error', 'bad'); end if;
+  today := (now() at time zone 'Asia/Riyadh')::date;
+  select u.n into used from kalimati.shadow_uses u where u.student_id = sid and u.day = today;
+  if coalesce(used, 0) >= daily_max then return jsonb_build_object('error', 'limit'); end if;
+  select t.n into tries from kalimati.shadow_tries t where t.student_id = sid and t.wid = p_wid;
+  if coalesce(tries, 0) >= tries_max then return jsonb_build_object('error', 'tries', 'tries', tries); end if;
+  return jsonb_build_object('ok', true, 'tries', coalesce(tries, 0));
+end $$;
+
+-- 3) بعد نجاح التعرف على الصوت: تُحسب المحاولة اليومية، وتُحسب محاولة الجملة إن سُمع كلام
+create or replace function public.kal_shadow_count(p_token text, p_wid text, p_try boolean) returns jsonb
+language plpgsql security definer set search_path = '' as $$
+declare sid text; today date; tries int := 0;
+begin
+  sid := kalimati.student_of(p_token);
+  if sid is null then return jsonb_build_object('error', 'auth'); end if;
+  if p_wid is null or length(p_wid) not between 1 and 120 then return jsonb_build_object('error', 'bad'); end if;
   today := (now() at time zone 'Asia/Riyadh')::date;
   delete from kalimati.shadow_uses where day < today - 7;
-  insert into kalimati.shadow_uses (student_id, day, n) values (sid, today, 0) on conflict do nothing;
-  update kalimati.shadow_uses set n = n + 1
-   where student_id = sid and day = today and n < daily_max
-  returning n into cnt;
-  if cnt is null then return jsonb_build_object('error', 'limit'); end if;
-  return jsonb_build_object('ok', true, 'left', daily_max - cnt);
+  insert into kalimati.shadow_uses (student_id, day, n) values (sid, today, 1)
+    on conflict (student_id, day) do update set n = kalimati.shadow_uses.n + 1;
+  if coalesce(p_try, false) then
+    insert into kalimati.shadow_tries (student_id, wid, n) values (sid, p_wid, 1)
+      on conflict (student_id, wid) do update set n = kalimati.shadow_tries.n + 1
+    returning n into tries;
+  else
+    select t.n into tries from kalimati.shadow_tries t where t.student_id = sid and t.wid = p_wid;
+  end if;
+  return jsonb_build_object('ok', true, 'tries', coalesce(tries, 0));
 end $$;
 
 -- ---------- الصلاحيات: دوال kal_* فقط للـAPI ----------

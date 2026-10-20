@@ -238,7 +238,7 @@ const Progress = (() => {
 const Store = (() => {
   const KEY = 'kalimati.v1';
   const TOKEN_KEY = 'kalimati.ttoken';
-  const PROGRESS_KEYS = ['xp', 'streak', 'lastActive', 'daily', 'words', 'units', 'log', 'reps', 'ranges', 'sentences'];
+  const PROGRESS_KEYS = ['xp', 'streak', 'lastActive', 'daily', 'words', 'units', 'log', 'reps', 'ranges', 'sentences', 'sentenceTries'];
   // عدد الكلمات المسندة في كل مرة حسب الصف (يغيّره المعلم من الإعدادات)
   const ASSIGN_KEY = 'kalimati.assignByGrade';
   const ASSIGN_DEFAULT = { t1: 5, g5: 5, g6: 10, m2: 10 };
@@ -589,14 +589,25 @@ const Store = (() => {
     // رمز جلسة الطالب (لدالة تقييم الصوت)
     studentToken() { const sess = state.session; return sess && sess.role === 'student' && sess.token ? sess.token : ''; },
     // درجة قراءة جملة (من 10): نحتفظ بأفضل درجة لكل جملة
-    recordSentence(sid, wid, score) {
+    // tries: عدد محاولات الجملة بعد هذه (من الخادم)
+    recordSentence(sid, wid, score, tries) {
       const s = state.students[sid];
       if (!s || !Number.isInteger(score) || score < 0 || score > 10) return null;
       if (!s.sentences) s.sentences = {};
+      if (!s.sentenceTries) s.sentenceTries = {};
       if (!(s.sentences[wid] >= score)) s.sentences[wid] = score;
+      s.sentenceTries[wid] = Number.isInteger(tries) ? Math.max(tries, s.sentenceTries[wid] || 0) : (s.sentenceTries[wid] || 0) + 1;
       touchStreak(s, U.ymd());
       commitStudent(sid);
-      return { best: s.sentences[wid] };
+      return { best: s.sentences[wid], tries: s.sentenceTries[wid] };
+    },
+    // الخادم يقول إن محاولات الجملة انتهت: نثبّت العدّاد محليًا
+    markSentenceExhausted(sid, wid, max) {
+      const s = state.students[sid];
+      if (!s) return;
+      if (!s.sentenceTries) s.sentenceTries = {};
+      s.sentenceTries[wid] = Math.max(s.sentenceTries[wid] || 0, max);
+      commitStudent(sid);
     },
     // لقب المنافسة: يسنده المعلم (أو يزيله بقيمة فارغة) ولا يتكرر بين الطلاب
     async setNick(sid, nick) {
@@ -670,7 +681,7 @@ const Store = (() => {
         if (r.error) return { error: r.error };
         s.epoch = (s.epoch || 0) + 1;
       }
-      Object.assign(s, { xp: 0, streak: 0, lastActive: null, daily: { date: '', n: 0 }, words: {}, units: {}, log: [], reps: { total: 0, byWord: {}, daily: { date: '', n: 0 } } });
+      Object.assign(s, { xp: 0, streak: 0, lastActive: null, daily: { date: '', n: 0 }, words: {}, units: {}, log: [], reps: { total: 0, byWord: {}, daily: { date: '', n: 0 } }, sentences: {}, sentenceTries: {} });
       save();
       return { ok: true };
     },
