@@ -86,6 +86,8 @@ const Shadow = (() => {
       <h2 class="section-title">${ic('volume')} قراءة الجمل: <span class="en" dir="ltr">${esc(u.title)}</span></h2>
       <p class="muted small">استمع للجملة ثم اضغط «اقرأ» وانطقها بصوت واضح. تأخذ نقاطًا بقدر درجتك من 10 (من 5 فأكثر)، ولكل جملة تُحتسب أفضل درجة لك.</p>
       ${Cloud.enabled ? '' : '<p class="card warn">قراءة الجمل تحتاج اتصالًا بالإنترنت.</p>'}
+      <p class="small">درّب نفسك أولًا على <b>السرعة البطيئة</b>: استمع للجملة ببطء، كررها بصوتك، ثم اقرأها للتقييم.</p>
+      <div class="sticky-speed">${Views.speedBar()}</div>
       <div class="shadow-list">${slots.length ? cards : '<p class="card muted empty">لا توجد جمل في هذه الوحدة.</p>'}</div>`;
   }
 
