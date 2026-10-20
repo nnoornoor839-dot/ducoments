@@ -2,7 +2,6 @@
 const Compete = (() => {
   const esc = U.esc;
   const app = () => document.getElementById('app');
-  const SKIP_KEY = 'kalimati.nickSkip';
 
   // الكلمة المحفوظة = نقطة. الجملة تُحتسب بدرجتها من 10 (5 فأكثر) حين تُفعَّل قراءة الجمل
   const WORD_PTS = 1;
@@ -22,8 +21,6 @@ const Compete = (() => {
   const byId = Object.fromEntries(NICKS.map(n => [n.id, n]));
   const nickOf = id => byId[id] || null;
 
-  const skipped = () => { try { return sessionStorage.getItem(SKIP_KEY) === '1'; } catch (e) { return false; } };
-
   function maxPts(gid) {
     const g = Cur.grade(gid);
     if (!g) return 0;
@@ -35,57 +32,27 @@ const Compete = (() => {
     return { pts, pct: max ? Math.min(100, Math.round(pts / max * 1000) / 10) : 0 };
   }
 
-  const PICK_ERRORS = {
-    taken: 'سبقك أحد إلى هذا اللقب، اختر لقبًا آخر',
-    locked: 'لقبك محفوظ مسبقًا',
+  const ERRORS = {
     offline: 'لا يوجد اتصال بالإنترنت',
     auth: 'انتهت الجلسة، ادخل من جديد'
   };
 
-  // ---------- اختيار اللقب (أول دخول) ----------
-  async function pick(student) {
-    const res = await Store.getLeaderboard(student.id);
-    const unavailable = !!res.error;
-    const taken = new Set((res.rows || []).map(r => r.nick));
-    const items = NICKS.map(n => `
-      <button class="nick-btn" data-act="pick-nick" data-id="${n.id}" ${taken.has(n.id) ? 'disabled' : ''}>
-        <b>${esc(n.ar)}</b>
-        <small class="en" dir="ltr">${esc(n.en)}${taken.has(n.id) ? ' • محجوز' : ''}</small>
-      </button>`).join('');
-    app().innerHTML = `
-      <section class="card">
-        <h2>${ic('trophy')} اختر لقبك</h2>
-        <p class="muted">هذا هو اسمك في المنافسة، يراه زملاؤك بدل اسمك الحقيقي. <b>اللقب الذي تختاره يبقى لك ولا يستطيع غيرك أخذه، ولا يمكن تغييره بعد ذلك.</b></p>
-        ${unavailable ? '<p class="warn-text small">تعذّر تحميل الألقاب المحجوزة الآن. يمكنك المحاولة لاحقًا.</p>' : ''}
-      </section>
-      <div class="nick-grid">${items}</div>
-      <button class="btn ghost" data-act="skip-nick">لاحقًا</button>`;
-  }
-
-  U.actions['pick-nick'] = async el => {
-    const n = nickOf(el.dataset.id);
-    const student = await App.currentStudent();
-    if (!n || !student) return;
-    const ok = await App.confirm(`هل تريد اللقب «${n.ar} — ${n.en}»؟ لن تستطيع تغييره بعد ذلك.`, { okLabel: 'نعم، هذا لقبي' });
-    if (!ok) return;
-    const r = await Store.setNick(student.id, n.id);
-    if (r.ok) { App.toast(`أصبح لقبك: ${n.ar}`); App.go('#/'); return; }
-    App.toast(PICK_ERRORS[r.error] || 'تعذّر حفظ اللقب، حاول مرة أخرى');
-    if (r.error === 'taken') pick(student);
-  };
-  U.actions['skip-nick'] = () => {
-    try { sessionStorage.setItem(SKIP_KEY, '1'); } catch (e) { /* تجاهل */ }
-    App.go('#/');
-  };
-
   // ---------- صفحة الترتيب ----------
   async function route(student) {
-    if (!student.nick) return pick(student);
+    if (!student.nick) {
+      app().innerHTML = `
+        <button class="back" data-go="#/">‹ الرئيسية</button>
+        <section class="card notice">
+          <span class="notice-ic">${ic('trophy')}</span>
+          <div><b>لم يُسند لك لقب بعد</b><p class="muted">سيُسند لك معلمك لقبًا لتدخل المنافسة.</p></div>
+        </section>`;
+      return;
+    }
     const res = await Store.getLeaderboard(student.id);
     if (res.error) {
       app().innerHTML = `
         <button class="back" data-go="#/">‹ الرئيسية</button>
-        <section class="card warn">تعذّر تحميل الترتيب الآن (${esc(PICK_ERRORS[res.error] || 'حاول لاحقًا')}).</section>`;
+        <section class="card warn">تعذّر تحميل الترتيب الآن (${esc(ERRORS[res.error] || 'حاول لاحقًا')}).</section>`;
       return;
     }
     const rows = res.rows
@@ -114,5 +81,5 @@ const Compete = (() => {
       ${list ? `<div class="board">${list}</div>` : '<p class="card muted empty">لم يختر أحد لقبه بعد.</p>'}`;
   }
 
-  return { NICKS, nickOf, skipped, pick, route, score, maxPts, WORD_PTS, SENT_MAX, SENTS_PER_UNIT };
+  return { NICKS, nickOf, route, score, maxPts, WORD_PTS, SENT_MAX, SENTS_PER_UNIT };
 })();

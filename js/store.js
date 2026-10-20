@@ -586,22 +586,18 @@ const Store = (() => {
       await refresh(true);
       return Object.values(state.students);
     },
-    // لقب المنافسة: يُختار مرة واحدة ولا يتكرر بين الطلاب
+    // لقب المنافسة: يسنده المعلم (أو يزيله بقيمة فارغة) ولا يتكرر بين الطلاب
     async setNick(sid, nick) {
       const s = state.students[sid];
-      if (!s) return { error: 'auth' };
+      if (!s) return { error: 'not-found' };
+      const nk = nick || null;
       if (cloud) {
-        const sess = state.session;
-        if (!sess || !sess.token) return { error: 'auth' };
-        let r;
-        try { r = await Cloud.rpc('kal_student_set_nick', { p_token: sess.token, p_nick: nick }, 8000); online = true; }
-        catch (e) { online = false; return { error: e.status ? 'server' : 'offline' }; }
-        if (!r || !r.ok) return { error: (r && r.error) || 'server' };
-        s.nick = r.nick; save();
-        return { ok: true };
+        const r = await teacherCall('kal_teacher_set_nick', { p_id: sid, p_nick: nk });
+        if (r.error) return { error: r.error };
+      } else if (nk && Object.values(state.students).some(x => x.id !== sid && x.nick === nk)) {
+        return { error: 'taken' };
       }
-      if (Object.values(state.students).some(x => x.nick === nick)) return { error: 'taken' };
-      s.nick = nick; save();
+      s.nick = nk; save();
       return { ok: true };
     },
     // الترتيب: صفوف {nick, grade, words, sents, me} لكل من اختار لقبًا

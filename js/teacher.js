@@ -50,7 +50,8 @@ const Teacher = (() => {
     auth: 'انتهت جلسة المعلم. ادخل من جديد',
     server: 'تعذر الحفظ. حاول مرة أخرى',
     'pin-taken': 'هذا الرمز مستخدم لطالب آخر في نفس الصف. اختر رمزًا مختلفًا.',
-    'not-found': 'الطالب غير موجود'
+    'not-found': 'الطالب غير موجود',
+    taken: 'هذا اللقب أُسند لطالب آخر. اختر لقبًا غيره.'
   };
   function failed(r) {
     App.toast(OP_ERRORS[r.error] || 'تعذر تنفيذ العملية');
@@ -305,6 +306,19 @@ const Teacher = (() => {
     const hard = Progress.hardWords(s, 8);
     const act = Progress.activitySummary(s);
 
+    const everyone = await Store.listStudents();
+    const usedNicks = new Set(everyone.filter(x => x.id !== s.id && x.nick).map(x => x.nick));
+    const nickHtml = `
+      <h3 class="section-title">${ic('cap')} لقب المنافسة</h3>
+      <div class="card">
+        <label>اللقب:
+          <select id="t-nick">
+            <option value="">— بلا لقب —</option>
+            ${Compete.NICKS.filter(n => !usedNicks.has(n.id) || n.id === s.nick).map(n => `<option value="${n.id}" ${s.nick === n.id ? 'selected' : ''}>${esc(n.ar)} — ${esc(n.en)}</option>`).join('')}
+          </select>
+        </label>
+        <p class="muted small">يظهر اسم اللقب وحده في المنافسة، والألقاب المأخوذة لا تظهر لطالب آخر.</p>
+      </div>`;
     const mon = monitorOf(s, g);
     const monSummary = mon.started ? `
       <div class="card mon-sum">
@@ -396,6 +410,8 @@ const Teacher = (() => {
       <h3 class="section-title">الوحدات</h3>
       <div class="card">${unitRows || '<p class="muted">لا توجد وحدات لهذا الصف.</p>'}</div>
 
+      ${nickHtml}
+
       <h3 class="section-title">${ic('ruler')} الإسناد التلقائي</h3>
       <p class="muted small">تُسند الكلمات للطالب تلقائيًا دفعة بعد دفعة. ينتقل لدفعته التالية حين يجتاز اختبار الدفعة بلا أخطاء أو يجتاز اختبار الحصالة بنسبة ١٠٠٪، وبعد آخر دفعة تبدأ الوحدة التالية.</p>
       <div class="card">${autoHtml}</div>
@@ -436,6 +452,15 @@ const Teacher = (() => {
         <button class="btn danger" data-act="t-delete" data-id="${s.id}">${ic('trash')} حذف الطالب</button>
       </div>`;
 
+    const nickSel = document.getElementById('t-nick');
+    if (nickSel) {
+      nickSel.addEventListener('change', async () => {
+        const r = await Store.setNick(s.id, nickSel.value);
+        if (r.error) { failed(r); nickSel.value = s.nick || ''; return; }
+        s.nick = nickSel.value || null;
+        App.toast(s.nick ? 'تم حفظ اللقب' : 'تمت إزالة اللقب');
+      });
+    }
     const assignSel = document.getElementById('t-assign-n');
     if (assignSel) {
       assignSel.addEventListener('change', () => {

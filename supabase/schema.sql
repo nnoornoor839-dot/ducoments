@@ -27,7 +27,7 @@ create table if not exists kalimati.students (
   data jsonb not null default '{}'::jsonb,    -- التقدم والنطاقات وبقية الحقول
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  nick text,                                  -- لقب المنافسة: فريد، يختاره الطالب مرة واحدة
+  nick text,                                  -- لقب المنافسة: فريد، يسنده المعلم
   unique (grade, pin)
 );
 create unique index if not exists students_nick_uq on kalimati.students (nick) where nick is not null;
@@ -356,22 +356,21 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
--- 3) اختيار اللقب: مرة واحدة فقط، والمأخوذ لا يُعطى لغيره
-create or replace function public.kal_student_set_nick(p_token text, p_nick text) returns jsonb
+-- 3) المعلم هو من يسند اللقب (أو يغيّره أو يزيله)، واللقب المأخوذ لا يُعطى لغيره
+create or replace function public.kal_teacher_set_nick(p_token text, p_id text, p_nick text) returns jsonb
 language plpgsql security definer set search_path = '' as $$
-declare sid text; cur text;
+declare nk text;
 begin
-  sid := kalimati.student_of(p_token);
-  if sid is null then return jsonb_build_object('error', 'auth'); end if;
-  if p_nick is null or p_nick !~ '^[a-z]{3,20}$' then return jsonb_build_object('error', 'bad'); end if;
-  select s.nick into cur from kalimati.students s where s.id = sid;
-  if cur is not null then return jsonb_build_object('error', 'locked', 'nick', cur); end if;
+  if not kalimati.is_teacher(p_token) then return jsonb_build_object('error', 'auth'); end if;
+  nk := nullif(trim(coalesce(p_nick, '')), '');
+  if nk is not null and nk !~ '^[a-z]{3,20}$' then return jsonb_build_object('error', 'bad'); end if;
+  if not exists (select 1 from kalimati.students s where s.id = p_id) then return jsonb_build_object('error', 'not-found'); end if;
   begin
-    update kalimati.students set nick = p_nick, updated_at = now() where id = sid;
+    update kalimati.students set nick = nk, updated_at = now() where id = p_id;
   exception when unique_violation then
     return jsonb_build_object('error', 'taken');
   end;
-  return jsonb_build_object('ok', true, 'nick', p_nick);
+  return jsonb_build_object('ok', true, 'nick', nk);
 end $$;
 
 -- 4) الترتيب: لقب وصف وعدد الكلمات المحفوظة ونقاط الجمل. لا أسماء ولا رموز سرية.
