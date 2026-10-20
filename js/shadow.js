@@ -2,6 +2,7 @@
 const Shadow = (() => {
   const esc = U.esc;
   const app = () => document.getElementById('app');
+  const FN = 'smart-responder';  // اسم دالة Edge في Supabase
   const SLOTS = 3;           // عدد الجمل لكل وحدة
   const MAX_SEC = 15;        // أقصى مدة تسجيل
   const MIN_SEC = 1.5;       // أقل مدة مقبولة
@@ -136,7 +137,7 @@ const Shadow = (() => {
     fd.append('token', Store.studentToken());
     fd.append('audio', new Blob(r.chunks, { type: r.mime || 'audio/webm' }), 'speech.' + ext);
     let res;
-    try { res = await Cloud.fn('shadow', fd, 25000); }
+    try { res = await Cloud.fn(FN, fd, 25000); }
     catch (e) { out.innerHTML = `<p class="warn-text small">${ERR[e.code] || (e.status ? ERR.server : ERR.offline)}</p>`; return; }
     if (!res || !res.ok) { out.innerHTML = `<p class="warn-text small">${ERR[res && res.error] || ERR.server}</p>`; return; }
     if (!String(res.text).trim()) { out.innerHTML = `<p class="warn-text small">${ERR.empty}</p>`; return; }
