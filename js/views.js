@@ -203,7 +203,7 @@ const Views = (() => {
     }
 
     const wrongWords = Store.getWrongWords(s, gid, uid);
-    const batchN = Progress.batchOf(s, u).length;
+    const batchN = Progress.testWords(s, u).length;
     const newCount = range[1] - range[2];
     const newLine = newCount > 0
       ? `<span class="badge today">${newCount} ${newCount === 1 ? 'كلمة جديدة' : 'كلمات جديدة'}: ${range[2] + 1} إلى ${range[1]}</span>`
@@ -227,7 +227,7 @@ const Views = (() => {
         <button class="unit-action-btn" data-go="#/play/dictation/${gid}/${uid}">
           <span class="unit-action-icon">${ic('target')}</span>
           <b>تسميع الكلمات</b>
-          <small>اختبار دفعتك الحالية (${batchN} ${batchN === 1 ? 'كلمة' : 'كلمات'})</small>
+          <small>اختبار على كل كلماتك (${batchN} ${batchN === 1 ? 'كلمة' : 'كلمات'} • ${batchN * 2} سؤالًا)</small>
         </button>
         <button class="unit-action-btn ${wrongWords.length ? 'has-badge' : ''}" data-go="#/bank/${gid}/${uid}">
           <span class="unit-action-icon">${ic('bookmark')}</span>

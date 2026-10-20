@@ -276,7 +276,7 @@ const Games = (() => {
       words = Store.getWrongWords(student, gid, uid);
       if (!words.length) { App.toast('لا توجد كلمات خاطئة'); return App.go(`#/unit/${gid}/${uid}`); }
     } else {
-      words = Progress.batchOf(student, unit);
+      words = Progress.testWords(student, unit);
       if (!words.length) { App.toast('تُفتح كلمات هذه الوحدة بعد إنهاء الوحدة السابقة.'); return App.go(`#/unit/${gid}/${uid}`); }
     }
     const pool = unit.words.concat(Cur.allWords(grade).filter(w => w.unitId !== unit.id));

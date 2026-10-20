@@ -145,14 +145,29 @@ const Progress = (() => {
     const start = r[2] < r[1] ? r[2] : r[0] - 1;
     return unit.words.slice(start, r[1]);
   }
-  // هل أنجز الطالب دفعته؟ كلها اختُبرت ولا كلمة خاطئة معلّقة في الحصالة
+  // هل أنجز الطالب دفعته؟ كلها اختُبرت، ولا كلمة خاطئة معلّقة في الحصالة (جديدة كانت أو قديمة)
   function batchCleared(s, unit) {
     const b = batchOf(s, unit);
     if (!b.length) return false;
     const ut = s.units && s.units[unit.gradeId + '.' + unit.id];
     const lt = ut && ut.lastTest;
     if (!lt || !lt.tested) return false;
-    return b.every(w => lt.tested.indexOf(w.id) >= 0 && !(lt.wrong && lt.wrong.indexOf(w.id) >= 0));
+    const wrong = lt.wrong || [];
+    return b.every(w => lt.tested.indexOf(w.id) >= 0) && !assigned(s, unit).some(a => wrong.indexOf(a.w.id) >= 0);
+  }
+  // كلمات الاختبار التراكمي: كل المسند في الوحدة (جديدًا وقديمًا). إن زادت عن الحد
+  // تُؤخذ الدفعة الحالية أولًا، ثم الخاطئة، ثم الأضعف حفظًا، ثم عشوائيًا
+  const TEST_MAX_WORDS = 30;
+  function testWords(s, unit, max = TEST_MAX_WORDS) {
+    const all = assigned(s, unit).map(a => a.w);
+    if (all.length <= max) return all;
+    const ut = s.units && s.units[unit.gradeId + '.' + unit.id];
+    const wrong = (ut && ut.lastTest && ut.lastTest.wrong) || [];
+    const inBatch = new Set(batchOf(s, unit).map(w => w.id));
+    const box = w => (s.words[w.id] && s.words[w.id].box) || 0;
+    const rank = w => (inBatch.has(w.id) ? 0 : wrong.indexOf(w.id) >= 0 ? 1 : 2);
+    const picked = all.map(w => [rank(w), box(w), Math.random(), w]).sort((x, y) => x[0] - y[0] || x[1] - y[1] || x[2] - y[2]).slice(0, max).map(x => x[3]);
+    return all.filter(w => picked.indexOf(w) >= 0);
   }
   function unitStats(s, unit) {
     let mastered = 0, learning = 0, fresh = 0;
@@ -216,7 +231,7 @@ const Progress = (() => {
     return { days: days.size, tests, reps };
   }
 
-  return { LEVELS, DAILY_GOAL, wordStatus, rangeOf, assigned, batchOf, batchCleared, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
+  return { LEVELS, DAILY_GOAL, wordStatus, rangeOf, assigned, batchOf, batchCleared, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
 })();
 
 // ---------- التخزين ----------
