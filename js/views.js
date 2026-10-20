@@ -223,7 +223,7 @@ const Views = (() => {
         <p class="assign-line">${ic('ruler', 'sm')} الكلمات المسندة: من ${range[0]} إلى ${range[1]} ${newLine}</p>
       </section>
 
-      <div class="unit-actions three">
+      <div class="unit-actions">
         <button class="unit-action-btn" data-go="#/words/${gid}/${uid}">
           <span class="unit-action-icon">${ic('book')}</span>
           <b>كلمات الوحدة</b>
@@ -238,6 +238,11 @@ const Views = (() => {
           <span class="unit-action-icon">${ic('bookmark')}</span>
           <b>حصالة الكلمات</b>
           <small>${wrongWords.length ? wrongWords.length + ' كلمة تحتاج مراجعة' : 'لا توجد كلمات خاطئة'}</small>
+        </button>
+        <button class="unit-action-btn" data-go="#/shadow/${gid}/${uid}">
+          <span class="unit-action-icon">${ic('volume')}</span>
+          <b>قراءة الجمل</b>
+          <small>اقرأ بصوتك واحصل على درجة من 10</small>
         </button>
       </div>`;
   }

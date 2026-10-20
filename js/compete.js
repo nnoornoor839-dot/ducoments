@@ -3,10 +3,10 @@ const Compete = (() => {
   const esc = U.esc;
   const app = () => document.getElementById('app');
 
-  // الكلمة المحفوظة = نقطة. الجملة تُحتسب بدرجتها من 10 (5 فأكثر) حين تُفعَّل قراءة الجمل
+  // الكلمة المحفوظة = نقطة. الجملة تُحتسب بدرجتها من 10 (5 فأكثر)، وفي كل وحدة ثلاث جمل
   const WORD_PTS = 1;
   const SENT_MAX = 10;
-  const SENTS_PER_UNIT = 0;
+  const SENTS_PER_UNIT = 3;
 
   // [المعرّف، العربي، الإنجليزي]
   const NICKS = [
@@ -76,7 +76,7 @@ const Compete = (() => {
       <h2 class="section-title">${ic('trophy')} المنافسة</h2>
       <section class="card">
         ${myIdx >= 0 ? `<p>ترتيبك: <b>${myIdx + 1}</b> من ${rows.length}</p>` : ''}
-        <p class="muted small">الترتيب بالنسبة المئوية لما حفظته من منهج صفّك: كل كلمة محفوظة بنقطة. فيتنافس الجميع بعدل مهما اختلف الصف.</p>
+        <p class="muted small">الترتيب بالنسبة المئوية لما حفظته من منهج صفّك: كل كلمة محفوظة بنقطة، وكل جملة تقرؤها بصوتك بدرجتها من 10 (من 5 فأكثر). فيتنافس الجميع بعدل مهما اختلف الصف.</p>
       </section>
       ${list ? `<div class="board">${list}</div>` : '<p class="card muted empty">لم يختر أحد لقبه بعد.</p>'}`;
   }

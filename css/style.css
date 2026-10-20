@@ -655,3 +655,19 @@ table.pv th, table.pv td { padding: .3rem .5rem; border-bottom: 1px solid var(--
 .b-pct { text-align: center; display: grid; }
 .b-pct b { font-size: 1.2rem; color: var(--brand-dark); }
 .b-pct small { color: var(--muted); }
+
+/* قراءة الجمل */
+.shadow-list { display: grid; gap: .8rem; margin-top: .8rem; }
+.shadow-card { background: var(--card); border-radius: 18px; box-shadow: var(--shadow); padding: 1rem; display: grid; gap: .5rem; }
+.shadow-card.locked { opacity: .55; }
+.sh-sent { font-size: 1.25rem; font-weight: 700; }
+.sh-ar { color: var(--muted); }
+.sh-best { font-size: .95rem; }
+.sh-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+.sh-result { border-radius: 14px; padding: .7rem; display: grid; gap: .3rem; }
+.sh-result.ok { background: var(--good-soft); }
+.sh-result.bad { background: var(--warn-soft); }
+.sh-score { font-size: 1.6rem; }
+.sh-marks span { padding: 0 .15rem; border-radius: 6px; }
+.sh-marks .ok { color: #065F46; }
+.sh-marks .miss { color: #991B1B; background: var(--bad-soft); text-decoration: line-through; }

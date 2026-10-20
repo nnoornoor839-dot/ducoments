@@ -82,6 +82,7 @@ const App = (() => {
 
   async function route() {
     Games.abort();
+    Shadow.abort();
     Speech.stop();
     const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
     const [a, b, c, d] = parts;
@@ -96,6 +97,7 @@ const App = (() => {
       else if (a === 'unit') Views.unit(student, b, c);
       else if (a === 'bank') Views.wordBank(student, b, c);
       else if (a === 'play') await Games.route(b, c, d);
+      else if (a === 'shadow') await Shadow.route(b, c);
       else if (a === 'compete') await Compete.route(student);
       else await Views.home(student);
     } catch (e) {

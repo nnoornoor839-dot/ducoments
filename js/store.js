@@ -238,7 +238,7 @@ const Progress = (() => {
 const Store = (() => {
   const KEY = 'kalimati.v1';
   const TOKEN_KEY = 'kalimati.ttoken';
-  const PROGRESS_KEYS = ['xp', 'streak', 'lastActive', 'daily', 'words', 'units', 'log', 'reps', 'ranges'];
+  const PROGRESS_KEYS = ['xp', 'streak', 'lastActive', 'daily', 'words', 'units', 'log', 'reps', 'ranges', 'sentences'];
   // عدد الكلمات المسندة في كل مرة حسب الصف (يغيّره المعلم من الإعدادات)
   const ASSIGN_KEY = 'kalimati.assignByGrade';
   const ASSIGN_DEFAULT = { t1: 5, g5: 5, g6: 10, m2: 10 };
@@ -586,6 +586,18 @@ const Store = (() => {
       await refresh(true);
       return Object.values(state.students);
     },
+    // رمز جلسة الطالب (لدالة تقييم الصوت)
+    studentToken() { const sess = state.session; return sess && sess.role === 'student' && sess.token ? sess.token : ''; },
+    // درجة قراءة جملة (من 10): نحتفظ بأفضل درجة لكل جملة
+    recordSentence(sid, wid, score) {
+      const s = state.students[sid];
+      if (!s || !Number.isInteger(score) || score < 0 || score > 10) return null;
+      if (!s.sentences) s.sentences = {};
+      if (!(s.sentences[wid] >= score)) s.sentences[wid] = score;
+      touchStreak(s, U.ymd());
+      commitStudent(sid);
+      return { best: s.sentences[wid] };
+    },
     // لقب المنافسة: يسنده المعلم (أو يزيله بقيمة فارغة) ولا يتكرر بين الطلاب
     async setNick(sid, nick) {
       const s = state.students[sid];
@@ -616,7 +628,7 @@ const Store = (() => {
         return n + (lt ? Math.max(0, (lt.tested || []).length - (lt.wrong || []).length) : 0);
       }, 0);
       return { rows: Object.values(state.students).filter(s => s.nick)
-        .map(s => ({ nick: s.nick, grade: s.grade, words: mastered(s), sents: s.sentencePts || 0, me: s.id === sid })) };
+        .map(s => ({ nick: s.nick, grade: s.grade, words: mastered(s), sents: Object.values(s.sentences || {}).filter(v => v >= 5).reduce((n, v) => n + Math.min(10, v), 0), me: s.id === sid })) };
     },
     async getStudent(id) {
       await refresh();

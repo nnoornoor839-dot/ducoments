@@ -28,5 +28,18 @@ const Cloud = (() => {
     }
   }
 
-  return { enabled, rpc };
+  // دالة Edge (رفع ملف): تُرجع JSON حتى عند رفض الخادم، وترمي خطأً إن تعذّر الاتصال
+  async function fn(name, body, timeout = 20000) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeout);
+    try {
+      const res = await fetch(`${base}/functions/v1/${name}`, { method: 'POST', headers: { apikey: cfg.key }, body, signal: ctrl.signal });
+      try { return await res.json(); }
+      catch (e) { const err = new Error('HTTP ' + res.status); err.status = res.status; throw err; }
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  return { enabled, rpc, fn };
 })();
