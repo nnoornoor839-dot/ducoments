@@ -106,6 +106,8 @@ const Progress = (() => {
   const INTERVAL_DAYS = [0, 0.25, 1, 3, 7];  // موعد المراجعة حسب مستوى الحفظ
   const DAILY_GOAL = 10;
   const MASTERED_BOX = 3;
+  const FINAL_ID = 'final';   // الاختبار النهائي للصف: عيّنة عشوائية من كل كلماته
+  const FINAL_WORDS = 20;
   const PASS_RATE = 0.95;   // نسبة النجاح في تسميع الوحدة لفتح الدفعة التالية
 
   function wordStatus(s, wid) {
@@ -177,6 +179,12 @@ const Progress = (() => {
     const picked = all.map(w => [rank(w), box(w), Math.random(), w]).sort((x, y) => x[0] - y[0] || x[1] - y[1] || x[2] - y[2]).slice(0, max).map(x => x[3]);
     return all.filter(w => picked.indexOf(w) >= 0);
   }
+  // أنهى الطالب كل وحدات صفه؟ (يُفتح له الاختبار النهائي)
+  function gradeFinished(s, grade) {
+    const us = grade.units.filter(u => u.words.length);
+    return us.length > 0 && us.every(u => unitFinished(s, u));
+  }
+  const finalPassed = (s, gid) => !!(s.units && s.units[gid + '.' + FINAL_ID] && s.units[gid + '.' + FINAL_ID].passed);
   function unitStats(s, unit) {
     let mastered = 0, learning = 0, fresh = 0;
     const list = assigned(s, unit);
@@ -239,7 +247,7 @@ const Progress = (() => {
     return { days: days.size, tests, reps };
   }
 
-  return { LEVELS, DAILY_GOAL, PASS_RATE, wordStatus, rangeOf, assigned, batchOf, batchCleared, unitFinished, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
+  return { LEVELS, DAILY_GOAL, PASS_RATE, FINAL_ID, FINAL_WORDS, gradeFinished, finalPassed, wordStatus, rangeOf, assigned, batchOf, batchCleared, unitFinished, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
 })();
 
 // ---------- التخزين ----------
@@ -844,7 +852,7 @@ const Store = (() => {
         const u = s.units[key] || (s.units[key] = { stars: 0, speedBest: 0 });
         if (mode === 'speed') u.speedBest = Math.max(u.speedBest || 0, correct);
         else if (mode !== 'bank') u.stars = Math.max(u.stars || 0, stars);
-        if (testedIds) {
+        if (testedIds && unitId !== Progress.FINAL_ID) {
           // الاختبار على الدفعة الحالية فقط، فندمج نتيجته مع ما سبق بدل أن نستبدلها:
           // المختبَر يتراكم، والخطأ المعلّق يبقى حتى تُجاب الكلمة صحيحة في اختبار لاحق (اختبار الحصالة مثلًا)
           const old = u.lastTest || {};
@@ -852,8 +860,14 @@ const Store = (() => {
           const wrong = (old.wrong || []).filter(id => testedIds.indexOf(id) < 0).concat(wrongIds || []);
           u.lastTest = { date: today, correct, total, wrong, tested, sessionWrong: wrongIds || [] };
         }
+        // الاختبار النهائي للصف: النجاح بنسبة النجاح فأكثر، ويبقى محفوظًا
+        if (unitId === Progress.FINAL_ID && total) {
+          u.lastFinal = { date: today, correct, total };
+          passed = correct / total >= Progress.PASS_RATE;
+          if (passed) u.passed = true;
+        }
         // اجتياز الدفعة: تسميع يشمل كل كلمات الدفعة بنسبة النجاح فأكثر (اختبار الحصالة لا يُحتسب)
-        if (mode === 'dictation' && testedIds && total) {
+        if (mode === 'dictation' && testedIds && total && unitId !== Progress.FINAL_ID) {
           const un = Cur.unit(gradeId, unitId), r = un && Progress.rangeOf(s, un);
           if (r) {
             passed = correct / total >= Progress.PASS_RATE && Progress.batchOf(s, un).every(w => testedIds.indexOf(w.id) >= 0);
@@ -864,7 +878,7 @@ const Store = (() => {
       s.log.unshift({ t: Date.now(), mode, gradeId, unitId: unitId || null, correct, total });
       s.log = s.log.slice(0, 60);
       // اجتياز الدفعة (أو اختبار الحصالة بنجاح) يُسند الدفعة التالية فورًا
-      const advanced = (mode === 'dictation' || mode === 'bank') && s.grade === gradeId ? advance(sid) : null;
+      const advanced = (mode === 'dictation' || mode === 'bank') && s.grade === gradeId && unitId !== Progress.FINAL_ID ? advance(sid) : null;
       commitStudent(sid);
       const after = Progress.levelInfo(s.xp);
       return { xpGained, streak: s.streak, levelUp: after.level > before ? after : null, goalReached, advanced, passed };

@@ -171,6 +171,24 @@ const Views = (() => {
         </button>`;
     }).join('') : '';
 
+    // الاختبار النهائي: يُفتح بعد إنهاء كل وحدات الصف، ونجاحه يحفظ شارة النجاح
+    const fin = grade && grade.units.some(u => u.words.length) ? { open: Progress.gradeFinished(s, grade), passed: Progress.finalPassed(s, grade.id) } : null;
+    const need = Math.round(Progress.PASS_RATE * 100);
+    const finalCards = fin ? `
+      ${fin.open
+        ? `<button class="unit-card final ${fin.passed ? 'passed' : ''}" data-go="#/play/final/${grade.id}/${Progress.FINAL_ID}">
+            <b>الاختبار النهائي</b>
+            <small>${fin.passed ? `${ic('check-circle', 'sm')} نجحت! ` : ''}${Progress.FINAL_WORDS} كلمة عشوائية • النجاح ${need}%</small>
+          </button>`
+        : `<div class="unit-card locked" aria-disabled="true">
+            <b>الاختبار النهائي</b>
+            <small>${ic('lock', 'sm')} يُفتح بعد إنهاء كل الوحدات</small>
+          </div>`}
+      ${grade.id === 't1' ? `<div class="unit-card locked" aria-disabled="true">
+            <b>المستوى الثاني</b>
+            <small>${ic('lock', 'sm')} ${fin.passed ? 'قريبًا' : 'يُفتح بعد النجاح في الاختبار النهائي'}</small>
+          </div>` : ''}` : '';
+
     app().innerHTML = `
       <section class="card welcome-card">
         <h2>أهلًا ${esc(s.name)}</h2>
@@ -183,7 +201,7 @@ const Views = (() => {
       </button>
 
       <h3 class="section-title">الوحدات</h3>
-      ${units ? `<div class="units">${units}</div>` : '<p class="card muted empty">لم تُضف وحدات هذا الصف بعد. سيضيفها المعلم قريبًا.</p>'}`;
+      ${units ? `<div class="units">${units}${finalCards}</div>` : '<p class="card muted empty">لم تُضف وحدات هذا الصف بعد. سيضيفها المعلم قريبًا.</p>'}`;
   }
 
   // ---------- صفحة الوحدة ----------

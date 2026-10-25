@@ -319,6 +319,10 @@ body.on-landing #topbar { display: none; }
 .unit-card:nth-child(3n+3) { border-top-color: var(--good); }
 .unit-card b { font-size: 1.05rem; }
 .unit-card small { color: var(--muted); }
+.unit-card.locked { opacity: .6; cursor: not-allowed; background: #F3F4F6; border-top-color: #9CA3AF; box-shadow: none; }
+.unit-card.locked small { display: flex; align-items: center; gap: .3rem; }
+.unit-card.final { border-top-color: var(--brand); }
+.unit-card.passed small { color: #065F46; }
 .stars { color: #FED7AA; letter-spacing: 2px; font-size: 1.2rem; }
 .stars .on { color: #F59E0B; }
 

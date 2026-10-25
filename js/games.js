@@ -66,14 +66,15 @@ const Games = (() => {
     const queue = plan(words, pool);
     if (!queue.length) {
       App.toast('لا توجد أسئلة كافية');
-      App.go(`#/unit/${gradeId}/${unitId}`);
+      App.go(isFinal ? '#/' : `#/unit/${gradeId}/${unitId}`);
       return;
     }
 
     let idx = 0, firstTotal = 0, firstCorrect = 0, locked = false, finished = false;
     const wrongWords = new Map();
     let q = null;
-    const backHash = `#/unit/${gradeId}/${unitId}`;
+    const isFinal = unitId === Progress.FINAL_ID;
+    const backHash = isFinal ? '#/' : `#/unit/${gradeId}/${unitId}`;
 
     appEl.innerHTML = `
       <section class="play">
@@ -194,7 +195,11 @@ const Games = (() => {
       const need = Math.round(Progress.PASS_RATE * 100);
       const pct = firstTotal ? Math.round(firstCorrect / firstTotal * 100) : 0;
       // الكلمات الجديدة لا تُفتح بالحصالة؛ تُفتح بتسميع الوحدة كاملة بنسبة النجاح
-      const bankHint = !adv && mode === 'bank'
+      const bankHint = isFinal
+        ? (res.passed
+          ? '<p class="assign-msg">🎉 نجحت في الاختبار النهائي! ما شاء الله</p>'
+          : `<p class="retry-msg">حصلت على ${pct}% وتحتاج ${need}% على الأقل في الاختبار النهائي. راجع كلماتك ثم أعد المحاولة.</p>`)
+        : !adv && mode === 'bank'
         ? `<p class="retry-msg">الحصالة للمراجعة فقط. لتأخذ كلمات جديدة أعد «تسميع الكلمات» وحقق ${need}% على الأقل.</p>`
         : !adv && res.passed === false
           ? `<p class="retry-msg">حصلت على ${pct}% وتحتاج ${need}% على الأقل لتأخذ كلمات جديدة. راجع كلماتك ثم أعد الاختبار.</p>` : '';
@@ -222,8 +227,8 @@ const Games = (() => {
               : mustRetry
                 ? `<button class="btn" data-act="again">${ic('repeat', 'sm')} أعد الاختبار</button>`
                 : `<button class="btn" data-act="again">${ic('repeat', 'sm')} مرة أخرى</button>`}
-            ${!adv && mode !== 'bank' && wrongList.length ? `<button class="btn ghost" data-go="#/bank/${gradeId}/${unitId}">${ic('bookmark', 'sm')} حصالة الكلمات</button>` : ''}
-            ${adv && !adv.done ? '' : `<button class="btn ghost" data-go="${backHash}">العودة للوحدة</button>`}
+            ${!adv && mode !== 'bank' && !isFinal && wrongList.length ? `<button class="btn ghost" data-go="#/bank/${gradeId}/${unitId}">${ic('bookmark', 'sm')} حصالة الكلمات</button>` : ''}
+            ${adv && !adv.done ? '' : `<button class="btn ghost" data-go="${backHash}">${isFinal ? 'العودة للرئيسية' : 'العودة للوحدة'}</button>`}
           </div>
         </section>`;
     }
@@ -273,6 +278,13 @@ const Games = (() => {
     if (!student) return App.go('#/login');
     const grade = Cur.grade(gid);
     if (!grade) return App.go('#/');
+    // الاختبار النهائي للصف: عيّنة عشوائية من كل كلماته، يُفتح بعد إنهاء كل الوحدات
+    if (mode === 'final') {
+      if (!Progress.gradeFinished(student, grade)) { App.toast('يُفتح الاختبار النهائي بعد إنهاء كل الوحدات'); return App.go('#/'); }
+      const all = Cur.allWords(grade);
+      return run({ mode: 'final', gradeId: gid, unitId: Progress.FINAL_ID, words: U.shuffle(all).slice(0, Progress.FINAL_WORDS), pool: all, student });
+    }
+
     const unit = Cur.unit(gid, uid);
     if (!unit || !unit.words.length) return App.go('#/');
 
