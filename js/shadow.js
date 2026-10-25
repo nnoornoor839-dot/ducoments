@@ -3,7 +3,7 @@ const Shadow = (() => {
   const esc = U.esc;
   const app = () => document.getElementById('app');
   const FN = 'smart-responder';  // اسم دالة Edge في Supabase
-  const MAX_TRIES = 5;       // محاولات كل جملة (تُحتسب أعلى درجة)
+  const MAX_TRIES = 5;       // محاولات كل جملة في اليوم (تُحتسب أعلى درجة)
   const SLOTS = 3;           // عدد الجمل لكل وحدة
   const MAX_SEC = 15;        // أقصى مدة تسجيل
   const MIN_SEC = 1.5;       // أقل مدة مقبولة
@@ -50,12 +50,13 @@ const Shadow = (() => {
     return { score: real.length ? Math.round(hit / real.length * 10) : 0, marks };
   }
 
-  function triesOf(s, wid) { const v = s.sentenceTries && s.sentenceTries[wid]; return Number.isInteger(v) ? Math.min(v, MAX_TRIES) : 0; }
-  function triesLine(n) { return n >= MAX_TRIES ? 'انتهت محاولاتك الخمس لهذه الجملة' : `المحاولات المتبقية: <b>${MAX_TRIES - n}</b> من ${MAX_TRIES}`; }
+  // محاولات اليوم فقط: كل يوم خمس محاولات جديدة لكل جملة (الأرقام القديمة إجمالية فلا تُحتسب)
+  function triesOf(s, wid) { const v = s.sentenceTries && s.sentenceTries[wid]; return v && typeof v === 'object' && v.d === U.ymd() && Number.isInteger(v.n) ? Math.min(v.n, MAX_TRIES) : 0; }
+  function triesLine(n) { return n >= MAX_TRIES ? 'انتهت محاولاتك الخمس اليوم، تُفتح غدًا' : `المحاولات المتبقية اليوم: <b>${MAX_TRIES - n}</b> من ${MAX_TRIES}`; }
   function best(s, wid) { const v = s.sentences && s.sentences[wid]; return Number.isInteger(v) ? v : 0; }
   const ERR = {
     limit: 'وصلت لحد المحاولات لهذا اليوم، عُد غدًا',
-    tries: 'انتهت محاولاتك الخمس لهذه الجملة. أعلى درجة حصلت عليها هي التي تُحتسب',
+    tries: 'انتهت محاولاتك الخمس لهذه الجملة اليوم، وتُفتح من جديد غدًا. أعلى درجة حصلت عليها هي التي تُحتسب',
     busy: 'الخدمة مشغولة الآن، حاول بعد قليل',
     auth: 'انتهت الجلسة، ادخل من جديد',
     empty: 'لم أسمع صوتًا، اقترب من الميكروفون وحاول مرة أخرى',
@@ -89,7 +90,7 @@ const Shadow = (() => {
     app().innerHTML = `
       <button class="back" data-go="#/unit/${gid}/${uid}">‹ رجوع للوحدة</button>
       <h2 class="section-title">${ic('volume')} قراءة الجمل: <span class="en" dir="ltr">${esc(u.title)}</span></h2>
-      <p class="muted small">استمع للجملة ثم اضغط «اقرأ» وانطقها بصوت واضح. تأخذ نقاطًا بقدر درجتك من 10 (من 5 فأكثر)، ولكل جملة <b>خمس محاولات فقط</b> وتُحتسب أعلى درجة لك.</p>
+      <p class="muted small">استمع للجملة ثم اضغط «اقرأ» وانطقها بصوت واضح. تأخذ نقاطًا بقدر درجتك من 10 (من 5 فأكثر)، ولكل جملة <b>خمس محاولات في اليوم</b> (تتجدد غدًا) وتُحتسب أعلى درجة لك.</p>
       ${Cloud.enabled ? '' : '<p class="card warn">قراءة الجمل تحتاج اتصالًا بالإنترنت.</p>'}
       <p class="small">درّب نفسك أولًا على <b>السرعة البطيئة</b>: استمع للجملة ببطء، كررها بصوتك، ثم اقرأها للتقييم.</p>
       <div class="sticky-speed">${Views.speedBar()}</div>

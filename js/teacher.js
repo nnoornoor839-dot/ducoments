@@ -15,7 +15,7 @@ const Teacher = (() => {
       const r = Progress.rangeOf(s, u);
       if (!r) continue;
       cur = { u, r };
-      if (!(r[1] >= u.words.length && Progress.batchCleared(s, u))) break;
+      if (!Progress.unitFinished(s, u)) break;
     }
     if (!cur) return { started: false, state: 'none', wrong: [] };
     const { u } = cur;
@@ -25,12 +25,12 @@ const Teacher = (() => {
     const testedN = lt && lt.tested ? batch.filter(w => lt.tested.indexOf(w.id) >= 0).length : 0;
     const cleared = Progress.batchCleared(s, u);
     const wrong = Store.getWrongWords(s, g.id, u.id);
-    const finished = cur.r[1] >= u.words.length && cleared;
+    const finished = Progress.unitFinished(s, u);
     const entered = seen > 0 || testedN > 0;
     const state = finished ? 'done' : cleared ? 'cleared' : testedN ? 'retry' : entered ? 'practice' : 'none';
     return { started: true, unit: u, batchN: batch.length, seen, testedN, entered, tested: testedN > 0, cleared, finished, wrong, state, score: lt && testedN ? lt : null };
   }
-  const STATE_LABEL = { none: 'لم يدخل الكلمات', practice: 'تدرّب ولم يختبر', retry: 'اختبر وعنده أخطاء', cleared: 'أنجز دفعته', done: 'أنهى الوحدة' };
+  const STATE_LABEL = { none: 'لم يدخل الكلمات', practice: 'تدرّب ولم يختبر', retry: `اختبر ولم يبلغ ${Math.round(Progress.PASS_RATE * 100)}%`, cleared: 'أنجز دفعته', done: 'أنهى الوحدة' };
   const STATE_CLASS = { none: 'bad', practice: 'warn', retry: 'warn', cleared: 'good', done: 'good' };
   const wrongLis = list => list.map(w => `<li><b class="en" dir="ltr">${esc(w.en)}</b> <span class="muted">${esc(w.ar || '')}</span></li>`).join('');
 
@@ -379,7 +379,7 @@ const Teacher = (() => {
       const from = r[2] < r[1] ? r[2] + 1 : r[0];
       const cleared = Progress.batchCleared(s, u);
       const bank = Store.getWrongWords(s, g.id, u.id).length;
-      const finished = r[1] >= total && cleared;
+      const finished = Progress.unitFinished(s, u);
       return `
         <div class="assign">
           <div class="assign-head">
@@ -415,7 +415,7 @@ const Teacher = (() => {
       <h3 class="section-title">${ic('volume')} تسجيلات قراءة الجمل</h3>
       <div class="card" id="t-clips">
         ${Store.syncState().cloud ? `<button class="btn" data-act="t-clips" data-id="${s.id}">${ic('play', 'sm')} عرض التسجيلات</button>
-        <p class="muted small">تُحفظ كل محاولة (حتى خمس لكل جملة) وتسمعها هنا. تُحذف حين تصفّر تقدم الطالب أو تحذفه.</p>` : '<p class="muted">تحتاج الربط السحابي.</p>'}
+        <p class="muted small">تُحفظ كل محاولة (حتى خمس لكل جملة في اليوم) وتسمعها هنا. تُحذف حين تصفّر تقدم الطالب أو تحذفه.</p>` : '<p class="muted">تحتاج الربط السحابي.</p>'}
       </div>
 
       <h3 class="section-title">${ic('ruler')} الإسناد التلقائي</h3>

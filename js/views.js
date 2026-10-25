@@ -221,6 +221,7 @@ const Views = (() => {
         <div class="meter"><i style="width:${st.pct}%"></i></div>
         <p class="muted small">حفظت ${st.mastered} من ${st.total} كلمة مسندة</p>
         <p class="assign-line">${ic('ruler', 'sm')} الكلمات المسندة: من ${range[0]} إلى ${range[1]} ${newLine}</p>
+        ${Progress.unitFinished(s, u) ? '' : `<p class="muted small">${ic('target', 'sm')} لتأخذ كلمات جديدة: حقق ${Math.round(Progress.PASS_RATE * 100)}% على الأقل في «تسميع الكلمات»</p>`}
       </section>
 
       <div class="unit-actions">

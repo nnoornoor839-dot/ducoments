@@ -191,8 +191,13 @@ const Games = (() => {
       const advMsg = !adv ? ''
         : adv.done ? '<p class="assign-msg">🎉 أنهيت كل وحدات صفك. ما شاء الله!</p>'
         : `<p class="assign-msg">🎉 أُسندت لك ${adv.count} ${adv.count === 1 ? 'كلمة جديدة' : 'كلمات جديدة'}${adv.newUnit ? ' في وحدة جديدة' : ''}</p>`;
+      const need = Math.round(Progress.PASS_RATE * 100);
+      const pct = firstTotal ? Math.round(firstCorrect / firstTotal * 100) : 0;
+      // الكلمات الجديدة لا تُفتح بالحصالة؛ تُفتح بتسميع الوحدة كاملة بنسبة النجاح
       const bankHint = !adv && mode === 'bank'
-        ? '<p class="retry-msg">أعد اختبار الحصالة حتى تجيب على كل كلماتها صحيحة وتأخذ كلمات جديدة.</p>' : '';
+        ? `<p class="retry-msg">الحصالة للمراجعة فقط. لتأخذ كلمات جديدة أعد «تسميع الكلمات» وحقق ${need}% على الأقل.</p>`
+        : !adv && res.passed === false
+          ? `<p class="retry-msg">حصلت على ${pct}% وتحتاج ${need}% على الأقل لتأخذ كلمات جديدة. راجع كلماتك ثم أعد الاختبار.</p>` : '';
       const threshold = Store.getRetryThreshold();
       const mustRetry = threshold > 0 && wrongList.length >= threshold;
       const titles = mustRetry

@@ -106,6 +106,7 @@ const Progress = (() => {
   const INTERVAL_DAYS = [0, 0.25, 1, 3, 7];  // موعد المراجعة حسب مستوى الحفظ
   const DAILY_GOAL = 10;
   const MASTERED_BOX = 3;
+  const PASS_RATE = 0.95;   // نسبة النجاح في تسميع الوحدة لفتح الدفعة التالية
 
   function wordStatus(s, wid) {
     const r = s.words[wid];
@@ -145,15 +146,22 @@ const Progress = (() => {
     const start = r[2] < r[1] ? r[2] : r[0] - 1;
     return unit.words.slice(start, r[1]);
   }
-  // هل أنجز الطالب دفعته؟ كلها اختُبرت، ولا كلمة خاطئة معلّقة في الحصالة (جديدة كانت أو قديمة)
+  // هل أنجز الطالب دفعته؟ اجتاز اختبار التسميع (كل كلمات الدفعة) بنسبة النجاح فأكثر.
+  // تفريغ الحصالة وحده لا يكفي: عليه أن يعيد الاختبار حتى يبلغ النسبة.
   function batchCleared(s, unit) {
-    const b = batchOf(s, unit);
-    if (!b.length) return false;
+    const r = rangeOf(s, unit);
+    if (!r) return false;
     const ut = s.units && s.units[unit.gradeId + '.' + unit.id];
-    const lt = ut && ut.lastTest;
-    if (!lt || !lt.tested) return false;
-    const wrong = lt.wrong || [];
-    return b.every(w => lt.tested.indexOf(w.id) >= 0) && !assigned(s, unit).some(a => wrong.indexOf(a.w.id) >= 0);
+    return !!(ut && ut.passedTo >= r[1]);
+  }
+  // الوحدة منتهية: كل كلماتها مسندة وقد اجتاز اختبار دفعتها الأخيرة. ومن انتقل لوحدة أحدث يُعدّ أنهى ما قبلها
+  function unitFinished(s, unit) {
+    const r = rangeOf(s, unit);
+    if (!r || r[1] < unit.words.length) return false;
+    if (batchCleared(s, unit)) return true;
+    const g = Cur.grade(unit.gradeId);
+    const i = g ? g.units.findIndex(u => u.id === unit.id) : -1;
+    return i >= 0 && g.units.slice(i + 1).some(u => rangeOf(s, u));
   }
   // كلمات الاختبار التراكمي: كل المسند في الوحدة (جديدًا وقديمًا). إن زادت عن الحد
   // تُؤخذ الدفعة الحالية أولًا، ثم الخاطئة، ثم الأضعف حفظًا، ثم عشوائيًا
@@ -231,7 +239,7 @@ const Progress = (() => {
     return { days: days.size, tests, reps };
   }
 
-  return { LEVELS, DAILY_GOAL, wordStatus, rangeOf, assigned, batchOf, batchCleared, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
+  return { LEVELS, DAILY_GOAL, PASS_RATE, wordStatus, rangeOf, assigned, batchOf, batchCleared, unitFinished, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
 })();
 
 // ---------- التخزين ----------
@@ -507,7 +515,7 @@ const Store = (() => {
     let cur = null;
     for (const u of units) {
       const r = Progress.rangeOf(s, u);
-      if (r && !(r[1] >= u.words.length && Progress.batchCleared(s, u))) { cur = { u, r }; break; }
+      if (r && !Progress.unitFinished(s, u)) { cur = { u, r }; break; }
     }
     if (cur) {
       if (!Progress.batchCleared(s, cur.u)) return null;
@@ -596,17 +604,19 @@ const Store = (() => {
       if (!s.sentences) s.sentences = {};
       if (!s.sentenceTries) s.sentenceTries = {};
       if (!(s.sentences[wid] >= score)) s.sentences[wid] = score;
-      s.sentenceTries[wid] = Number.isInteger(tries) ? Math.max(tries, s.sentenceTries[wid] || 0) : (s.sentenceTries[wid] || 0) + 1;
-      touchStreak(s, U.ymd());
+      const today = U.ymd(), t = s.sentenceTries[wid];
+      const prev = t && typeof t === 'object' && t.d === today ? t.n : 0;   // الأرقام القديمة (إجمالي) لا تُحتسب اليوم
+      s.sentenceTries[wid] = { n: Number.isInteger(tries) ? Math.max(tries, prev) : prev + 1, d: today };
+      touchStreak(s, today);
       commitStudent(sid);
-      return { best: s.sentences[wid], tries: s.sentenceTries[wid] };
+      return { best: s.sentences[wid], tries: s.sentenceTries[wid].n };
     },
-    // الخادم يقول إن محاولات الجملة انتهت: نثبّت العدّاد محليًا
+    // الخادم يقول إن محاولات الجملة لهذا اليوم انتهت: نثبّت العدّاد محليًا
     markSentenceExhausted(sid, wid, max) {
       const s = state.students[sid];
       if (!s) return;
       if (!s.sentenceTries) s.sentenceTries = {};
-      s.sentenceTries[wid] = Math.max(s.sentenceTries[wid] || 0, max);
+      s.sentenceTries[wid] = { n: max, d: U.ymd() };
       commitStudent(sid);
     },
     // لقب المنافسة: يسنده المعلم (أو يزيله بقيمة فارغة) ولا يتكرر بين الطلاب
@@ -828,6 +838,7 @@ const Store = (() => {
       const goalReached = !wasDone && s.daily.n >= Progress.DAILY_GOAL;
 
       // أفضل نتيجة للوحدة + نتيجة آخر اختبار
+      let passed = null;
       if (unitId && mode !== 'review') {
         const key = gradeId + '.' + unitId;
         const u = s.units[key] || (s.units[key] = { stars: 0, speedBest: 0 });
@@ -841,6 +852,14 @@ const Store = (() => {
           const wrong = (old.wrong || []).filter(id => testedIds.indexOf(id) < 0).concat(wrongIds || []);
           u.lastTest = { date: today, correct, total, wrong, tested, sessionWrong: wrongIds || [] };
         }
+        // اجتياز الدفعة: تسميع يشمل كل كلمات الدفعة بنسبة النجاح فأكثر (اختبار الحصالة لا يُحتسب)
+        if (mode === 'dictation' && testedIds && total) {
+          const un = Cur.unit(gradeId, unitId), r = un && Progress.rangeOf(s, un);
+          if (r) {
+            passed = correct / total >= Progress.PASS_RATE && Progress.batchOf(s, un).every(w => testedIds.indexOf(w.id) >= 0);
+            if (passed) u.passedTo = Math.max(u.passedTo || 0, r[1]);
+          }
+        }
       }
       s.log.unshift({ t: Date.now(), mode, gradeId, unitId: unitId || null, correct, total });
       s.log = s.log.slice(0, 60);
@@ -848,7 +867,7 @@ const Store = (() => {
       const advanced = (mode === 'dictation' || mode === 'bank') && s.grade === gradeId ? advance(sid) : null;
       commitStudent(sid);
       const after = Progress.levelInfo(s.xp);
-      return { xpGained, streak: s.streak, levelUp: after.level > before ? after : null, goalReached, advanced };
+      return { xpGained, streak: s.streak, levelUp: after.level > before ? after : null, goalReached, advanced, passed };
     },
 
     // بيانات تجريبية لعرض لوحة المعلم
