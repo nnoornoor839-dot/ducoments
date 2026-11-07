@@ -108,7 +108,8 @@ const Progress = (() => {
   const MASTERED_BOX = 3;
   const FINAL_ID = 'final';   // الاختبار النهائي للصف: عيّنة عشوائية من كل كلماته
   const FINAL_WORDS = 20;
-  const PASS_RATE = 0.90;   // نسبة النجاح في تسميع الوحدة لفتح الدفعة التالية
+  const PASS_RATE = 0.95;
+  const TEACHER_OPEN_RATE = 0.92;   // أقل نسبة يستطيع المعلم عندها أن يفتح الدفعة التالية من عنده   // نسبة النجاح في تسميع الوحدة لفتح الدفعة التالية
 
   function wordStatus(s, wid) {
     const r = s.words[wid];
@@ -155,6 +156,13 @@ const Progress = (() => {
     if (!r) return false;
     const ut = s.units && s.units[unit.gradeId + '.' + unit.id];
     return !!(ut && ut.passedTo >= r[1]) || teacherCleared(s, unit);
+  }
+  // يستطيع المعلم فتح الدفعة التالية: آخر تسميع لدفعته الحالية بلغ نسبة المعلم ولم يبلغ نسبة النجاح
+  function canTeacherOpen(s, unit) {
+    const r = rangeOf(s, unit), ut = s.units && s.units[unit.gradeId + '.' + unit.id];
+    if (!r || !ut || !ut.dictScore || ut.dictScore.to !== r[1] || batchCleared(s, unit)) return null;
+    const pct = ut.dictScore.pct;
+    return pct >= TEACHER_OPEN_RATE && pct < PASS_RATE ? { pct } : null;
   }
   // فتحها المعلم من عنده: العلامة 2 في آخر عنصر من نطاق الوحدة (لا يملك المعلم كتابة نتائج الطالب، فتُحفظ مع النطاق)
   function teacherCleared(s, unit) {
@@ -252,7 +260,7 @@ const Progress = (() => {
     return { days: days.size, tests, reps };
   }
 
-  return { LEVELS, DAILY_GOAL, PASS_RATE, FINAL_ID, FINAL_WORDS, gradeFinished, finalPassed, wordStatus, rangeOf, assigned, batchOf, batchCleared, teacherCleared, unitFinished, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
+  return { LEVELS, DAILY_GOAL, PASS_RATE, TEACHER_OPEN_RATE, canTeacherOpen, FINAL_ID, FINAL_WORDS, gradeFinished, finalPassed, wordStatus, rangeOf, assigned, batchOf, batchCleared, teacherCleared, unitFinished, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
 })();
 
 // ---------- التخزين ----------
@@ -894,7 +902,9 @@ const Store = (() => {
         if (mode === 'dictation' && testedIds && total && unitId !== Progress.FINAL_ID) {
           const un = Cur.unit(gradeId, unitId), r = un && Progress.rangeOf(s, un);
           if (r) {
-            passed = correct / total >= Progress.PASS_RATE && Progress.batchOf(s, un).every(w => testedIds.indexOf(w.id) >= 0);
+            const full = Progress.batchOf(s, un).every(w => testedIds.indexOf(w.id) >= 0);
+            if (full) u.dictScore = { pct: correct / total, to: r[1], date: today };   // آخر تسميع لكل الدفعة (للمعلم)
+            passed = full && correct / total >= Progress.PASS_RATE;
             if (passed) u.passedTo = Math.max(u.passedTo || 0, r[1]);
           }
         }
