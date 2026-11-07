@@ -369,6 +369,7 @@ const Teacher = (() => {
     }).join('');
 
     // الإسناد تلقائي: المعلم يتابع فقط أين وصل الطالب في كل وحدة
+    const curU = g && g.units.find(u => Progress.rangeOf(s, u) && !Progress.unitFinished(s, u));
     const autoHtml = g ? g.units.map(u => {
       const r = Progress.rangeOf(s, u);
       const total = u.words.length;
@@ -380,6 +381,10 @@ const Teacher = (() => {
       const cleared = Progress.batchCleared(s, u);
       const bank = Store.getWrongWords(s, g.id, u.id).length;
       const finished = Progress.unitFinished(s, u);
+      // زر فتح المعلم: لطالب اختبر دفعته الحالية ولم يبلغ نسبة النجاح
+      const lt = Progress.unitStats(s, u).lastTest;
+      const tried = !!(lt && lt.tested && Progress.batchOf(s, u).some(w => lt.tested.indexOf(w.id) >= 0));
+      const canOpen = curU === u && !cleared && !finished && tried;
       return `
         <div class="assign">
           <div class="assign-head">
@@ -388,7 +393,8 @@ const Teacher = (() => {
           </div>
           <div class="meter"><i style="width:${Math.round(r[1] / total * 100)}%"></i></div>
           <p class="small muted">${finished ? 'أنهى الوحدة كاملة'
-            : `الدفعة الحالية: الكلمات من ${from} إلى ${r[1]} — ${cleared ? 'أنجزها وتنتظر الدفعة التالية' : 'لم ينجزها بعد'}`}${bank ? ` • في الحصالة ${bank} ${bank === 1 ? 'كلمة' : 'كلمات'}` : ''}</p>
+            : `الدفعة الحالية: الكلمات من ${from} إلى ${r[1]} — ${cleared ? 'أنجزها وتنتظر الدفعة التالية' : 'لم ينجزها بعد'}`}${bank ? ` • في الحصالة ${bank} ${bank === 1 ? 'كلمة' : 'كلمات'}` : ''}${Progress.teacherCleared(s, u) ? ' • اجتازها بقرار المعلم' : ''}</p>
+          ${canOpen ? `<button class="btn ghost" data-act="t-open-next" data-id="${s.id}">${ic('book', 'sm')} فتح الدفعة التالية (لم يبلغ ${Math.round(Progress.PASS_RATE * 100)}%)</button>` : ''}
         </div>`;
     }).join('') : '<p class="muted">لا توجد وحدات.</p>';
 
@@ -550,6 +556,14 @@ const Teacher = (() => {
       App.toast('تم التصفير');
       studentView(s.id);
     }
+  };
+  U.actions['t-open-next'] = async el => {
+    const s = await Store.getStudent(el.dataset.id);
+    if (!s || !await App.confirm(`فتح الدفعة التالية لـ${s.name} رغم أنه لم يبلغ ${Math.round(Progress.PASS_RATE * 100)}% في الاختبار؟`, { okLabel: 'افتح له' })) return;
+    const r = await Store.teacherOpenNext(s.id);
+    if (r.error) { failed(r); return; }
+    App.toast('فُتحت الدفعة التالية');
+    studentView(s.id);
   };
   U.actions['t-delete'] = async el => {
     const s = await Store.getStudent(el.dataset.id);

@@ -108,7 +108,7 @@ const Progress = (() => {
   const MASTERED_BOX = 3;
   const FINAL_ID = 'final';   // الاختبار النهائي للصف: عيّنة عشوائية من كل كلماته
   const FINAL_WORDS = 20;
-  const PASS_RATE = 0.95;   // نسبة النجاح في تسميع الوحدة لفتح الدفعة التالية
+  const PASS_RATE = 0.90;   // نسبة النجاح في تسميع الوحدة لفتح الدفعة التالية
 
   function wordStatus(s, wid) {
     const r = s.words[wid];
@@ -154,7 +154,12 @@ const Progress = (() => {
     const r = rangeOf(s, unit);
     if (!r) return false;
     const ut = s.units && s.units[unit.gradeId + '.' + unit.id];
-    return !!(ut && ut.passedTo >= r[1]);
+    return !!(ut && ut.passedTo >= r[1]) || teacherCleared(s, unit);
+  }
+  // فتحها المعلم من عنده: العلامة 2 في آخر عنصر من نطاق الوحدة (لا يملك المعلم كتابة نتائج الطالب، فتُحفظ مع النطاق)
+  function teacherCleared(s, unit) {
+    const raw = s.ranges && s.ranges[unit.gradeId + '.' + unit.id];
+    return !!(raw && raw[3] === 2);
   }
   // الوحدة منتهية: كل كلماتها مسندة وقد اجتاز اختبار دفعتها الأخيرة. ومن انتقل لوحدة أحدث يُعدّ أنهى ما قبلها
   function unitFinished(s, unit) {
@@ -247,7 +252,7 @@ const Progress = (() => {
     return { days: days.size, tests, reps };
   }
 
-  return { LEVELS, DAILY_GOAL, PASS_RATE, FINAL_ID, FINAL_WORDS, gradeFinished, finalPassed, wordStatus, rangeOf, assigned, batchOf, batchCleared, unitFinished, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
+  return { LEVELS, DAILY_GOAL, PASS_RATE, FINAL_ID, FINAL_WORDS, gradeFinished, finalPassed, wordStatus, rangeOf, assigned, batchOf, batchCleared, teacherCleared, unitFinished, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
 })();
 
 // ---------- التخزين ----------
@@ -758,6 +763,25 @@ const Store = (() => {
       return advance(sid);
     },
     advance,
+    // المعلم يفتح الدفعة التالية من عنده لطالب لم يبلغ نسبة النجاح
+    async teacherOpenNext(sid) {
+      const s = state.students[sid], grade = s && Cur.grade(s.grade);
+      if (!grade) return { error: 'not-found' };
+      const cur = grade.units.find(u => u.words.length && Progress.rangeOf(s, u) && !Progress.unitFinished(s, u));
+      if (!cur) return { error: 'none' };
+      const old = JSON.parse(JSON.stringify(s.ranges || {}));
+      const key = grade.id + '.' + cur.id, r = s.ranges[key];
+      s.ranges[key] = [r[0], r[1], r[2], 2];
+      const adv = advance(sid);
+      const ranges = {};
+      Object.entries(s.ranges).forEach(([k, v]) => { if (JSON.stringify(v) !== JSON.stringify(old[k])) ranges[k] = v; });
+      if (cloud) {
+        const res = await teacherCall('kal_teacher_patch', { p_id: sid, p_patch: { ranges } });
+        if (res.error) { s.ranges = old; save(); return { error: res.error }; }
+      }
+      save();
+      return { ok: true, adv };
+    },
     getAssignN(gid) { return assignN(gid); },
     setAssignN(gid, n) {
       const v = Math.min(ASSIGN_MAX, Math.max(1, Math.round(Number(n)) || 1));
