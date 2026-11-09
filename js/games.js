@@ -272,6 +272,22 @@ const Games = (() => {
     renderQ();
   }
 
+  // الاختبار لا يُفتح قبل أن يكرّر الطالب كل كلمات دفعته الحد الأدنى: رسالة بسيطة بالكلمات الناقصة
+  function showNeedReps(gid, uid, need) {
+    Speech.stop();
+    document.getElementById('app').innerHTML = `
+      <button class="back" data-go="#/unit/${gid}/${uid}">‹ رجوع للوحدة</button>
+      <section class="card notice">
+        <span class="notice-ic">${ic('repeat')}</span>
+        <div>
+          <b>كرّر الكلمات أولًا</b>
+          <p class="muted">لا يُفتح الاختبار قبل أن تكرّر كل كلمة ${Progress.REP_MIN} مرات على الأقل. هذه الكلمات ينقصها تكرار:</p>
+          <div class="en" dir="ltr">${need.map(x => `<span class="tag">${esc(x.w.en)} (${x.n}/${Progress.REP_MIN})</span>`).join(' ')}</div>
+        </div>
+      </section>
+      <button class="btn" data-go="#/words/${gid}/${uid}">${ic('book', 'sm')} اذهب لكلمات الوحدة</button>`;
+  }
+
   // ---------- المسار ----------
   async function route(mode, gid, uid) {
     const student = await App.currentStudent();
@@ -293,6 +309,8 @@ const Games = (() => {
       words = Store.getWrongWords(student, gid, uid);
       if (!words.length) { App.toast('لا توجد كلمات خاطئة'); return App.go(`#/unit/${gid}/${uid}`); }
     } else {
+      const need = Progress.needReps(student, unit);
+      if (need.length) return showNeedReps(gid, uid, need);
       words = Progress.testWords(student, unit);
       if (!words.length) { App.toast('تُفتح كلمات هذه الوحدة بعد إنهاء الوحدة السابقة.'); return App.go(`#/unit/${gid}/${uid}`); }
     }

@@ -108,6 +108,7 @@ const Progress = (() => {
   const MASTERED_BOX = 3;
   const FINAL_ID = 'final';   // الاختبار النهائي للصف: عيّنة عشوائية من كل كلماته
   const FINAL_WORDS = 20;
+  const REP_MIN = 10;   // أقل تكرار لكل كلمة من الدفعة قبل أن يُفتح اختبارها
   const PASS_RATE = 0.95;
   const TEACHER_OPEN_RATE = 0.92;   // أقل نسبة يستطيع المعلم عندها أن يفتح الدفعة التالية من عنده   // نسبة النجاح في تسميع الوحدة لفتح الدفعة التالية
 
@@ -156,6 +157,11 @@ const Progress = (() => {
     if (!r) return false;
     const ut = s.units && s.units[unit.gradeId + '.' + unit.id];
     return !!(ut && ut.passedTo >= r[1]) || teacherCleared(s, unit);
+  }
+  // كلمات الدفعة الحالية التي لم تُكرَّر الحد الأدنى بعد (مع عدد ما كرّره الطالب)
+  function needReps(s, unit) {
+    const by = (s.reps && s.reps.byWord) || {};
+    return batchOf(s, unit).map(w => ({ w, n: by[w.id] || 0 })).filter(x => x.n < REP_MIN);
   }
   // يستطيع المعلم فتح الدفعة التالية: آخر تسميع لدفعته الحالية بلغ نسبة المعلم ولم يبلغ نسبة النجاح
   function canTeacherOpen(s, unit) {
@@ -260,7 +266,7 @@ const Progress = (() => {
     return { days: days.size, tests, reps };
   }
 
-  return { LEVELS, DAILY_GOAL, PASS_RATE, TEACHER_OPEN_RATE, canTeacherOpen, FINAL_ID, FINAL_WORDS, gradeFinished, finalPassed, wordStatus, rangeOf, assigned, batchOf, batchCleared, teacherCleared, unitFinished, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
+  return { LEVELS, DAILY_GOAL, PASS_RATE, REP_MIN, needReps, TEACHER_OPEN_RATE, canTeacherOpen, FINAL_ID, FINAL_WORDS, gradeFinished, finalPassed, wordStatus, rangeOf, assigned, batchOf, batchCleared, teacherCleared, unitFinished, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
 })();
 
 // ---------- التخزين ----------
