@@ -108,7 +108,7 @@ const Progress = (() => {
   const MASTERED_BOX = 3;
   const FINAL_ID = 'final';   // الاختبار النهائي للصف: عيّنة عشوائية من كل كلماته
   const FINAL_WORDS = 20;
-  const REP_MIN = 10;   // أقل تكرار لكل كلمة من الدفعة قبل أن يُفتح اختبارها
+  const REP_MIN = 10;   // أقل تكرار للكلمة نفسها (دون الجملة) من كل كلمات الدفعة قبل أن يُفتح اختبارها
   const PASS_RATE = 0.95;
   const TEACHER_OPEN_RATE = 0.92;   // أقل نسبة يستطيع المعلم عندها أن يفتح الدفعة التالية من عنده   // نسبة النجاح في تسميع الوحدة لفتح الدفعة التالية
 
@@ -160,7 +160,7 @@ const Progress = (() => {
   }
   // كلمات الدفعة الحالية التي لم تُكرَّر الحد الأدنى بعد (مع عدد ما كرّره الطالب)
   function needReps(s, unit) {
-    const by = (s.reps && s.reps.byWord) || {};
+    const by = (s.reps && s.reps.words) || {};
     return batchOf(s, unit).map(w => ({ w, n: by[w.id] || 0 })).filter(x => x.n < REP_MIN);
   }
   // يستطيع المعلم فتح الدفعة التالية: آخر تسميع لدفعته الحالية بلغ نسبة المعلم ولم يبلغ نسبة النجاح
@@ -839,13 +839,15 @@ const Store = (() => {
     },
 
     // تسجيل مرات تكرار كلمة (للمعلم: كم كرّر الطالب)
-    async recordReps(sid, wid, n) {
+    async recordReps(sid, wid, n, kind = 'word') {
       const s = state.students[sid];
       if (!s || !n) return null;
       const today = U.ymd();
       const r = s.reps || (s.reps = { total: 0, byWord: {}, daily: { date: '', n: 0 } });
       r.total += n;
       r.byWord[wid] = (r.byWord[wid] || 0) + n;
+      // تكرار الكلمة نفسها فقط (دون الجملة): هو الذي يُشترط قبل الاختبار
+      if (kind === 'word') { r.words = r.words || {}; r.words[wid] = (r.words[wid] || 0) + n; }
       r.daily = { date: today, n: (r.daily.date === today ? r.daily.n : 0) + n };
       const xpGained = Math.min(20, Math.floor(n / 5));
       s.xp += xpGained;

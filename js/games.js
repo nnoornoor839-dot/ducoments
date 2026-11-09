@@ -281,7 +281,7 @@ const Games = (() => {
         <span class="notice-ic">${ic('repeat')}</span>
         <div>
           <b>كرّر الكلمات أولًا</b>
-          <p class="muted">لا يُفتح الاختبار قبل أن تكرّر كل كلمة ${Progress.REP_MIN} مرات على الأقل. هذه الكلمات ينقصها تكرار:</p>
+          <p class="muted">لا يُفتح الاختبار قبل أن تكرّر كل كلمة ${Progress.REP_MIN} مرات على الأقل (زر «الكلمة»). هذه الكلمات ينقصها تكرار:</p>
           <div class="en" dir="ltr">${need.map(x => `<span class="tag">${esc(x.w.en)} (${x.n}/${Progress.REP_MIN})</span>`).join(' ')}</div>
         </div>
       </section>

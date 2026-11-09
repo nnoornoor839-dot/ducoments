@@ -416,7 +416,7 @@ const Views = (() => {
     card.classList.remove('playing');
     if (!done) return;
     const sess = Store.getSession();
-    const res = sess ? await Store.recordReps(sess.id, w.id, done) : null;
+    const res = sess ? await Store.recordReps(sess.id, w.id, done, kind === 'sent' ? 'sent' : 'word') : null;
     const mine = sess ? await Store.getStudent(sess.id) : null;
     const total = card.querySelector('.rep-total');
     if (total && mine) total.textContent = `مجموع تكرارك: ${repsOf(mine, w.id)} مرة`;
