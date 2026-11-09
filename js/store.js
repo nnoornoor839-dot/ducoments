@@ -661,6 +661,33 @@ const Store = (() => {
       return { ok: true };
     },
     // الترتيب: صفوف {nick, grade, words, sents, me} لكل من اختار لقبًا
+    // جولة المنافسة (كل 10 أيام): الحالة للطالب أو المعلم
+    async getRound() {
+      if (!cloud) return { error: 'cloud' };
+      const sess = state.session;
+      const tok = sess && sess.role === 'student' && sess.token ? sess.token : teacherToken();
+      if (!tok) return { error: 'auth' };
+      let r;
+      try { r = await Cloud.rpc('kal_round_state', { p_token: tok }, 8000); online = true; }
+      catch (e) { online = false; return { error: e.status ? 'server' : 'offline' }; }
+      return r && r.ok ? r : { error: (r && r.error) || 'server' };
+    },
+    // المتميز يسحب جائزته: {ok, prize} أو {ok, none} إن لم توجد جوائز
+    async drawPrize(roundId) {
+      const sess = state.session;
+      if (!cloud || !(sess && sess.role === 'student' && sess.token)) return { error: 'auth' };
+      let r;
+      try { r = await Cloud.rpc('kal_round_draw', { p_token: sess.token, p_round: roundId }, 8000); online = true; }
+      catch (e) { online = false; return { error: e.status ? 'server' : 'offline' }; }
+      return r || { error: 'server' };
+    },
+    // المعلم: الجولات والجوائز
+    teacherRounds() { return teacherCall('kal_teacher_rounds', {}); },
+    startRound() { return teacherCall('kal_teacher_round_start', {}); },
+    addPrize(name, qty) { return teacherCall('kal_teacher_prize_add', { p_name: name, p_qty: qty }); },
+    delPrize(id) { return teacherCall('kal_teacher_prize_del', { p_id: id }); },
+    // حجم منهج كل صف (يحسب منه الخادم نسبة تقدم الجولة)
+    setGradeMax(map) { return teacherCall('kal_teacher_set_grade_max', { p_map: map }); },
     async getLeaderboard(sid) {
       if (cloud) {
         const sess = state.session;

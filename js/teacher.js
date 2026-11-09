@@ -144,10 +144,79 @@ const Teacher = (() => {
         <div class="tile static"><b>${active}</b><small>دخلوا اليوم</small></div>
         <div class="tile static ${idle ? 'alert' : ''}"><b>${idle}</b><small>يحتاجون متابعة</small></div>
       </div>
+      <button class="compete-btn" data-go="#/teacher/rounds">
+        <span class="unit-action-icon">${ic('trophy')}</span>
+        <span><b>الجولات والجوائز</b><small>منافسة كل 10 أيام ومتميز الجولة</small></span>
+      </button>
       <h3 class="section-title">الصفوف</h3>
       <div class="grade-cards">${cards}</div>
       ${syncNote()}`;
   }
+
+  // ---------- الجولات والجوائز ----------
+  async function roundsView() {
+    const r = await Store.teacherRounds();
+    if (!Store.teacherAuthed()) return loginView();
+    if (r.error) {
+      app().innerHTML = `
+        <button class="back" data-go="#/teacher">‹ لوحة المعلم</button>
+        <section class="card warn">تعذّر تحميل الجولات (${esc(OP_ERRORS[r.error] || 'شغّل ملف supabase/migrations/2026-11-rounds.sql في Supabase أولًا')}).</section>`;
+      return;
+    }
+    const open = r.rounds.find(x => x.status === 'open');
+    const roundsHtml = r.rounds.filter(x => x.status === 'closed').map(x => `
+      <div class="b-row">
+        <span class="b-rank">${x.winner_nick ? '🏆' : '–'}</span>
+        <span class="b-name"><b>${x.winner_nick ? `${esc(x.winner_name || 'طالب محذوف')} (${esc((Compete.nickOf(x.winner_nick) || { ar: x.winner_nick }).ar)})` : 'لا متميز'}</b>
+          <small class="muted">${esc(x.starts)} → ${esc(x.ends)}</small></span>
+        <span class="b-pct"><b>${x.winner_pct != null ? x.winner_pct + '٪' : ''}</b>
+          <small>${x.winner_nick ? (x.drawn ? 'الجائزة: ' + esc(x.prize) : 'لم يسحب جائزته بعد') : ''}</small></span>
+      </div>`).join('');
+    app().innerHTML = `
+      <button class="back" data-go="#/teacher">‹ لوحة المعلم</button>
+      <h2 class="section-title">${ic('trophy')} الجولات والجوائز</h2>
+      <section class="card">
+        ${open
+          ? `<p><b>الجولة الحالية</b>: ${esc(open.starts)} → ${esc(open.ends)} — باقي ${open.days_left} ${open.days_left === 1 ? 'يوم' : 'أيام'}</p>
+             <p class="muted small">تُغلق تلقائيًا وتبدأ التالية. يُعلن المتميز إن بلغ تقدمه 5٪ من منهج صفه، ثم يسحب جائزته.</p>`
+          : `<p class="muted">لا توجد جولة مفتوحة.</p>
+             <button class="btn" data-act="t-round-start">${ic('play', 'sm')} ابدأ جولة (10 أيام)</button>`}
+      </section>
+      <h3 class="section-title">الجوائز <small class="muted">(كل جائزة تُستهلك بعد سحبها)</small></h3>
+      <section class="card">
+        ${r.prizes.length ? r.prizes.map(p => `
+          <div class="b-row"><span class="b-rank">🎁</span><span class="b-name"><b>${esc(p.name)}</b></span>
+            <span class="b-pct"><b>×${p.qty}</b></span>
+            <button class="btn ghost" data-act="t-prize-del" data-id="${p.id}" aria-label="حذف">${ic('trash', 'sm')}</button></div>`).join('')
+          : '<p class="muted">لم تُضف جوائز بعد.</p>'}
+        <form data-form="t-prize-add" class="pin-form">
+          <input name="name" maxlength="60" placeholder="اسم الجائزة" aria-label="اسم الجائزة" required>
+          <input name="qty" type="number" min="1" max="999" value="1" aria-label="العدد">
+          <button class="btn" type="submit">إضافة جائزة</button>
+        </form>
+      </section>
+      <h3 class="section-title">المتميزون</h3>
+      ${roundsHtml ? `<section class="card">${roundsHtml}</section>` : '<p class="card muted empty">لم تنتهِ جولة بعد.</p>'}`;
+  }
+  U.actions['t-round-start'] = async () => {
+    const r = await Store.startRound();
+    if (r.error) { failed(r); return; }
+    App.toast('بدأت الجولة');
+    roundsView();
+  };
+  U.actions['t-prize-del'] = async el => {
+    if (!(await App.confirm('حذف هذه الجائزة؟', { okLabel: 'حذف', danger: true }))) return;
+    const r = await Store.delPrize(Number(el.dataset.id));
+    if (r.error) { failed(r); return; }
+    roundsView();
+  };
+  U.forms['t-prize-add'] = async form => {
+    const name = form.elements.name.value.trim(), qty = Number(form.elements.qty.value) || 1;
+    if (!name) return;
+    const r = await Store.addPrize(name, qty);
+    if (r.error) { failed(r); return; }
+    roundsView();
+  };
 
   // ---------- صف واحد: طلابه وإدارة كلماته ----------
   async function gradeView(gid) {
@@ -617,9 +686,21 @@ const Teacher = (() => {
   U.actions['t-exit'] = async () => { await Store.teacherLogout(); App.go('#/login'); };
 
   // ---------- المسار ----------
+  // الخادم يحسب نسبة تقدم الجولة من حجم منهج كل صف، فيرفعه المعلم مرة لكل فتح للوحة
+  let gradeMaxSent = false;
+  function syncGradeMax() {
+    if (gradeMaxSent) return;
+    gradeMaxSent = true;
+    const map = {};
+    Cur.grades.forEach(g => { const m = Compete.maxPts(g.id); if (m > 0) map[g.id] = m; });
+    Store.setGradeMax(map).then(r => { if (r && r.error === 'offline') gradeMaxSent = false; });
+  }
+
   async function route(parts) {
     if (!Store.teacherAuthed()) return loginView();
+    syncGradeMax();
     const [sub, id] = parts;
+    if (sub === 'rounds') return roundsView();
     if (sub === 'g' && id) return gradeView(id);
     if (sub === 'add') return addView(id);
     if (sub === 's' && id) return studentView(id);
