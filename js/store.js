@@ -109,8 +109,7 @@ const Progress = (() => {
   const FINAL_ID = 'final';   // الاختبار النهائي للصف: عيّنة عشوائية من كل كلماته
   const FINAL_WORDS = 20;
   const REP_MIN = 10;   // أقل تكرار للكلمة نفسها (دون الجملة) من كل كلمات الدفعة قبل أن يُفتح اختبارها
-  const PASS_RATE = 0.95;
-  const TEACHER_OPEN_RATE = 0.92;   // أقل نسبة يستطيع المعلم عندها أن يفتح الدفعة التالية من عنده   // نسبة النجاح في تسميع الوحدة لفتح الدفعة التالية
+  const PASS_RATE = 0.95;   // نسبة النجاح في تسميع الوحدة لفتح الدفعة التالية
 
   function wordStatus(s, wid) {
     const r = s.words[wid];
@@ -163,12 +162,14 @@ const Progress = (() => {
     const by = (s.reps && s.reps.words) || {};
     return batchOf(s, unit).map(w => ({ w, n: by[w.id] || 0 })).filter(x => x.n < REP_MIN);
   }
-  // يستطيع المعلم فتح الدفعة التالية: آخر تسميع لدفعته الحالية بلغ نسبة المعلم ولم يبلغ نسبة النجاح
+  // يستطيع المعلم فتح الدفعة التالية لطالب اختبر دفعته ولم يبلغ نسبة النجاح، مهما كانت نسبته.
+  // pct: نسبة آخر تسميع لكل الدفعة، أو null لمن اختبر قبل أن تُسجَّل النسبة
   function canTeacherOpen(s, unit) {
     const r = rangeOf(s, unit), ut = s.units && s.units[unit.gradeId + '.' + unit.id];
-    if (!r || !ut || !ut.dictScore || ut.dictScore.to !== r[1] || batchCleared(s, unit)) return null;
-    const pct = ut.dictScore.pct;
-    return pct >= TEACHER_OPEN_RATE && pct < PASS_RATE ? { pct } : null;
+    if (!r || !ut || batchCleared(s, unit)) return null;
+    if (ut.dictScore && ut.dictScore.to === r[1]) return ut.dictScore.pct < PASS_RATE ? { pct: ut.dictScore.pct } : null;
+    const lt = ut.lastTest;
+    return lt && lt.tested && batchOf(s, unit).some(w => lt.tested.indexOf(w.id) >= 0) ? { pct: null } : null;
   }
   // فتحها المعلم من عنده: العلامة 2 في آخر عنصر من نطاق الوحدة (لا يملك المعلم كتابة نتائج الطالب، فتُحفظ مع النطاق)
   function teacherCleared(s, unit) {
@@ -266,7 +267,7 @@ const Progress = (() => {
     return { days: days.size, tests, reps };
   }
 
-  return { LEVELS, DAILY_GOAL, PASS_RATE, REP_MIN, needReps, TEACHER_OPEN_RATE, canTeacherOpen, FINAL_ID, FINAL_WORDS, gradeFinished, finalPassed, wordStatus, rangeOf, assigned, batchOf, batchCleared, teacherCleared, unitFinished, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
+  return { LEVELS, DAILY_GOAL, PASS_RATE, REP_MIN, needReps, canTeacherOpen, FINAL_ID, FINAL_WORDS, gradeFinished, finalPassed, wordStatus, rangeOf, assigned, batchOf, batchCleared, teacherCleared, unitFinished, testWords, TEST_MAX_WORDS, unitStats, gradeStats, dueWords, levelInfo, streak, dailyCount, starsFor, hardWords, activitySummary, INTERVAL_DAYS };
 })();
 
 // ---------- التخزين ----------

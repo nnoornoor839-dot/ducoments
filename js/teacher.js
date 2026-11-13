@@ -450,7 +450,7 @@ const Teacher = (() => {
       const cleared = Progress.batchCleared(s, u);
       const bank = Store.getWrongWords(s, g.id, u.id).length;
       const finished = Progress.unitFinished(s, u);
-      // زر فتح المعلم: آخر تسميع لدفعته بلغ نسبة المعلم ولم يبلغ نسبة النجاح
+      // زر فتح المعلم: لطالب اختبر دفعته ولم يبلغ نسبة النجاح مهما كانت نسبته
       const near = Progress.canTeacherOpen(s, u);
       const canOpen = curU === u && !cleared && !finished && !!near;
       return `
@@ -462,7 +462,7 @@ const Teacher = (() => {
           <div class="meter"><i style="width:${Math.round(r[1] / total * 100)}%"></i></div>
           <p class="small muted">${finished ? 'أنهى الوحدة كاملة'
             : `الدفعة الحالية: الكلمات من ${from} إلى ${r[1]} — ${cleared ? 'أنجزها وتنتظر الدفعة التالية' : 'لم ينجزها بعد'}`}${bank ? ` • في الحصالة ${bank} ${bank === 1 ? 'كلمة' : 'كلمات'}` : ''}${Progress.teacherCleared(s, u) ? ' • اجتازها بقرار المعلم' : ''}</p>
-          ${canOpen ? `<button class="btn ghost" data-act="t-open-next" data-id="${s.id}">${ic('book', 'sm')} فتح الدفعة التالية (حقق ${Math.floor(near.pct * 100)}% من ${Math.round(Progress.PASS_RATE * 100)}%)</button>` : ''}
+          ${canOpen ? `<button class="btn ghost" data-act="t-open-next" data-id="${s.id}">${ic('book', 'sm')} فتح الدفعة التالية (${near.pct == null ? 'نسبته غير مسجلة' : 'نسبته ' + Math.floor(near.pct * 100) + '%'})</button>` : ''}
         </div>`;
     }).join('') : '<p class="muted">لا توجد وحدات.</p>';
 
